@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Register.css";
 
 import Header from "../../components/Header/Header.jsx";
@@ -31,6 +32,8 @@ const stepIcons = [
 ];
 
 const Register = () => {
+  const navigate = useNavigate();
+
   const [step, setStep] = useState(1);
 
   const [datosPersonales, setDatosPersonales] = useState({
@@ -531,7 +534,7 @@ const Register = () => {
       return;
     }
 
-    alert("Registro finalizado correctamente.");
+    navigate("/evaluacion");
   };
 
   const handlePrevious = () => {
@@ -1334,7 +1337,9 @@ const Register = () => {
         {formError && <p className="step-error">{formError}</p>}
 
         <footer
-          className={step === 1 ? "register-actions first-step" : "register-actions"}
+          className={
+            step === 1 ? "register-actions first-step" : "register-actions"
+          }
         >
           {step > 1 && (
             <button
