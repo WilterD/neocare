@@ -1333,14 +1333,18 @@ const Register = () => {
 
         {formError && <p className="step-error">{formError}</p>}
 
-        <footer className="register-actions">
-          <button
-            type="button"
-            className="btn-secondary"
-            onClick={handlePrevious}
-          >
-            ← Anterior
-          </button>
+        <footer
+          className={step === 1 ? "register-actions first-step" : "register-actions"}
+        >
+          {step > 1 && (
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={handlePrevious}
+            >
+              ← Anterior
+            </button>
+          )}
 
           <button
             type="button"

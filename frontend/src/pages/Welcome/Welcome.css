@@ -47,13 +47,13 @@ body {
 
 .welcome-page {
   width: 100%;
-  min-height: calc(100vh - 72px);
+  min-height: calc(100vh - 62px);
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   background: linear-gradient(180deg, #fffaf4 0%, #fff6ec 100%);
-  padding: 34px 20px 30px;
+  padding: 30px 20px 26px;
   overflow: hidden;
 }
 
@@ -164,7 +164,7 @@ body {
   z-index: 2;
   text-align: center;
   margin-top: 0;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .welcome-header h1 {
@@ -181,7 +181,7 @@ body {
 }
 
 .welcome-header p {
-  margin: 22px 0 0;
+  margin: 20px 0 0;
   color: var(--text);
   font-size: 16px;
   font-weight: 500;
@@ -189,7 +189,7 @@ body {
 }
 
 .small-heart {
-  margin-top: 12px;
+  margin-top: 10px;
   color: var(--pink);
   font-size: 17px;
 }
@@ -198,10 +198,10 @@ body {
 
 .hero-section {
   width: min(100%, 430px);
-  height: 260px;
+  height: 250px;
   position: relative;
-  margin-top: 6px;
-  margin-bottom: 26px;
+  margin-top: 4px;
+  margin-bottom: 22px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -218,22 +218,55 @@ body {
   display: block;
 }
 
-/* Tarjeta de características */
+/* Tarjeta de imágenes de beneficios */
+/* Bloque blanco más fino, imágenes grandes y centradas */
 
 .features-card {
-  width: min(100%, 430px);
-  height: 116px;
+  width: min(100%, 500px);
+  height: 92px;
   position: relative;
   z-index: 4;
   margin-top: 0;
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(255, 255, 255, 0.96);
   border-radius: 24px;
   display: grid;
   grid-template-columns: 1fr 1px 1fr 1px 1fr;
   align-items: center;
-  padding: 16px 12px;
+  justify-items: center;
+  padding: 0 6px;
   box-shadow: var(--shadow);
+  overflow: visible;
 }
+
+.image-features-card {
+  width: min(100%, 500px);
+  height: 92px;
+  padding: 0 6px;
+  overflow: visible;
+}
+
+.feature-image-item {
+  width: 100%;
+  height: 92px;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: visible;
+  padding: 0;
+}
+
+.feature-image {
+  width: 285px;
+  max-width: none;
+  height: 190px;
+  object-fit: contain;
+  display: block;
+  transform: scale(1.52);
+  transform-origin: center center;
+}
+
+/* Estilos viejos, por si alguna sección aún los usa */
 
 .feature-item {
   text-align: center;
@@ -273,8 +306,9 @@ body {
   line-height: 1.22;
 }
 
-.divider {
-  height: 70px;
+.divider,
+.image-features-card .divider {
+  height: 48px;
   background: #eadfce;
 }
 
@@ -287,7 +321,7 @@ body {
   height: 58px;
   border: none;
   border-radius: 32px;
-  margin-top: 22px;
+  margin-top: 34px;
   background: linear-gradient(135deg, var(--green), var(--green-dark));
   color: white;
   font-size: 19px;
@@ -321,7 +355,7 @@ body {
 .login-text {
   position: relative;
   z-index: 4;
-  margin: 18px 0 0;
+  margin: 14px 0 0;
   text-align: center;
   font-size: 14.5px;
   font-weight: 700;
@@ -351,7 +385,7 @@ body {
 
 @media (max-height: 760px) {
   .welcome-page {
-    padding-top: 20px;
+    padding-top: 18px;
   }
 
   .welcome-header {
@@ -359,32 +393,28 @@ body {
   }
 
   .welcome-header p {
-    margin-top: 16px;
+    margin-top: 14px;
   }
 
   .hero-section {
     height: 220px;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
   }
 
   .welcome-mb-image {
     max-width: 340px;
   }
 
-  .features-card {
-    height: 104px;
-  }
-
   .primary-button {
     height: 54px;
-    margin-top: 18px;
+    margin-top: 34px;
   }
 }
 
 @media (max-height: 680px) {
   .welcome-page {
-    padding-top: 14px;
-    padding-bottom: 18px;
+    padding-top: 12px;
+    padding-bottom: 16px;
   }
 
   .welcome-header h1 {
@@ -401,32 +431,19 @@ body {
   }
 
   .hero-section {
-    height: 190px;
+    height: 185px;
     margin-top: 0;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
   }
 
   .welcome-mb-image {
     max-width: 300px;
   }
 
-  .features-card {
-    height: 98px;
-  }
-
-  .feature-icon {
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
-  }
-
-  .feature-item p {
-    font-size: 10px;
-  }
-
   .primary-button {
     height: 50px;
     font-size: 17px;
+    margin-top: 32px;
   }
 
   .login-text {
@@ -460,6 +477,31 @@ body {
   .welcome-mb-image {
     max-width: 340px;
   }
+
+  .features-card,
+  .image-features-card {
+    height: 90px;
+    padding: 0 4px;
+  }
+
+  .feature-image-item {
+    height: 90px;
+  }
+
+  .feature-image {
+    width: 190px;
+    height: 135px;
+    transform: scale(1.2);
+  }
+
+  .divider,
+  .image-features-card .divider {
+    height: 46px;
+  }
+
+  .primary-button {
+    margin-top: 30px;
+  }
 }
 
 @media (max-width: 370px) {
@@ -479,11 +521,29 @@ body {
     max-width: 300px;
   }
 
-  .feature-item p {
-    font-size: 10px;
+  .features-card,
+  .image-features-card {
+    height: 86px;
+    padding: 0 4px;
+  }
+
+  .feature-image-item {
+    height: 86px;
+  }
+
+  .feature-image {
+    width: 160px;
+    height: 120px;
+    transform: scale(1.14);
+  }
+
+  .divider,
+  .image-features-card .divider {
+    height: 42px;
   }
 
   .primary-button {
     font-size: 17px;
+    margin-top: 28px;
   }
 }

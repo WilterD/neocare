@@ -753,6 +753,10 @@
   align-items: center;
 }
 
+.register-actions.first-step {
+  justify-content: flex-end;
+}
+
 .btn-secondary,
 .btn-primary {
   height: 46px;
@@ -876,12 +880,21 @@
     gap: 16px;
   }
 
+  .register-actions.first-step {
+    justify-content: flex-end;
+  }
+
   .btn-secondary,
   .btn-primary {
     flex: 1;
     min-width: auto;
     padding: 0 18px;
     font-size: 15px;
+  }
+
+  .register-actions.first-step .btn-primary {
+    flex: unset;
+    min-width: 190px;
   }
 
   .care-number-input {

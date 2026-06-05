@@ -6,6 +6,9 @@ import Header from "../../components/Header/Header.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
 
 import mbImage from "../../assets/MB.png";
+import signosAImage from "../../assets/SignosA.png";
+import orientacionImage from "../../assets/orientacion.png";
+import acompanamientoImage from "../../assets/acompañamiento.png";
 
 const Welcome = () => {
   const navigate = useNavigate();
@@ -52,24 +55,33 @@ const Welcome = () => {
             />
           </section>
 
-          <section className="features-card">
-            <article className="feature-item">
-              <div className="feature-icon green-icon">♡</div>
-              <p>Identifica signos de alarma</p>
+          <section className="features-card image-features-card">
+            <article className="feature-image-item">
+              <img
+                src={signosAImage}
+                alt="Identifica signos de alarma"
+                className="feature-image"
+              />
             </article>
 
             <div className="divider"></div>
 
-            <article className="feature-item">
-              <div className="feature-icon yellow-icon">▭</div>
-              <p>Recibe orientación confiable</p>
+            <article className="feature-image-item">
+              <img
+                src={orientacionImage}
+                alt="Recibe orientación confiable"
+                className="feature-image"
+              />
             </article>
 
             <div className="divider"></div>
 
-            <article className="feature-item">
-              <div className="feature-icon purple-icon">♧</div>
-              <p>Acompañamiento para mamá</p>
+            <article className="feature-image-item">
+              <img
+                src={acompanamientoImage}
+                alt="Acompañamiento para mamá"
+                className="feature-image"
+              />
             </article>
           </section>
 
