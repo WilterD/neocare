@@ -1,5 +1,4 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import "./Welcome.css";
 
 import Header from "../../components/Header/Header.jsx";
@@ -11,16 +10,6 @@ import orientacionImage from "../../assets/orientacion.png";
 import acompanamientoImage from "../../assets/acompañamiento.png";
 
 const Welcome = () => {
-  const navigate = useNavigate();
-
-  const handleStartRegister = () => {
-    navigate("/registro");
-  };
-
-  const handleLogin = () => {
-    navigate("/");
-  };
-
   return (
     <main className="welcome-page-wrapper">
       <Header />
@@ -84,23 +73,6 @@ const Welcome = () => {
               />
             </article>
           </section>
-
-          <button
-            type="button"
-            className="primary-button"
-            onClick={handleStartRegister}
-          >
-            <span className="button-icon">▣</span>
-            Iniciar registro
-            <span className="arrow">→</span>
-          </button>
-
-          <p className="login-text">
-            ¿Ya tienes una cuenta?{" "}
-            <button type="button" onClick={handleLogin}>
-              Iniciar sesión
-            </button>
-          </p>
         </section>
       </section>
 

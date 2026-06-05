@@ -53,7 +53,7 @@ body {
   justify-content: center;
   align-items: flex-start;
   background: linear-gradient(180deg, #fffaf4 0%, #fff6ec 100%);
-  padding: 30px 20px 26px;
+  padding: 26px 20px 28px;
   overflow: hidden;
 }
 
@@ -164,7 +164,7 @@ body {
   z-index: 2;
   text-align: center;
   margin-top: 0;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .welcome-header h1 {
@@ -181,7 +181,7 @@ body {
 }
 
 .welcome-header p {
-  margin: 20px 0 0;
+  margin: 8px 0 0;
   color: var(--text);
   font-size: 16px;
   font-weight: 500;
@@ -194,14 +194,14 @@ body {
   font-size: 17px;
 }
 
-/* Imagen principal MB */
+/* Imagen principal MB más grande y centrada */
 
 .hero-section {
-  width: min(100%, 430px);
-  height: 250px;
+  width: min(100%, 560px);
+  height: 330px;
   position: relative;
   margin-top: 4px;
-  margin-bottom: 22px;
+  margin-bottom: 18px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -212,14 +212,13 @@ body {
 
 .welcome-mb-image {
   width: 100%;
-  max-width: 390px;
+  max-width: 520px;
   height: auto;
   object-fit: contain;
   display: block;
 }
 
 /* Tarjeta de imágenes de beneficios */
-/* Bloque blanco más fino, imágenes grandes y centradas */
 
 .features-card {
   width: min(100%, 500px);
@@ -312,67 +311,16 @@ body {
   background: #eadfce;
 }
 
-/* Botón principal */
+/* Botón y texto de login ocultos por si quedaron en JSX anterior */
 
-.primary-button {
-  position: relative;
-  z-index: 4;
-  width: min(100%, 430px);
-  height: 58px;
-  border: none;
-  border-radius: 32px;
-  margin-top: 34px;
-  background: linear-gradient(135deg, var(--green), var(--green-dark));
-  color: white;
-  font-size: 19px;
-  font-weight: 700;
-  display: grid;
-  grid-template-columns: 44px 1fr 28px;
-  align-items: center;
-  padding: 0 24px;
-  cursor: pointer;
-  box-shadow: 0 13px 24px rgba(111, 160, 79, 0.28);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.primary-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 28px rgba(111, 160, 79, 0.34);
-}
-
-.button-icon {
-  font-size: 22px;
-}
-
-.arrow {
-  font-size: 32px;
-  line-height: 0;
-  font-weight: 300;
-}
-
-/* Login */
-
+.primary-button,
 .login-text {
-  position: relative;
-  z-index: 4;
-  margin: 14px 0 0;
-  text-align: center;
-  font-size: 14.5px;
-  font-weight: 700;
-  color: var(--text);
+  display: none;
 }
 
-.login-text button {
-  border: none;
-  background: transparent;
-  color: var(--green-dark);
-  font: inherit;
-  cursor: pointer;
-  padding: 0;
-}
-
-.login-text button:hover {
-  text-decoration: underline;
+.button-icon,
+.arrow {
+  display: none;
 }
 
 /* Decoración inferior desactivada */
@@ -389,25 +337,20 @@ body {
   }
 
   .welcome-header {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
 
   .welcome-header p {
-    margin-top: 14px;
+    margin-top: 8px;
   }
 
   .hero-section {
-    height: 220px;
-    margin-bottom: 18px;
+    height: 300px;
+    margin-bottom: 16px;
   }
 
   .welcome-mb-image {
-    max-width: 340px;
-  }
-
-  .primary-button {
-    height: 54px;
-    margin-top: 34px;
+    max-width: 470px;
   }
 }
 
@@ -423,7 +366,7 @@ body {
 
   .welcome-header p {
     font-size: 14.5px;
-    margin-top: 12px;
+    margin-top: 8px;
   }
 
   .small-heart {
@@ -431,23 +374,13 @@ body {
   }
 
   .hero-section {
-    height: 185px;
+    height: 260px;
     margin-top: 0;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
   }
 
   .welcome-mb-image {
-    max-width: 300px;
-  }
-
-  .primary-button {
-    height: 50px;
-    font-size: 17px;
-    margin-top: 32px;
-  }
-
-  .login-text {
-    margin-top: 12px;
+    max-width: 420px;
   }
 }
 
@@ -465,17 +398,16 @@ body {
   }
 
   .hero-section,
-  .features-card,
-  .primary-button {
+  .features-card {
     width: 100%;
   }
 
   .hero-section {
-    height: 230px;
+    height: 270px;
   }
 
   .welcome-mb-image {
-    max-width: 340px;
+    max-width: 390px;
   }
 
   .features-card,
@@ -498,10 +430,6 @@ body {
   .image-features-card .divider {
     height: 46px;
   }
-
-  .primary-button {
-    margin-top: 30px;
-  }
 }
 
 @media (max-width: 370px) {
@@ -514,11 +442,11 @@ body {
   }
 
   .hero-section {
-    height: 200px;
+    height: 235px;
   }
 
   .welcome-mb-image {
-    max-width: 300px;
+    max-width: 350px;
   }
 
   .features-card,
@@ -540,10 +468,5 @@ body {
   .divider,
   .image-features-card .divider {
     height: 42px;
-  }
-
-  .primary-button {
-    font-size: 17px;
-    margin-top: 28px;
   }
 }
