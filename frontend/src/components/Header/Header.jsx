@@ -1,33 +1,67 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import "./Header.css";
 
-import logo from "../../assets/logo.png";
+import logoImage from "../../assets/logo.png";
 
 const Header = () => {
+  const navigate = useNavigate();
+
   return (
     <header className="main-header">
       <div className="header-container">
-        <Link to="/" className="header-brand">
-          <img src={logo} alt="Logo de NeoCare" className="header-logo" />
+        <div className="header-brand" onClick={() => navigate("/")}>
+          <img src={logoImage} alt="NeoCare" className="header-logo" />
           <span>NeoCare</span>
-        </Link>
+        </div>
 
         <nav className="header-nav">
-          <Link to="/">Inicio</Link>
-          <a href="#servicios">Servicios</a>
-          <a href="#nosotros">Nosotros</a>
-          <a href="#contacto">Contacto</a>
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            Inicio
+          </NavLink>
+
+          <NavLink
+            to="/servicios"
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            Servicios
+          </NavLink>
+
+          <NavLink
+            to="/nosotros"
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            Nosotros
+          </NavLink>
+
+          <NavLink
+            to="/contacto"
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            Contacto
+          </NavLink>
         </nav>
 
         <div className="header-actions">
-          <Link to="/login" className="login-link">
+          <button
+            type="button"
+            className="login-link"
+            onClick={() => navigate("/login")}
+          >
             Iniciar Sesión
-          </Link>
+          </button>
 
-          <Link to="/registro" className="register-link">
+          <button
+            type="button"
+            className="register-link"
+            onClick={() => navigate("/registro")}
+          >
             Registrarse
-          </Link>
+          </button>
         </div>
       </div>
     </header>
