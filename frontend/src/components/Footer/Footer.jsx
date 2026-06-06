@@ -1,52 +1,70 @@
 import React from "react";
 import "./Footer.css";
 
+import logoImage from "../../assets/LOGO.png";
+
 const Footer = () => {
   return (
-    <footer className="app-footer">
-      <section className="footer-brand">
-        <div className="footer-logo">◎</div>
+    <footer className="footer">
+      <div className="footer-container">
+        <section className="footer-brand">
+          <img
+            src={logoImage}
+            alt="NeoCare"
+            className="footer-logo-image"
+          />
 
-        <div>
-          <h2>NeoCare</h2>
-          <p>Cuidando la salud de tu familia con tecnología y calidez.</p>
-        </div>
-      </section>
+          <div className="footer-brand-text">
+            <h2>NeoCare</h2>
+            <p>Cuidando la salud de tu familia con tecnología y calidez.</p>
+          </div>
+        </section>
 
-      <section className="footer-section">
-        <h3>Navegación</h3>
-        <p>Inicio</p>
-        <p>Servicios</p>
-        <p>Nosotros</p>
-        <p>Contacto</p>
-      </section>
+        <section className="footer-section">
+          <h3>Navegación</h3>
 
-      <section className="footer-section">
-        <h3>Plataforma</h3>
-        <p>NeoCare · Triage neonatal</p>
-        <p>Mamá Plena · Diario emocional</p>
-        <p>Educación validada</p>
-        <p>Crear cuenta gratis</p>
-      </section>
+          <ul>
+            <li>
+              <a href="/">Inicio</a>
+            </li>
+            <li>
+              <a href="/servicios">Servicios</a>
+            </li>
+            <li>
+              <a href="/nosotros">Nosotros</a>
+            </li>
+            <li>
+              <a href="/contacto">Contacto</a>
+            </li>
+          </ul>
+        </section>
 
-      <section className="footer-section">
-        <h3>Contacto</h3>
-        <p>✉ info@NeoCare.com</p>
-        <p>⌂ UCAB Extensión Guayana — Puerto Ordaz</p>
-        <p>□ Escuela de Ingeniería Informática</p>
-      </section>
+        <section className="footer-section">
+          <h3>Servicios</h3>
 
-      <div className="footer-line"></div>
+          <ul>
+            <li>Evaluación de riesgo</li>
+            <li>Contenido educativo</li>
+            <li>Seguimiento neonatal</li>
+            <li>Orientación confiable</li>
+          </ul>
+        </section>
 
-      <div className="footer-socials">
-        <span>f</span>
-        <span>■</span>
-        <span>𝕏</span>
+        <section className="footer-section">
+          <h3>Contacto</h3>
+
+          <ul>
+            <li>Soporte NeoCare</li>
+            <li>Atención digital</li>
+            <li>Información segura</li>
+            <li>Cuidado neonatal</li>
+          </ul>
+        </section>
       </div>
 
-      <p className="footer-copy">
-        © 2026 Salud Digital. Todos los derechos reservados.
-      </p>
+      <div className="footer-bottom">
+        <p>© 2026 NeoCare. Todos los derechos reservados.</p>
+      </div>
     </footer>
   );
 };

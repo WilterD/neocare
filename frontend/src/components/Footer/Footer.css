@@ -1,15 +1,21 @@
-.app-footer {
+.footer {
   width: 100%;
-  margin-top: 22px;
-  padding: 24px 7.5% 18px;
   background: #ffffff;
-  color: #5f5a5a;
+  border-top: 1.5px solid #eadfd3;
   font-family: "Segoe UI", Arial, sans-serif;
-  border-top: 1px solid #eee7df;
+  color: #20253a;
+  margin-top: 34px;
+}
 
+.footer-container {
+  width: calc(100% - 64px);
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 42px 0 34px;
   display: grid;
-  grid-template-columns: 1.4fr 0.8fr 1fr 1fr;
-  column-gap: 56px;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 42px;
+  align-items: flex-start;
 }
 
 .footer-brand {
@@ -18,139 +24,112 @@
   gap: 14px;
 }
 
-.footer-logo {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: #c9ddb6;
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  font-weight: 800;
+.footer-logo-image {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  display: block;
   flex-shrink: 0;
+  margin-top: -14px;
+  transform: translateX(8px);
 }
 
-.footer-brand h2 {
+.footer-brand-text h2 {
   margin: 0 0 10px;
-  color: #343349;
-  font-size: 25px;
-  font-weight: 800;
+  color: #20253a;
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1;
 }
 
-.footer-brand p {
+.footer-brand-text p {
+  max-width: 280px;
   margin: 0;
-  color: #5f5a5a;
-  font-size: 14px;
-  line-height: 1.45;
-  max-width: 330px;
+  color: #50566d;
+  font-size: 15px;
+  line-height: 1.55;
+  font-weight: 500;
 }
 
 .footer-section h3 {
-  margin: 0 0 12px;
-  color: #343349;
+  margin: 0 0 14px;
+  color: #20253a;
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 900;
 }
 
-.footer-section p {
-  margin: 0 0 9px;
-  color: #5f5a5a;
-  font-size: 13.5px;
-  line-height: 1.4;
-}
-
-.footer-line {
-  grid-column: 1 / -1;
-  width: 100%;
-  height: 1px;
-  background: #e7e1dc;
-  margin: 24px 0 16px;
-}
-
-.footer-socials {
-  grid-column: 1 / 3;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.footer-socials span {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: #f7f7f2;
-  color: #5f5a5a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 17px;
-  font-weight: 800;
-}
-
-.footer-copy {
-  grid-column: 3 / -1;
+.footer-section ul {
+  list-style: none;
   margin: 0;
-  align-self: center;
-  text-align: right;
-  color: #8a8585;
-  font-size: 13px;
-  line-height: 1.3;
+  padding: 0;
 }
 
-@media (max-width: 800px) {
-  .app-footer {
-    display: block;
-    padding: 24px 24px 22px;
-    margin-top: 22px;
+.footer-section li {
+  margin-bottom: 10px;
+  color: #50566d;
+  font-size: 14.5px;
+  line-height: 1.35;
+  font-weight: 500;
+}
+
+.footer-section a {
+  color: #50566d;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-section a:hover {
+  color: #6fa04f;
+}
+
+.footer-bottom {
+  width: 100%;
+  border-top: 1px solid #eadfd3;
+  padding: 18px 24px;
+  text-align: center;
+}
+
+.footer-bottom p {
+  margin: 0;
+  color: #697083;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+/* Responsive */
+
+@media (max-width: 900px) {
+  .footer-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 34px;
+  }
+}
+
+@media (max-width: 600px) {
+  .footer-container {
+    width: calc(100% - 32px);
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 34px 0 28px;
   }
 
   .footer-brand {
-    margin-bottom: 20px;
+    align-items: center;
+    gap: 14px;
   }
 
-  .footer-brand h2 {
-    font-size: 26px;
-    margin-bottom: 10px;
+  .footer-logo-image {
+    width: 52px;
+    height: 52px;
+    margin-top: -8px;
+    transform: translateX(6px);
   }
 
-  .footer-brand p {
-    font-size: 16px;
-    line-height: 1.45;
+  .footer-brand-text h2 {
+    font-size: 24px;
   }
 
-  .footer-section {
-    margin-top: 22px;
-  }
-
-  .footer-section h3 {
-    font-size: 19px;
-    margin-bottom: 10px;
-  }
-
-  .footer-section p {
-    font-size: 16px;
-    margin-bottom: 9px;
-  }
-
-  .footer-line {
-    margin: 24px 0 16px;
-  }
-
-  .footer-socials {
-    justify-content: center;
-    margin-bottom: 18px;
-  }
-
-  .footer-socials span {
-    width: 36px;
-    height: 36px;
-    font-size: 17px;
-  }
-
-  .footer-copy {
-    text-align: center;
-    font-size: 14px;
+  .footer-brand-text p {
+    max-width: 100%;
   }
 }

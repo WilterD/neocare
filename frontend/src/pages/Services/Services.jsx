@@ -6,7 +6,12 @@ import Header from "../../components/Header/Header.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
 
 import mbImage from "../../assets/MB.png";
+import comenzarEImage from "../../assets/ComenzarE.png";
 import verContenidoImage from "../../assets/VerContenido.png";
+import informacionSeguraImage from "../../assets/InformacionSegura.png";
+import tusDImage from "../../assets/TusD.png";
+import informacionBImage from "../../assets/InformacionB.png";
+import conAmorImage from "../../assets/ConAmor.png";
 
 import rpImage from "../../assets/RP.png";
 import arImage from "../../assets/AR.png";
@@ -101,7 +106,11 @@ const Services = () => {
                 className="services-primary-btn"
                 onClick={handleStartEvaluation}
               >
-                <span>♡</span>
+                <img
+                  src={comenzarEImage}
+                  alt="Comenzar evaluación"
+                  className="services-primary-icon"
+                />
                 Comenzar evaluación
               </button>
 
@@ -120,7 +129,11 @@ const Services = () => {
             </div>
 
             <div className="services-safe-note">
-              <span>▣</span>
+              <img
+                src={informacionSeguraImage}
+                alt="Información segura"
+                className="services-safe-icon"
+              />
               Información segura, confiable y basada en evidencia.
             </div>
           </div>
@@ -162,7 +175,12 @@ const Services = () => {
 
         <section className="services-trust-bar">
           <article>
-            <span>▣</span>
+            <img
+              src={tusDImage}
+              alt="Tus datos están protegidos"
+              className="services-trust-icon"
+            />
+
             <div>
               <h3>Tus datos están protegidos</h3>
               <p>Confidencialidad y seguridad garantizadas.</p>
@@ -170,7 +188,12 @@ const Services = () => {
           </article>
 
           <article>
-            <span>◇</span>
+            <img
+              src={informacionBImage}
+              alt="Información basada en evidencia"
+              className="services-trust-icon"
+            />
+
             <div>
               <h3>Información basada en evidencia</h3>
               <p>Contenido validado para apoyar el cuidado neonatal.</p>
@@ -178,7 +201,12 @@ const Services = () => {
           </article>
 
           <article>
-            <span>♡</span>
+            <img
+              src={conAmorImage}
+              alt="Hecho con amor para cuidar"
+              className="services-trust-icon"
+            />
+
             <div>
               <h3>Hecho con amor para cuidar</h3>
               <p>Tu tranquilidad y la de tu bebé son importantes.</p>
