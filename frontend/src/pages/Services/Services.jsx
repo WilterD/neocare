@@ -8,13 +8,13 @@ import Footer from "../../components/Footer/Footer.jsx";
 import mbImage from "../../assets/MB.png";
 
 import rpImage from "../../assets/RP.png";
-import erImage from "../../assets/ER.png";
-import saImage from "../../assets/SA.png";
+import arImage from "../../assets/AR.png";
+import signosAImage from "../../assets/SA.png";
 import ocImage from "../../assets/OC.png";
 import ceImage from "../../assets/CE.png";
-import heImage from "../../assets/HE.png";
-import avImage from "../../assets/AV.png";
-import amImage from "../../assets/AM.png";
+import edadBImage from "../../assets/EdadB.png";
+import alertasImage from "../../assets/SSA.png";
+import apmImage from "../../assets/APM.png";
 
 const services = [
   {
@@ -24,13 +24,13 @@ const services = [
       "Completa los datos de la madre/cuidadora, recién nacido y condiciones de cuidado.",
   },
   {
-    image: erImage,
+    image: arImage,
     title: "Evaluación de riesgo",
     description:
       "Clasifica el riesgo materno-neonatal como bajo, medio o alto.",
   },
   {
-    image: saImage,
+    image: signosAImage,
     title: "Signos de alarma",
     description:
       "Identifica fiebre, hipotermia, dificultad respiratoria, ictericia o rechazo alimentario.",
@@ -48,19 +48,19 @@ const services = [
       "Aprende sobre lactancia, higiene, temperatura, sepsis, ictericia e hipotermia.",
   },
   {
-    image: heImage,
+    image: edadBImage,
     title: "Historial de evaluaciones",
     description:
       "Consulta evaluaciones anteriores y observa cambios en el seguimiento.",
   },
   {
-    image: avImage,
+    image: alertasImage,
     title: "Alertas visuales",
     description:
       "Usa colores para comprender rápidamente el nivel de riesgo.",
   },
   {
-    image: amImage,
+    image: apmImage,
     title: "Acompañamiento para mamá",
     description:
       "Apoyo cercano para reducir dudas durante los primeros 28 días del bebé.",
