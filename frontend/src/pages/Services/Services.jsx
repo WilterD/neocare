@@ -5,7 +5,8 @@ import "./Services.css";
 import Header from "../../components/Header/Header.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
 
-import mbImage from "../../assets/SV.png";
+import mbImage from "../../assets/MB.png";
+import verContenidoImage from "../../assets/VerContenido.png";
 
 import rpImage from "../../assets/RP.png";
 import arImage from "../../assets/AR.png";
@@ -90,8 +91,8 @@ const Services = () => {
             </h1>
 
             <p>
-              Orientación digital para acompañar a madres y cuidadoras durante el
-              seguimiento neonatal en casa.
+              Orientación digital para acompañar a madres y cuidadoras durante
+              el seguimiento neonatal en casa.
             </p>
 
             <div className="services-hero-actions">
@@ -109,7 +110,11 @@ const Services = () => {
                 className="services-secondary-btn"
                 onClick={handleEducationalContent}
               >
-                <span>▤</span>
+                <img
+                  src={verContenidoImage}
+                  alt="Ver contenido educativo"
+                  className="services-secondary-icon"
+                />
                 Ver contenido educativo
               </button>
             </div>
