@@ -5,16 +5,25 @@ import "./Evaluation.css";
 import Header from "../../components/Header/Header.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
 
-import mbImage from "../../assets/MB.png";
+import ctImage from "../../assets/CT.png";
+import qsImage from "../../assets/QS.png";
+import realizarEImage from "../../assets/RealizarE.png";
 
-import amImage from "../../assets/AM.png";
-import heImage from "../../assets/HE.png";
-import rImage from "../../assets/RP.png";
-import erImage from "../../assets/ER.png";
-import ocImage from "../../assets/OC.png";
-import rpImage from "../../assets/RP.png";
-import avImage from "../../assets/AV.png";
-import saImage from "../../assets/SA.png";
+import amImage from "../../assets/DatosP.png";
+import edadImage from "../../assets/Edad.png";
+import heImage from "../../assets/EdadB.png";
+import residenciaImage from "../../assets/Residencia.png";
+import erImage from "../../assets/AF.png";
+import ocImage from "../../assets/DatosClinicos.png";
+import datosBebeImage from "../../assets/DatosBebe.png";
+import avImage from "../../assets/Peso.png";
+import saImage from "../../assets/AR.png";
+
+import inicioImage from "../../assets/Inicio.png";
+import evaluacionImage from "../../assets/evaluacion.png";
+import educacionImage from "../../assets/educacion.png";
+import historialImage from "../../assets/h.png";
+import perfilImage from "../../assets/perfil.png";
 
 const summaryData = [
   {
@@ -23,12 +32,12 @@ const summaryData = [
     value: "María Fernanda López",
   },
   {
-    image: heImage,
+    image: edadImage,
     label: "Edad",
     value: "24 años",
   },
   {
-    image: rImage,
+    image: residenciaImage,
     label: "Residencia",
     value: "Quito, Pichincha",
   },
@@ -44,7 +53,7 @@ const summaryData = [
     value: "Centro de salud público",
   },
   {
-    image: rpImage,
+    image: datosBebeImage,
     label: "Recién nacido",
     value: "Niño",
   },
@@ -67,27 +76,27 @@ const summaryData = [
 
 const sidebarItems = [
   {
-    icon: "⌂",
+    image: inicioImage,
     label: "Inicio",
     path: "/",
   },
   {
-    icon: "♡",
+    image: evaluacionImage,
     label: "Evaluación",
     path: "/evaluacion",
   },
   {
-    icon: "▤",
+    image: educacionImage,
     label: "Educación",
     path: "/educacion",
   },
   {
-    icon: "↺",
+    image: historialImage,
     label: "Historial",
     path: "/historial",
   },
   {
-    icon: "♙",
+    image: perfilImage,
     label: "Perfil",
     path: "/perfil",
   },
@@ -124,35 +133,22 @@ const Evaluation = () => {
                     : "evaluation-sidebar-item"
                 }
               >
-                <span>{item.icon}</span>
+                <span className="evaluation-sidebar-icon-box">
+                  <img
+                    src={item.image}
+                    alt={item.label}
+                    className="evaluation-sidebar-icon"
+                  />
+                </span>
+
                 {item.label}
               </NavLink>
             ))}
           </nav>
-
-          <div className="evaluation-sidebar-image-box">
-            <span className="side-heart side-heart-one">♡</span>
-            <span className="side-heart side-heart-two">♡</span>
-
-            <img
-              src={mbImage}
-              alt="Madre sosteniendo a su bebé"
-              className="evaluation-sidebar-image"
-            />
-          </div>
         </aside>
 
         <section className="evaluation-main-panel">
           <header className="evaluation-title-row">
-            <button
-              type="button"
-              className="evaluation-back-button"
-              onClick={handleGoBack}
-              aria-label="Volver al registro"
-            >
-              ←
-            </button>
-
             <h1>Evaluación de riesgo</h1>
 
             <button
@@ -165,7 +161,13 @@ const Evaluation = () => {
           </header>
 
           <section className="evaluation-hero-card">
-            <div className="evaluation-hero-icon">▣</div>
+            <div className="evaluation-hero-image-box">
+              <img
+                src={ctImage}
+                alt="Casi terminamos"
+                className="evaluation-hero-image"
+              />
+            </div>
 
             <div className="evaluation-hero-text">
               <h2>¡Casi terminamos!</h2>
@@ -173,17 +175,6 @@ const Evaluation = () => {
                 Revisemos la información para evaluar el nivel de riesgo de tu
                 bebé y brindarte recomendaciones.
               </p>
-            </div>
-
-            <div className="evaluation-hero-illustration">
-              <div className="clipboard">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-
-              <div className="leaf leaf-one"></div>
-              <div className="leaf leaf-two"></div>
             </div>
           </section>
 
@@ -222,10 +213,17 @@ const Evaluation = () => {
 
             <aside className="evaluation-action-column">
               <section className="evaluation-next-card">
-                <div className="evaluation-next-icon">◇</div>
+                <h2>¿Qué sucede ahora?</h2>
 
-                <div>
-                  <h2>¿Qué sucede ahora?</h2>
+                <div className="evaluation-next-content">
+                  <div className="evaluation-next-image-box">
+                    <img
+                      src={qsImage}
+                      alt="Qué sucede ahora"
+                      className="evaluation-next-image"
+                    />
+                  </div>
+
                   <p>
                     Con esta información aplicaremos nuestras reglas de
                     clasificación para determinar el nivel de riesgo y el
@@ -239,9 +237,17 @@ const Evaluation = () => {
                 className="evaluation-main-button"
                 onClick={handleRunEvaluation}
               >
-                <span>▤</span>
-                Realizar evaluación
-                <strong>→</strong>
+                <img
+                  src={realizarEImage}
+                  alt="Realizar evaluación"
+                  className="evaluation-main-button-icon"
+                />
+
+                <span className="evaluation-main-button-text">
+                  Realizar evaluación
+                </span>
+
+                <span className="evaluation-main-button-space"></span>
               </button>
 
               <p className="evaluation-secure-note">
