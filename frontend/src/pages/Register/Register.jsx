@@ -39,8 +39,11 @@ const Register = () => {
   const [datosPersonales, setDatosPersonales] = useState({
     nombreCompleto: "",
     edad: "",
+    numeroIdentificacion: "",
     telefono: "",
     correo: "",
+    password: "",
+    confirmPassword: "",
   });
 
   const [sociodemografica, setSociodemografica] = useState({
@@ -374,15 +377,26 @@ const Register = () => {
 
   const validarPasoActual = () => {
     if (step === 1) {
-      const { nombreCompleto, edad, telefono, correo } = datosPersonales;
+      const {
+        nombreCompleto,
+        edad,
+        numeroIdentificacion,
+        telefono,
+        correo,
+        password,
+        confirmPassword,
+      } = datosPersonales;
 
       if (
         !nombreCompleto.trim() ||
         !edad.trim() ||
+        !numeroIdentificacion.trim() ||
         !telefono.trim() ||
-        !correo.trim()
+        !correo.trim() ||
+        !password.trim() ||
+        !confirmPassword.trim()
       ) {
-        return "Debes completar todos los datos personales para continuar.";
+        return "Debes completar todos los datos personales y de acceso para continuar.";
       }
 
       if (Number(edad) <= 0) {
@@ -391,6 +405,14 @@ const Register = () => {
 
       if (!correo.includes("@") || !correo.includes(".")) {
         return "Debes ingresar un correo electrónico válido.";
+      }
+
+      if (password.length < 6) {
+        return "La contraseña debe tener al menos 6 caracteres.";
+      }
+
+      if (password !== confirmPassword) {
+        return "Las contraseñas no coinciden. Verifica ambos campos.";
       }
     }
 
@@ -538,8 +560,10 @@ const Register = () => {
       nombre: datosPersonales.nombreCompleto.trim(),
       nombreCompleto: datosPersonales.nombreCompleto.trim(),
       edad: datosPersonales.edad,
+      numeroIdentificacion: datosPersonales.numeroIdentificacion,
       telefono: datosPersonales.telefono,
       correo: datosPersonales.correo,
+      password: datosPersonales.password,
       datosPersonales,
       sociodemografica,
       condicionesCuidado,
@@ -555,7 +579,10 @@ const Register = () => {
     };
 
     localStorage.setItem("neocareUser", JSON.stringify(usuarioRegistrado));
-    localStorage.setItem("neocareRegisterData", JSON.stringify(usuarioRegistrado));
+    localStorage.setItem(
+      "neocareRegisterData",
+      JSON.stringify(usuarioRegistrado)
+    );
 
     navigate("/evaluacion", {
       state: {
@@ -589,10 +616,18 @@ const Register = () => {
               ?
             </button>
 
-            <span className="help-tooltip">
-              Completa todos los campos requeridos de cada paso para poder
-              avanzar.
-            </span>
+            <div className="help-tooltip">
+              <div className="help-tooltip-icon">...</div>
+
+              <div className="help-tooltip-text">
+                <strong>¿Necesitas ayuda?</strong>
+                <p>Estamos aquí para ayudarte.</p>
+              </div>
+
+              <button type="button" className="help-contact-button">
+                Contáctanos <span>›</span>
+              </button>
+            </div>
           </div>
         </header>
 
@@ -666,77 +701,135 @@ const Register = () => {
               {step === 1 && (
                 <>
                   <div className="register-card-title">
-                    <h2>Datos personales</h2>
-                    <p>
-                      Cuéntanos un poco sobre ti para brindarte un mejor
-                      acompañamiento.
-                    </p>
+                    <h2>Datos personales y acceso</h2>
                   </div>
 
                   <form className="register-form">
-                    <label>
-                      Nombre completo
-                      <div className="input-box">
-                        <span>♙</span>
-                        <input
-                          type="text"
-                          name="nombreCompleto"
-                          value={datosPersonales.nombreCompleto}
-                          onChange={handlePersonalInputChange}
-                          placeholder="Escribe tu nombre"
-                        />
+                    <section className="register-form-section">
+                      <div className="register-section-title">
+                        <h3>Información personal</h3>
+                        <p>
+                          Ingresa los datos básicos de la madre o cuidadora
+                          principal.
+                        </p>
                       </div>
-                    </label>
 
-                    <label>
-                      Edad
-                      <div className="input-box">
-                        <span>▣</span>
-                        <input
-                          type="number"
-                          name="edad"
-                          min="12"
-                          max="60"
-                          value={datosPersonales.edad}
-                          onChange={handlePersonalInputChange}
-                          placeholder="Escribe tu edad"
-                        />
-                      </div>
-                    </label>
+                      <label>
+                        Nombre completo
+                        <div className="input-box">
+                          <span>♙</span>
+                          <input
+                            type="text"
+                            name="nombreCompleto"
+                            value={datosPersonales.nombreCompleto}
+                            onChange={handlePersonalInputChange}
+                            placeholder="Escribe tu nombre completo"
+                          />
+                        </div>
+                      </label>
 
-                    <label>
-                      Número de teléfono
-                      <div className="input-box">
-                        <span>♧</span>
-                        <input
-                          type="tel"
-                          name="telefono"
-                          value={datosPersonales.telefono}
-                          onChange={handlePersonalInputChange}
-                          placeholder="Ej. 098 765 4321"
-                        />
-                      </div>
-                    </label>
+                      <label>
+                        Edad
+                        <div className="input-box">
+                          <span>▣</span>
+                          <input
+                            type="number"
+                            name="edad"
+                            min="12"
+                            max="60"
+                            value={datosPersonales.edad}
+                            onChange={handlePersonalInputChange}
+                            placeholder="Escribe tu edad"
+                          />
+                        </div>
+                      </label>
 
-                    <label>
-                      Correo electrónico
-                      <div className="input-box">
-                        <span>✉</span>
-                        <input
-                          type="email"
-                          name="correo"
-                          value={datosPersonales.correo}
-                          onChange={handlePersonalInputChange}
-                          placeholder="Ej. correo@ejemplo.com"
-                        />
+                      <label>
+                        Número de identificación
+                        <div className="input-box">
+                          <span>▤</span>
+                          <input
+                            type="text"
+                            name="numeroIdentificacion"
+                            value={datosPersonales.numeroIdentificacion}
+                            onChange={handlePersonalInputChange}
+                            placeholder="Ej. 1234567890"
+                          />
+                        </div>
+                      </label>
+
+                      <label>
+                        Teléfono
+                        <div className="input-box">
+                          <span>♧</span>
+                          <input
+                            type="tel"
+                            name="telefono"
+                            value={datosPersonales.telefono}
+                            onChange={handlePersonalInputChange}
+                            placeholder="Ej. 098 765 4321"
+                          />
+                        </div>
+                      </label>
+                    </section>
+
+                    <section className="register-form-section access-section">
+                      <div className="register-section-title">
+                        <h3>Datos de acceso</h3>
+                        <p>
+                          Crea las credenciales que permitirán iniciar sesión en
+                          la plataforma.
+                        </p>
                       </div>
-                    </label>
+
+                      <label>
+                        Correo electrónico
+                        <div className="input-box">
+                          <span>✉</span>
+                          <input
+                            type="email"
+                            name="correo"
+                            value={datosPersonales.correo}
+                            onChange={handlePersonalInputChange}
+                            placeholder="Ej. correo@ejemplo.com"
+                          />
+                        </div>
+                      </label>
+
+                      <label>
+                        Contraseña
+                        <div className="input-box">
+                          <span>🔒</span>
+                          <input
+                            type="password"
+                            name="password"
+                            value={datosPersonales.password}
+                            onChange={handlePersonalInputChange}
+                            placeholder="Crea una contraseña"
+                          />
+                        </div>
+                      </label>
+
+                      <label>
+                        Confirmar contraseña
+                        <div className="input-box">
+                          <span>🔐</span>
+                          <input
+                            type="password"
+                            name="confirmPassword"
+                            value={datosPersonales.confirmPassword}
+                            onChange={handlePersonalInputChange}
+                            placeholder="Repite la contraseña"
+                          />
+                        </div>
+                      </label>
+                    </section>
 
                     <div className="secure-box">
                       <span>▣</span>
                       <p>
                         Tu información está segura y será utilizada solo para
-                        ayudarte.
+                        apoyar el seguimiento neonatal.
                       </p>
                     </div>
                   </form>

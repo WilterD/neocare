@@ -15,7 +15,7 @@ import datosBebeImage from "../../assets/DatosBebe.png";
 import edadImage from "../../assets/EdadB.png";
 import calendarioImage from "../../assets/Edad.png";
 import riesgoImage from "../../assets/AR.png";
-import qsImage from "../../assets/QS.png";
+import qsImage from "../../assets/USER.png";
 import realizarEImage from "../../assets/RealizarE.png";
 
 const sidebarItems = [
