@@ -16,6 +16,8 @@ const Login = () => {
     password: "",
   });
 
+  const [loginError, setLoginError] = useState("");
+
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -23,15 +25,50 @@ const Login = () => {
       ...prevData,
       [name]: value,
     }));
+
+    setLoginError("");
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    console.log("Datos de inicio de sesión:", formData);
+    const storedUser = localStorage.getItem("neocareUser");
+    const storedRegisterData = localStorage.getItem("neocareRegisterData");
 
-    // Cuando esté listo el flujo real, aquí puedes validar y redirigir:
-    // navigate("/inicio");
+    if (!storedUser) {
+      setLoginError(
+        "No se encontró un usuario registrado. Primero debes completar el registro."
+      );
+      return;
+    }
+
+    const usuario = JSON.parse(storedUser);
+    const registro = storedRegisterData ? JSON.parse(storedRegisterData) : usuario;
+
+    const correoRegistrado =
+      usuario?.correo ||
+      usuario?.datosPersonales?.correo ||
+      registro?.correo ||
+      registro?.datosPersonales?.correo ||
+      "";
+
+    if (
+      correoRegistrado.trim().toLowerCase() !==
+      formData.email.trim().toLowerCase()
+    ) {
+      setLoginError("El correo ingresado no coincide con un usuario registrado.");
+      return;
+    }
+
+    localStorage.setItem("neocareUser", JSON.stringify(usuario));
+    localStorage.setItem("neocareRegisterData", JSON.stringify(registro));
+
+    navigate("/inicio", {
+      state: {
+        user: usuario,
+        registro,
+      },
+    });
   };
 
   return (
@@ -74,6 +111,8 @@ const Login = () => {
                 required
               />
             </div>
+
+            {loginError && <p className="login-error-message">{loginError}</p>}
 
             <div className="login-options">
               <label className="login-remember">

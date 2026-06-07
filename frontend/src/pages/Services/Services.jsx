@@ -5,7 +5,7 @@ import "./Services.css";
 import Header from "../../components/Header/Header.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
 
-import mbImage from "../../assets/MB.png";
+import mbImage from "../../assets/SV.png";
 import comenzarEImage from "../../assets/ComenzarE.png";
 import verContenidoImage from "../../assets/VerContenido.png";
 import informacionSeguraImage from "../../assets/InformacionSegura.png";

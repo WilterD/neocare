@@ -101,6 +101,20 @@
   box-shadow: 0 0 0 4px rgba(122, 179, 90, 0.14);
 }
 
+/* Mensaje de error */
+
+.login-error-message {
+  margin: -6px 0 18px;
+  color: #d94b4b;
+  background: #fff0f0;
+  border: 1.5px solid #ffd1d1;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
 /* Opciones */
 
 .login-options {
