@@ -2,146 +2,135 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
-import mbImage from "../../assets/MB.png";
+import Header from "../../components/Header/Header.jsx";
+import Footer from "../../components/Footer/Footer.jsx";
+
+import googleImage from "../../assets/Google.png";
+import faceImage from "../../assets/Face.png";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = (event) => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = (event) => {
     event.preventDefault();
-    console.log("Iniciar sesión");
-  };
 
-  const handleGoRegister = () => {
-    navigate("/registro");
-  };
+    console.log("Datos de inicio de sesión:", formData);
 
-  const handleGoHome = () => {
-    navigate("/");
+    // Cuando esté listo el flujo real, aquí puedes validar y redirigir:
+    // navigate("/inicio");
   };
 
   return (
-    <main className="login-page">
-      <section className="login-container">
+    <main className="login-page-wrapper">
+      <Header />
+
+      <section className="login-page">
         <section className="login-card">
-          <button
-            type="button"
-            className="login-back-button"
-            onClick={handleGoHome}
-            aria-label="Volver a la pantalla de inicio"
-          >
-            ←
-          </button>
-
-          <div className="login-card-content">
-            <header className="login-header">
-              <h1>¡Bienvenida a NeoCare!</h1>
-              <p>
-                Inicia sesión para continuar el seguimiento neonatal de tu bebé.
-              </p>
-            </header>
-
-            <form className="login-form" onSubmit={handleLogin}>
-              <label className="login-label">
-                Correo electrónico
-                <div className="login-input-box">
-                  <input
-                    type="email"
-                    placeholder="tu@email.com"
-                    autoComplete="email"
-                  />
-                </div>
-              </label>
-
-              <label className="login-label">
-                Contraseña
-                <div className="login-input-box password-box">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Tu contraseña"
-                    autoComplete="current-password"
-                  />
-
-                  <button
-                    type="button"
-                    className="eye-button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label="Mostrar u ocultar contraseña"
-                  >
-                    {showPassword ? "🙈" : "👁"}
-                  </button>
-                </div>
-              </label>
-
-              <div className="login-options">
-                <label className="remember-option">
-                  <input type="checkbox" />
-                  <span>Recordarme</span>
-                </label>
-
-                <button type="button" className="forgot-link">
-                  ¿Olvidaste tu contraseña?
-                </button>
-              </div>
-
-              <button type="submit" className="login-main-button">
-                Iniciar sesión
-              </button>
-
-              <p className="register-text">
-                ¿No tienes cuenta?{" "}
-                <button type="button" onClick={handleGoRegister}>
-                  Regístrate aquí
-                </button>
-              </p>
-            </form>
+          <div className="login-card-header">
+            <h1>Iniciar sesión</h1>
+            <p>
+              Accede a NeoCare para continuar con el seguimiento neonatal de tu
+              bebé.
+            </p>
           </div>
-        </section>
 
-        <section className="login-info-panel">
-          <div className="login-info-content">
-            <div className="login-illustration-card">
-              <img
-                src={mbImage}
-                alt="Madre sosteniendo a su bebé"
-                className="login-mother-image"
+          <form className="login-form" onSubmit={handleSubmit}>
+            <div className="login-form-group">
+              <label htmlFor="email">Correo electrónico</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="Ej. correo@ejemplo.com"
+                value={formData.email}
+                onChange={handleChange}
+                required
               />
             </div>
 
-            <div className="login-info-text">
-              <h2>Acompañamiento neonatal desde casa</h2>
+            <div className="login-form-group">
+              <label htmlFor="password">Contraseña</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Ingresa tu contraseña"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-              <p>
-                Recibe orientación confiable para identificar signos de alarma y
-                cuidar a tu bebé durante sus primeros días de vida.
-              </p>
+            <div className="login-options">
+              <label className="login-remember">
+                <input type="checkbox" />
+                Recordarme
+              </label>
 
-              <ul className="benefits-list">
-                <li>
-                  <span>✓</span>
-                  Identificación de signos de alarma
-                </li>
+              <button type="button" className="login-forgot-button">
+                ¿Olvidaste tu contraseña?
+              </button>
+            </div>
 
-                <li>
-                  <span>✓</span>
-                  Seguimiento del recién nacido
-                </li>
+            <button type="submit" className="login-submit-button">
+              Iniciar sesión
+            </button>
+          </form>
 
-                <li>
-                  <span>✓</span>
-                  Orientación para madres y cuidadoras
-                </li>
+          <div className="login-register-text">
+            <p>
+              ¿Aún no tienes una cuenta?{" "}
+              <button type="button" onClick={() => navigate("/registro")}>
+                Regístrate
+              </button>
+            </p>
+          </div>
 
-                <li>
-                  <span>✓</span>
-                  Historial de evaluaciones
-                </li>
-              </ul>
+          <div className="login-social-section">
+            <div className="login-divider">
+              <span></span>
+              <p>o continúa con</p>
+              <span></span>
+            </div>
+
+            <div className="login-social-buttons">
+              <button type="button" className="login-social-button">
+                <img
+                  src={googleImage}
+                  alt="Google"
+                  className="login-social-icon google-social-icon"
+                />
+                Google
+              </button>
+
+              <button type="button" className="login-social-button">
+                <img
+                  src={faceImage}
+                  alt="Facebook"
+                  className="login-social-icon face-social-icon"
+                />
+                Facebook
+              </button>
             </div>
           </div>
         </section>
       </section>
+
+      <Footer />
     </main>
   );
 };

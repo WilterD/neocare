@@ -534,7 +534,35 @@ const Register = () => {
       return;
     }
 
-    navigate("/evaluacion");
+    const usuarioRegistrado = {
+      nombre: datosPersonales.nombreCompleto.trim(),
+      nombreCompleto: datosPersonales.nombreCompleto.trim(),
+      edad: datosPersonales.edad,
+      telefono: datosPersonales.telefono,
+      correo: datosPersonales.correo,
+      datosPersonales,
+      sociodemografica,
+      condicionesCuidado,
+      recienNacido: {
+        ...recienNacido,
+        edadActual: calcularEdadActual(),
+        clasificacionEdadNeonatal: clasificarEdadNeonatal(),
+        clasificacionPeso: clasificarPeso(),
+        clasificacionEdadGestacional: clasificarEdadGestacional(),
+      },
+      datosClinicos,
+      consentimientoAceptado,
+    };
+
+    localStorage.setItem("neocareUser", JSON.stringify(usuarioRegistrado));
+    localStorage.setItem("neocareRegisterData", JSON.stringify(usuarioRegistrado));
+
+    navigate("/evaluacion", {
+      state: {
+        user: usuarioRegistrado,
+        registro: usuarioRegistrado,
+      },
+    });
   };
 
   const handlePrevious = () => {

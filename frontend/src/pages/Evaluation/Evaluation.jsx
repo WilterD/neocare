@@ -1,8 +1,8 @@
-import React from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import "./Evaluation.css";
 
-import Header from "../../components/Header/Header.jsx";
+import Header2 from "../../components/Header2/Header2.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
 
 import ctImage from "../../assets/CT.png";
@@ -24,55 +24,6 @@ import evaluacionImage from "../../assets/evaluacion.png";
 import educacionImage from "../../assets/educacion.png";
 import historialImage from "../../assets/h.png";
 import perfilImage from "../../assets/perfil.png";
-
-const summaryData = [
-  {
-    image: amImage,
-    label: "Madre o cuidadora",
-    value: "María Fernanda López",
-  },
-  {
-    image: edadImage,
-    label: "Edad",
-    value: "24 años",
-  },
-  {
-    image: residenciaImage,
-    label: "Residencia",
-    value: "Quito, Pichincha",
-  },
-  {
-    image: erImage,
-    label: "Apoyo familiar",
-    value: "Sí",
-    pill: true,
-  },
-  {
-    image: ocImage,
-    label: "Acceso a servicios de salud",
-    value: "Centro de salud público",
-  },
-  {
-    image: datosBebeImage,
-    label: "Recién nacido",
-    value: "Niño",
-  },
-  {
-    image: heImage,
-    label: "Edad del bebé",
-    value: "12 días",
-  },
-  {
-    image: avImage,
-    label: "Peso al nacer",
-    value: "3.100 kg",
-  },
-  {
-    image: saImage,
-    label: "Antecedentes relevantes",
-    value: "Ninguno",
-  },
-];
 
 const sidebarItems = [
   {
@@ -104,6 +55,106 @@ const sidebarItems = [
 
 const Evaluation = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const [usuario, setUsuario] = useState(location.state?.user || null);
+  const [registro, setRegistro] = useState(location.state?.registro || null);
+
+  useEffect(() => {
+    const cargarDatosRegistro = () => {
+      try {
+        const storedUser = localStorage.getItem("neocareUser");
+        const storedRegisterData = localStorage.getItem("neocareRegisterData");
+
+        if (storedUser && !usuario) {
+          setUsuario(JSON.parse(storedUser));
+        }
+
+        if (storedRegisterData && !registro) {
+          setRegistro(JSON.parse(storedRegisterData));
+        }
+      } catch (error) {
+        console.error("Error al cargar datos guardados:", error);
+      }
+    };
+
+    cargarDatosRegistro();
+  }, [usuario, registro]);
+
+  const datosPersonales =
+    registro?.datosPersonales || usuario?.datosPersonales || {};
+
+  const sociodemografica =
+    registro?.sociodemografica || usuario?.sociodemografica || {};
+
+  const condicionesCuidado =
+    registro?.condicionesCuidado || usuario?.condicionesCuidado || {};
+
+  const recienNacido = registro?.recienNacido || usuario?.recienNacido || {};
+
+  const datosClinicos = registro?.datosClinicos || usuario?.datosClinicos || {};
+
+  const nombreUsuario =
+    usuario?.nombre ||
+    usuario?.nombreCompleto ||
+    datosPersonales?.nombreCompleto ||
+    "No registrado";
+
+  const summaryData = [
+    {
+      image: amImage,
+      label: "Madre o cuidadora",
+      value: nombreUsuario,
+    },
+    {
+      image: edadImage,
+      label: "Edad",
+      value: datosPersonales?.edad
+        ? `${datosPersonales.edad} años`
+        : "No registrada",
+    },
+    {
+      image: residenciaImage,
+      label: "Residencia",
+      value: sociodemografica?.zonaResidencia || "No registrada",
+    },
+    {
+      image: erImage,
+      label: "Apoyo familiar",
+      value: condicionesCuidado?.apoyoFamiliar || "No registrado",
+      pill: true,
+    },
+    {
+      image: ocImage,
+      label: "Acceso a servicios de salud",
+      value: sociodemografica?.accesoCentroSalud || "No registrado",
+    },
+    {
+      image: datosBebeImage,
+      label: "Recién nacido",
+      value: recienNacido?.sexo || "No registrado",
+    },
+    {
+      image: heImage,
+      label: "Edad del bebé",
+      value: recienNacido?.edadActual || "No registrada",
+    },
+    {
+      image: avImage,
+      label: "Peso al nacer",
+      value: recienNacido?.pesoNacer
+        ? `${recienNacido.pesoNacer} g`
+        : "No registrado",
+    },
+    {
+      image: saImage,
+      label: "Antecedentes relevantes",
+      value:
+        datosClinicos?.complicacionesNacer === "Sí"
+          ? datosClinicos?.complicacion || "Complicación registrada"
+          : "Ninguno",
+    },
+  ];
 
   const handleGoBack = () => {
     navigate("/registro");
@@ -111,13 +162,19 @@ const Evaluation = () => {
 
   const handleRunEvaluation = () => {
     console.log("Realizar evaluación");
+
     // Cuando creemos la pantalla de resultado, se conecta aquí:
-    // navigate("/resultado");
+    // navigate("/resultado", {
+    //   state: {
+    //     user: usuario,
+    //     registro,
+    //   },
+    // });
   };
 
   return (
     <main className="evaluation-page-wrapper">
-      <Header />
+      <Header2 user={usuario} />
 
       <section className="evaluation-desktop">
         <aside className="evaluation-sidebar">
