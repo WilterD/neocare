@@ -7,6 +7,7 @@ import Login from "./pages/Login/Login.jsx";
 import Services from "./pages/Services/Services.jsx";
 import Evaluation from "./pages/Evaluation/Evaluation.jsx";
 import About from "./pages/About/About.jsx";
+import Contact from "./pages/Contact/Contact.jsx";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/servicios" element={<Services />} />
         <Route path="/nosotros" element={<About />} />
+        <Route path="/contacto" element={<Contact />} />
 
         {/* Ruta interna: no va en el header principal */}
         <Route path="/evaluacion" element={<Evaluation />} />

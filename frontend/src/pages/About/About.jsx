@@ -8,6 +8,7 @@ import Footer from "../../components/Footer/Footer.jsx";
 import aboutHeroImage from "../../assets/MADRE.png";
 import whatImage from "../../assets/QUES.png";
 import whyImage from "../../assets/PQSURGE.png";
+import comenzarEImage from "../../assets/ComenzarE.png";
 
 import shieldIcon from "../../assets/ORI.png";
 import handsIcon from "../../assets/CORA.png";
@@ -64,6 +65,10 @@ const teamMembers = [
 
 const About = () => {
   const navigate = useNavigate();
+
+  const handleStartEvaluation = () => {
+    navigate("/registro");
+  };
 
   return (
     <main className="about-page-wrapper">
@@ -186,7 +191,7 @@ const About = () => {
               ))}
 
               <div className="about-team-member professor">
-                <span className="about-team-user-icon"></span>
+                <span className="about-team-user-icon professor-icon"></span>
 
                 <div>
                   <h3>
@@ -212,15 +217,20 @@ const About = () => {
             <button
               type="button"
               className="about-cta-button"
-              onClick={() => navigate("/registro")}
+              onClick={handleStartEvaluation}
             >
-              <img
-                src={comenzarEImage}
-                alt="Iniciar evaluación"
-                className="about-cta-button-icon"
-              />
+              <span className="about-cta-icon-box">
+                <img
+                  src={comenzarEImage}
+                  alt="Iniciar evaluación"
+                  className="about-cta-button-icon"
+                />
+              </span>
 
-              Iniciar evaluación
+              <span className="about-cta-button-label">
+                Iniciar evaluación
+              </span>
+
               <strong>→</strong>
             </button>
           </div>

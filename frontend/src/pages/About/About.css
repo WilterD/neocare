@@ -86,22 +86,22 @@
 
 .about-info-grid {
   width: 100%;
-  max-width: 930px;
-  margin: 14px auto 22px;
+  max-width: 840px;
+  margin: 8px auto 18px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 18px;
 }
 
 .about-info-card {
-  min-height: 440px;
+  min-height: 365px;
   background: rgba(255, 255, 255, 0.96);
   border: 1.5px solid #eadfd3;
   border-radius: 24px;
-  padding: 36px 38px 34px;
+  padding: 30px 34px 30px;
   display: grid;
   grid-template-columns: 84px 1fr;
-  gap: 24px;
+  gap: 22px;
   box-shadow: 0 14px 32px rgba(146, 116, 78, 0.08);
 }
 
@@ -133,19 +133,19 @@
 }
 
 .about-info-card h2 {
-  margin: 4px 0 18px;
+  margin: 4px 0 16px;
   color: #1f1f24;
-  font-size: 23px;
+  font-size: 22px;
   font-weight: 850;
   line-height: 1.25;
 }
 
 .about-info-card p {
-  margin: 0 0 20px;
+  margin: 0 0 18px;
   color: #343349;
-  font-size: 14.2px;
+  font-size: 13.8px;
   font-weight: 500;
-  line-height: 1.72;
+  line-height: 1.65;
 }
 
 .about-info-card p:last-child {
@@ -192,7 +192,6 @@
   border-right: none;
 }
 
-/* Imágenes de "Lo que nos guía" */
 .about-guide-item img {
   width: 58px;
   height: 58px;
@@ -231,7 +230,7 @@
 .about-team-section {
   width: 100%;
   max-width: 760px;
-  margin: 0 auto 24px;
+  margin: 0 auto 22px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -242,31 +241,32 @@
   background: rgba(255, 255, 255, 0.96);
   border: 1.5px solid #eadfd3;
   border-radius: 22px;
-  padding: 30px 34px;
+  padding: 20px 30px 20px;
   box-shadow: 0 14px 32px rgba(146, 116, 78, 0.08);
 }
 
 .about-team-content h2 {
-  margin: 0 0 14px;
+  margin: 0 0 8px;
   color: #1f1f24;
-  font-size: 27px;
+  font-size: 25px;
   font-weight: 850;
   text-align: center;
 }
 
 .about-team-content > p {
-  margin: 0 0 24px;
+  max-width: 600px;
+  margin: 0 auto 16px;
   color: #343349;
-  font-size: 14.2px;
+  font-size: 13.6px;
   font-weight: 500;
-  line-height: 1.65;
+  line-height: 1.45;
   text-align: center;
 }
 
 .about-team-list {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px 38px;
+  gap: 10px 34px;
 }
 
 .about-team-member {
@@ -276,10 +276,12 @@
   gap: 12px;
 }
 
-/* Imagen User para los integrantes */
+/* Imagen US para los integrantes */
 .about-team-user-icon {
   width: 54px;
   height: 54px;
+  min-width: 54px;
+  min-height: 54px;
   border-radius: 0;
   background-color: transparent;
   background-image: url("../../assets/US.png");
@@ -291,21 +293,26 @@
   display: block;
 }
 
-/* Imagen Profesora solo para la profesora */
-.about-team-member.professor .about-team-user-icon {
-  background-image: url("../../assets/PROFESORA.png");
+/* Imagen PROFESORA solo para la profesora */
+.about-team-user-icon.professor-icon {
+  width: 54px;
+  height: 54px;
+  min-width: 54px;
+  min-height: 54px;
+  background-image: url("../../assets/PROFESORA.png") !important;
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
   background-color: transparent;
   color: transparent;
   font-size: 0;
+  display: block;
 }
 
 .about-team-member h3 {
   margin: 0 0 3px;
   color: #1f1f24;
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 850;
 }
 
@@ -316,13 +323,18 @@
 .about-team-member p {
   margin: 0;
   color: #343349;
-  font-size: 13px;
+  font-size: 12.8px;
   font-weight: 500;
 }
 
 .about-team-member.professor {
   grid-column: 1 / -1;
-  padding-top: 12px;
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding-top: 8px;
+  margin-top: 0;
   border-top: 1px solid #eadfd3;
 }
 
@@ -379,14 +391,45 @@
   gap: 12px;
   cursor: pointer;
   box-shadow: 0 12px 24px rgba(111, 160, 79, 0.25);
+  overflow: visible;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.about-cta-button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 32px rgba(111, 160, 79, 0.32);
+  background: linear-gradient(135deg, #94c275, #6fa04f);
+}
+
+.about-cta-button:active {
+  transform: translateY(-1px);
+}
+
+.about-cta-icon-box {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: visible;
 }
 
 .about-cta-button-icon {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   object-fit: contain;
   display: block;
   flex-shrink: 0;
+  transform: scale(4);
+  transform-origin: center;
+}
+
+.about-cta-button-label {
+  display: inline-flex;
+  align-items: center;
+  color: #ffffff;
+  line-height: 1;
 }
 
 .about-cta-button strong {
@@ -448,7 +491,7 @@
   }
 
   .about-team-section {
-    max-width: 720px;
+    max-width: 760px;
   }
 
   .about-team-list {
@@ -485,7 +528,7 @@
   .about-info-card {
     grid-template-columns: 1fr;
     text-align: center;
-    padding: 30px 24px;
+    padding: 28px 24px;
   }
 
   .about-card-icon {
@@ -500,21 +543,30 @@
     border-right: none;
   }
 
+  .about-team-section {
+    max-width: 100%;
+  }
+
   .about-team-content {
-    padding: 28px 24px;
+    padding: 20px 24px 20px;
   }
 
   .about-team-list {
     grid-template-columns: 1fr;
+    gap: 10px;
   }
 
-  .about-team-member {
+  .about-team-member,
+  .about-team-member.professor {
     grid-template-columns: 58px 1fr;
   }
 
-  .about-team-user-icon {
+  .about-team-user-icon,
+  .about-team-user-icon.professor-icon {
     width: 54px;
     height: 54px;
+    min-width: 54px;
+    min-height: 54px;
   }
 
   .about-cta-section {
@@ -524,5 +576,20 @@
 
   .about-cta-content p {
     max-width: 100%;
+  }
+
+  .about-cta-button {
+    height: 48px;
+  }
+
+  .about-cta-icon-box {
+    width: 24px;
+    height: 24px;
+  }
+
+  .about-cta-button-icon {
+    width: 24px;
+    height: 24px;
+    transform: scale(4);
   }
 }
