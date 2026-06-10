@@ -161,15 +161,29 @@ const Evaluation = () => {
   };
 
   const handleRunEvaluation = () => {
-    console.log("Realizar evaluación");
+    navigate("/resultado", {
+      state: {
+        user: usuario,
+        registro,
 
-    // Cuando creemos la pantalla de resultado, se conecta aquí:
-    // navigate("/resultado", {
-    //   state: {
-    //     user: usuario,
-    //     registro,
-    //   },
-    // });
+        /*
+          Estos signos son enviados a Result.jsx para que calcule el puntaje.
+          Por ahora dejamos un caso de riesgo medio de prueba:
+          vómitos repetitivos = 2 puntos
+          ictericia progresiva = 2 puntos
+          disminución de actividad = 2 puntos
+          Total = 6, pero Result.jsx limitará y clasificará según su lógica.
+
+          Cuando conectemos esta pantalla con preguntas reales de signos,
+          esta lista debe llenarse con las respuestas seleccionadas por la usuaria.
+        */
+        selectedSigns: [
+          "vomitosRepetitivos",
+          "ictericiaProgresiva",
+          "disminucionActividad",
+        ],
+      },
+    });
   };
 
   return (
