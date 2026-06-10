@@ -360,13 +360,13 @@ const Result = () => {
                   selectedSigns.map((sign) => (
                     <span
                       key={sign.label}
-                      className={`result-chip ${sign.category}`}
+                      className={`result-chip ${riskLevel}`}
                     >
                       • {sign.label}
                     </span>
                   ))
                 ) : (
-                  <span className="result-chip bajo">
+                  <span className={`result-chip ${riskLevel}`}>
                     • Sin signos de alarma registrados
                   </span>
                 )}
