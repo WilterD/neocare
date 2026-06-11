@@ -14,6 +14,12 @@ const ASUNTO_LABELS = {
   otro: "Otro",
 };
 
+import correoIcon from "../../assets/CORREO.png";
+import ubiIcon from "../../assets/UBI.png";
+import facultasIcon from "../../assets/FACULTAD.png";
+import horarioIcon from "../../assets/HORARIO.png";
+import enviarIcon from "../../assets/ENVIAR.png";
+
 const Contact = () => {
   const [form, setForm] = useState({
     nombre: "",
@@ -151,9 +157,16 @@ const Contact = () => {
                 />
               </label>
 
-              <button type="submit" className="contact-submit-button" disabled={enviando}>
-                <span>✈</span>
-                {enviando ? "Enviando..." : "Enviar mensaje"}
+              <button type="submit" className="contact-submit-button">
+                <span className="contact-submit-icon-box">
+                  <img
+                    src={enviarIcon}
+                    alt="Enviar mensaje"
+                    className="contact-submit-icon"
+                  />
+                </span>
+
+                Enviar mensaje
               </button>
 
               <p className="contact-privacy-text">
@@ -169,7 +182,9 @@ const Contact = () => {
 
             <div className="contact-info-list">
               <div className="contact-info-item">
-                <div className="contact-info-icon">✉</div>
+                <div className="contact-info-icon">
+                  <img src={correoIcon} alt="Correo electrónico" />
+                </div>
 
                 <div>
                   <h3>Correo electrónico</h3>
@@ -179,7 +194,9 @@ const Contact = () => {
               </div>
 
               <div className="contact-info-item">
-                <div className="contact-info-icon">●</div>
+                <div className="contact-info-icon">
+                  <img src={ubiIcon} alt="Ubicación" />
+                </div>
 
                 <div>
                   <h3>Ubicación</h3>
@@ -190,7 +207,9 @@ const Contact = () => {
               </div>
 
               <div className="contact-info-item">
-                <div className="contact-info-icon">🎓</div>
+                <div className="contact-info-icon">
+                  <img src={facultasIcon} alt="Facultad" />
+                </div>
 
                 <div>
                   <h3>Facultad</h3>
@@ -201,7 +220,9 @@ const Contact = () => {
               </div>
 
               <div className="contact-info-item">
-                <div className="contact-info-icon">◷</div>
+                <div className="contact-info-icon">
+                  <img src={horarioIcon} alt="Horario de atención" />
+                </div>
 
                 <div>
                   <h3>Horario de atención</h3>
