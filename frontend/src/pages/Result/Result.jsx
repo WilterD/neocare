@@ -13,6 +13,26 @@ import educacionImage from "../../assets/educacion.png";
 import historialImage from "../../assets/h.png";
 import perfilImage from "../../assets/perfil.png";
 
+import TARImage from "../../assets/TAR.png";
+import TRRImage from "../../assets/TRR.png";
+import TVRImage from "../../assets/TVR.png";
+
+import FAImage from "../../assets/FA.png";
+import FRImage from "../../assets/FR.png";
+import FVImage from "../../assets/FV.png";
+
+import CARImage from "../../assets/CAR.png";
+import CRRImage from "../../assets/CRR.png";
+import CVRImage from "../../assets/CVR.png";
+
+import RRImage from "../../assets/RR.png";
+import SRImage from "../../assets/SR.png";
+import actImage from "../../assets/Act.png";
+import evaImage from "../../assets/Eva.png";
+import informacionSeguraImage from "../../assets/InformacionSegura.png";
+import libretaImage from "../../assets/Libreta.png";
+import verImage from "../../assets/Ver.png";
+
 const sidebarItems = [
   {
     image: inicioImage,
@@ -43,77 +63,84 @@ const sidebarItems = [
 
 const riskSignsCatalog = {
   convulsiones: {
+    id: "convulsiones",
     label: "Convulsiones",
     points: 3,
     category: "alto",
   },
   dificultadRespiratoria: {
+    id: "dificultadRespiratoria",
     label: "Dificultad respiratoria",
     points: 3,
     category: "alto",
   },
   coloracionAzulada: {
+    id: "coloracionAzulada",
     label: "Coloración azulada de labios o piel",
     points: 3,
     category: "alto",
   },
   fiebreHipotermia: {
+    id: "fiebreHipotermia",
     label: "Fiebre o hipotermia",
     points: 3,
     category: "alto",
   },
   rechazoAlimentacion: {
+    id: "rechazoAlimentacion",
     label: "Rechazo completo de la alimentación",
     points: 3,
     category: "alto",
   },
   disminucionConciencia: {
+    id: "disminucionConciencia",
     label: "Disminución importante del estado de conciencia",
     points: 3,
     category: "alto",
   },
   vomitosRepetitivos: {
+    id: "vomitosRepetitivos",
     label: "Vómitos repetitivos",
     points: 2,
     category: "medio",
   },
   ictericiaProgresiva: {
+    id: "ictericiaProgresiva",
     label: "Ictericia progresiva",
     points: 2,
     category: "medio",
   },
   disminucionActividad: {
+    id: "disminucionActividad",
     label: "Disminución de la actividad habitual",
     points: 2,
     category: "medio",
   },
   llantoPersistente: {
+    id: "llantoPersistente",
     label: "Llanto persistente o inconsolable",
     points: 2,
     category: "medio",
   },
   alteracionesSueno: {
+    id: "alteracionesSueno",
     label: "Alteraciones leves del sueño",
     points: 1,
     category: "bajo",
   },
   disminucionApetito: {
+    id: "disminucionApetito",
     label: "Disminución leve del apetito",
     points: 1,
     category: "bajo",
   },
   irritabilidadOcasional: {
+    id: "irritabilidadOcasional",
     label: "Irritabilidad ocasional",
     points: 1,
     category: "bajo",
   },
 };
-
-const fallbackSelectedSigns = [
-  "vomitosRepetitivos",
-  "ictericiaProgresiva",
-  "irritabilidadOcasional",
-];
 
 const getTodayLabel = () => {
   return new Date().toLocaleDateString("es-ES", {
@@ -123,7 +150,17 @@ const getTodayLabel = () => {
   });
 };
 
-const getRiskLevel = (score, selectedSigns) => {
+const getRiskLabel = (riskLevel) => {
+  const labels = {
+    bajo: "Bajo",
+    medio: "Medio",
+    alto: "Alto",
+  };
+
+  return labels[riskLevel] || "Bajo";
+};
+
+const getRiskLevelFromSigns = (score, selectedSigns) => {
   const hasHighRiskSign = selectedSigns.some(
     (sign) => sign.category === "alto"
   );
@@ -139,6 +176,14 @@ const getRiskLevel = (score, selectedSigns) => {
   return "bajo";
 };
 
+const getValidRiskLevel = (riskLevel) => {
+  if (riskLevel === "bajo" || riskLevel === "medio" || riskLevel === "alto") {
+    return riskLevel;
+  }
+
+  return "bajo";
+};
+
 const riskContent = {
   bajo: {
     title: "RIESGO BAJO",
@@ -147,18 +192,18 @@ const riskContent = {
     icon: "✓",
     actionTitle: "Cuidados generales en casa",
     description:
-      "No se identifican signos de alarma importantes en este momento. Continúa observando al recién nacido, mantén los cuidados generales en casa y consulta el contenido educativo disponible en NeoCare.",
+      "No se identifican condiciones importantes de alarma en este momento. Continúa observando al recién nacido, mantén los cuidados generales en casa y consulta el contenido educativo disponible en NeoCare.",
     summary:
-      "El resultado indica bajo riesgo. Se recomienda mantener la observación habitual del bebé, reforzar los cuidados básicos y consultar contenido educativo sobre alimentación, temperatura, sueño, coloración de la piel y signos de alarma.",
+      "El resultado indica bajo riesgo. Se recomienda mantener la observación habitual, reforzar los cuidados básicos y consultar contenido educativo sobre alimentación, temperatura, sueño, coloración de la piel y signos de alarma.",
     steps: [
       "Mantén los cuidados generales del recién nacido en casa.",
-      "Observa la alimentación, temperatura, respiración y coloración de la piel.",
+      "Observa alimentación, temperatura, respiración y coloración de la piel.",
       "Consulta el contenido educativo para reforzar las pautas de cuidado.",
       "Realiza una nueva evaluación si aparece algún cambio o señal de alarma.",
     ],
-    followTitle: "Educación recomendada",
+    followTitle: "Cuidados generales en casa",
     followText:
-      "Revisa las guías educativas sobre cuidados básicos del recién nacido, lactancia, temperatura, ictericia y signos de alarma.",
+      "El resultado indica bajo riesgo. Mantén los cuidados generales en casa, observa la evolución del recién nacido y consulta el contenido educativo disponible.",
     followButton: "Consultar contenido educativo",
   },
   medio: {
@@ -168,18 +213,18 @@ const riskContent = {
     icon: "!",
     actionTitle: "Atención recomendada",
     description:
-      "Se recomienda vigilancia cercana y seguimiento del estado del recién nacido. Repite la evaluación en 24 horas o activa el seguimiento diario. Si las señales persisten, aumentan o aparece un signo de alarma, acude al centro de salud más cercano.",
+      "Se recomienda vigilancia cercana y seguimiento del estado del recién nacido. Activa el seguimiento diario y consulta a un profesional de salud si las señales persisten, aumentan o generan dudas.",
     summary:
-      "Se identificaron signos de riesgo moderado que requieren observación y seguimiento cercano. El resultado no indica una emergencia inmediata, pero sí recomienda consultar a un profesional de salud si las señales continúan o aumentan.",
+      "Se identificaron condiciones de riesgo moderado que requieren observación y seguimiento cercano. El resultado no indica una emergencia inmediata, pero sí recomienda vigilancia reforzada y consulta médica si la situación continúa o aumenta.",
     steps: [
-      "Observa la alimentación, temperatura, respiración y coloración de la piel del bebé.",
+      "Observa alimentación, temperatura, respiración y coloración de la piel del bebé.",
       "Activa el seguimiento diario para registrar su evolución.",
-      "Acude a consulta médica en menos de 24 horas si las señales persisten.",
+      "Consulta a un profesional de salud en menos de 24 horas si las señales persisten.",
       "Busca atención inmediata si aparece dificultad respiratoria, convulsiones, coloración azulada, fiebre alta, hipotermia o rechazo total del alimento.",
     ],
     followTitle: "Seguimiento recomendado",
     followText:
-      "Próxima evaluación sugerida en 24 horas. Activa el seguimiento diario durante 5 días para registrar la evolución del recién nacido y recibir orientación según los cambios observados.",
+      "Se recomienda vigilancia cercana, seguimiento diario y consulta médica en menos de 24 horas si las señales persisten, aumentan o generan dudas.",
     followButton: "Activar seguimiento",
   },
   alto: {
@@ -189,9 +234,9 @@ const riskContent = {
     icon: "!",
     actionTitle: "Atención inmediata",
     description:
-      "Se identificaron signos de alarma grave. NeoCare no reemplaza la atención médica profesional. Acude de inmediato al centro de salud más cercano o comunícate con el servicio de emergencia correspondiente.",
+      "Se identificaron condiciones de alto riesgo. NeoCare no reemplaza la atención médica profesional. Acude de inmediato al centro de salud más cercano o comunícate con el servicio de emergencia correspondiente.",
     summary:
-      "El resultado indica alto riesgo neonatal. La presencia de signos graves requiere atención médica inmediata. No se recomienda esperar una nueva evaluación ni usar el seguimiento diario como acción principal.",
+      "El resultado indica alto riesgo. La presencia de condiciones graves o factores acumulados requiere atención médica inmediata. No se recomienda esperar una nueva evaluación ni usar el seguimiento diario como acción principal.",
     steps: [
       "Acude de inmediato al centro de salud más cercano.",
       "No esperes a que los síntomas desaparezcan por sí solos.",
@@ -200,9 +245,112 @@ const riskContent = {
     ],
     followTitle: "Atención prioritaria",
     followText:
-      "El seguimiento diario no sustituye la atención médica inmediata. En este nivel de riesgo, la acción principal es acudir al centro de salud más cercano.",
+      "Se identifican condiciones de alto riesgo. Acude de inmediato al centro de salud más cercano o comunícate con el servicio de emergencia correspondiente.",
     followButton: "Buscar atención inmediata",
   },
+};
+
+const riskImages = {
+  bajo: {
+    triage: TVRImage,
+    date: FVImage,
+    classification: CVRImage,
+  },
+  medio: {
+    triage: TARImage,
+    date: FAImage,
+    classification: CARImage,
+  },
+  alto: {
+    triage: TRRImage,
+    date: FRImage,
+    classification: CRRImage,
+  },
+};
+
+const buildResultFromLegacySigns = (selectedSignIds = []) => {
+  const validSignIds = selectedSignIds.filter(
+    (id) => id !== "sinSignosRegistrados" && riskSignsCatalog[id]
+  );
+
+  const selectedSigns = validSignIds.map((id) => riskSignsCatalog[id]);
+  const score = selectedSigns.reduce((sum, sign) => sum + sign.points, 0);
+  const riskLevel = getRiskLevelFromSigns(score, selectedSigns);
+
+  return {
+    mode: selectedSigns.length > 0 ? "dangerSigns" : "empty",
+    riskLevel,
+    finalRisk: riskLevel,
+    finalLabel: getRiskLabel(riskLevel),
+    totalScore: score,
+    selectedSigns,
+    selectedSignIds: validSignIds,
+    identifiedFactors: selectedSigns,
+    recommendation: null,
+  };
+};
+
+const normalizeEvaluationResult = (locationState) => {
+  const evaluationResult = locationState?.evaluationResult || null;
+
+  if (evaluationResult) {
+    const riskLevel = getValidRiskLevel(
+      evaluationResult.riskLevel || evaluationResult.finalRisk
+    );
+
+    const identifiedFactors =
+      Array.isArray(evaluationResult.identifiedFactors) &&
+      evaluationResult.identifiedFactors.length > 0
+        ? evaluationResult.identifiedFactors
+        : Array.isArray(evaluationResult.selectedSigns)
+        ? evaluationResult.selectedSigns
+        : [];
+
+    const maternalRisk = getValidRiskLevel(evaluationResult.maternalRisk);
+    const neonatalRisk = getValidRiskLevel(evaluationResult.neonatalRisk);
+    const combinedRisk = getValidRiskLevel(evaluationResult.combinedRisk);
+
+    return {
+      mode: evaluationResult.mode || "initialRegistration",
+
+      riskLevel,
+      finalRisk: riskLevel,
+      finalLabel:
+        evaluationResult.finalLabel ||
+        evaluationResult.label ||
+        getRiskLabel(riskLevel),
+
+      totalScore: Number(evaluationResult.totalScore) || 0,
+
+      selectedSigns: Array.isArray(evaluationResult.selectedSigns)
+        ? evaluationResult.selectedSigns
+        : [],
+
+      selectedSignIds: Array.isArray(evaluationResult.selectedSignIds)
+        ? evaluationResult.selectedSignIds
+        : [],
+
+      identifiedFactors,
+
+      maternalScore: Number(evaluationResult.maternalScore) || 0,
+      maternalRisk,
+      maternalLabel:
+        evaluationResult.maternalLabel || getRiskLabel(maternalRisk),
+
+      neonatalScore: Number(evaluationResult.neonatalScore) || 0,
+      neonatalRisk,
+      neonatalLabel:
+        evaluationResult.neonatalLabel || getRiskLabel(neonatalRisk),
+
+      combinedRisk,
+      combinedLabel:
+        evaluationResult.combinedLabel || getRiskLabel(combinedRisk),
+
+      recommendation: evaluationResult.recommendation || null,
+    };
+  }
+
+  return buildResultFromLegacySigns(locationState?.selectedSigns || []);
 };
 
 const Result = () => {
@@ -210,19 +358,36 @@ const Result = () => {
   const location = useLocation();
 
   const usuario = location.state?.user || null;
+  const resultData = normalizeEvaluationResult(location.state);
 
-  const selectedSignIds =
-    location.state?.selectedSigns && location.state.selectedSigns.length > 0
-      ? location.state.selectedSigns
-      : fallbackSelectedSigns;
+  const riskLevel = getValidRiskLevel(resultData.riskLevel);
+  const risk = riskContent[riskLevel] || riskContent.bajo;
+  const currentImages = riskImages[riskLevel] || riskImages.bajo;
 
-  const selectedSigns = selectedSignIds
-    .map((id) => riskSignsCatalog[id])
-    .filter(Boolean);
+  const totalScore = Number(resultData.totalScore) || 0;
+  const finalLabel = resultData.finalLabel || risk.label;
 
-  const totalScore = selectedSigns.reduce((sum, sign) => sum + sign.points, 0);
-  const riskLevel = getRiskLevel(totalScore, selectedSigns);
-  const risk = riskContent[riskLevel];
+  const recommendation = resultData.recommendation;
+  const followTitle = recommendation?.title || risk.followTitle;
+  const followText = recommendation?.text || risk.followText;
+  const followButton = risk.followButton;
+
+  const identifiedItems = Array.isArray(resultData.identifiedFactors)
+    ? resultData.identifiedFactors
+    : [];
+
+  const hasIdentifiedItems = identifiedItems.length > 0;
+  const isInitialRegistration = resultData.mode === "initialRegistration";
+
+  const summaryTitle = isInitialRegistration
+    ? "Factores identificados:"
+    : "Signos identificados:";
+
+  const emptySummaryText = isInitialRegistration
+    ? "• Sin factores de riesgo registrados"
+    : "• Sin signos de alarma registrados";
+
+  const scoreText = `${totalScore} puntos`;
 
   const handleFollowAction = () => {
     if (riskLevel === "bajo") {
@@ -321,23 +486,44 @@ const Result = () => {
 
             <div className="result-risk-stats">
               <div className="result-stat-item">
-                <span>▣</span>
+                <span className={`result-stat-icon-box ${riskLevel}`}>
+                  <img
+                    src={currentImages.triage}
+                    alt="Puntaje obtenido"
+                    className="result-stat-icon"
+                  />
+                </span>
+
                 <div>
                   <p>Puntaje obtenido</p>
-                  <strong>{totalScore} / 10</strong>
+                  <strong>{scoreText}</strong>
                 </div>
               </div>
 
               <div className="result-stat-item">
-                <span>◴</span>
+                <span className={`result-stat-icon-box ${riskLevel}`}>
+                  <img
+                    src={currentImages.classification}
+                    alt="Clasificación"
+                    className="result-stat-icon"
+                  />
+                </span>
+
                 <div>
                   <p>Clasificación</p>
-                  <strong>{risk.label}</strong>
+                  <strong>{finalLabel}</strong>
                 </div>
               </div>
 
               <div className="result-stat-item">
-                <span>▦</span>
+                <span className={`result-stat-icon-box ${riskLevel}`}>
+                  <img
+                    src={currentImages.date}
+                    alt="Fecha de evaluación"
+                    className="result-stat-icon"
+                  />
+                </span>
+
                 <div>
                   <p>Fecha de evaluación</p>
                   <strong>{getTodayLabel()}</strong>
@@ -347,37 +533,64 @@ const Result = () => {
           </section>
 
           <section className="result-card result-summary-card">
-            <div className="result-card-icon green">▤</div>
+            <div className="result-card-icon image-icon">
+              <img
+                src={RRImage}
+                alt="Resumen de evaluación"
+                className="result-section-image"
+              />
+            </div>
 
             <div>
               <h2>Resumen de la evaluación</h2>
               <p>{risk.summary}</p>
 
-              <h3>Signos identificados:</h3>
+              {isInitialRegistration && (
+                <div className="result-combined-summary">
+                  <span>
+                    Riesgo materno:{" "}
+                    <strong>{resultData.maternalLabel}</strong>
+                  </span>
+
+                  <span>
+                    Riesgo neonatal:{" "}
+                    <strong>{resultData.neonatalLabel}</strong>
+                  </span>
+                </div>
+              )}
+
+              <h3>{summaryTitle}</h3>
 
               <div className="result-chip-list">
-                {selectedSigns.length > 0 ? (
-                  selectedSigns.map((sign) => (
+                {hasIdentifiedItems ? (
+                  identifiedItems.map((item, index) => (
                     <span
-                      key={sign.label}
+                      key={item.id || item.label || index}
                       className={`result-chip ${riskLevel}`}
                     >
-                      • {sign.label}
+                      • {item.label || "Factor registrado"}
                     </span>
                   ))
                 ) : (
                   <span className={`result-chip ${riskLevel}`}>
-                    • Sin signos de alarma registrados
+                    {emptySummaryText}
                   </span>
                 )}
               </div>
             </div>
           </section>
 
-          <section className="result-card result-action-card">
+          <section className={`result-card result-action-card ${riskLevel}`}>
             <div className="result-action-text">
               <div className="result-action-heading">
-                <div className="result-card-icon yellow">▣</div>
+                <div className="result-card-icon image-icon">
+                  <img
+                    src={currentImages.triage}
+                    alt="Qué debes hacer ahora"
+                    className="result-section-image result-action-risk-image"
+                  />
+                </div>
+
                 <h2>¿Qué debes hacer ahora?</h2>
               </div>
 
@@ -399,11 +612,17 @@ const Result = () => {
 
           <section className={`result-follow-card ${risk.className}`}>
             <div className="result-follow-info">
-              <div className="result-card-icon follow">▦</div>
+              <div className="result-card-icon image-icon">
+                <img
+                  src={SRImage}
+                  alt="Seguimiento recomendado"
+                  className="result-section-image"
+                />
+              </div>
 
               <div>
-                <h2>{risk.followTitle}</h2>
-                <p>{risk.followText}</p>
+                <h2>{followTitle}</h2>
+                <p>{followText}</p>
               </div>
             </div>
 
@@ -412,13 +631,23 @@ const Result = () => {
               className="result-follow-button"
               onClick={handleFollowAction}
             >
-              <span>▦</span>
-              {risk.followButton}
+              <img
+                src={actImage}
+                alt=""
+                className="result-follow-button-icon"
+              />
+              {followButton}
             </button>
           </section>
 
           <section className="result-remember-card">
-            <div className="result-remember-icon">✓</div>
+            <div className="result-remember-icon image-icon">
+              <img
+                src={informacionSeguraImage}
+                alt="Información segura"
+                className="result-section-image"
+              />
+            </div>
 
             <div>
               <h2>Recuerda</h2>
@@ -440,7 +669,14 @@ const Result = () => {
                 className="result-final-action green"
                 onClick={() => navigate("/evaluacion")}
               >
-                <span>↻</span>
+                <span className="result-final-icon-box">
+                  <img
+                    src={evaImage}
+                    alt="Realizar nueva evaluación"
+                    className="result-final-icon"
+                  />
+                </span>
+
                 <div>
                   <strong>Realizar nueva evaluación</strong>
                   <p>
@@ -455,7 +691,14 @@ const Result = () => {
                 className="result-final-action purple"
                 onClick={() => navigate("/educacion")}
               >
-                <span>▱</span>
+                <span className="result-final-icon-box">
+                  <img
+                    src={libretaImage}
+                    alt="Consultar contenido educativo"
+                    className="result-final-icon"
+                  />
+                </span>
+
                 <div>
                   <strong>Consultar contenido educativo</strong>
                   <p>Accede a guías y recursos para el cuidado del bebé.</p>
@@ -467,7 +710,14 @@ const Result = () => {
                 className="result-final-action brown"
                 onClick={() => navigate("/historial")}
               >
-                <span>◷</span>
+                <span className="result-final-icon-box">
+                  <img
+                    src={verImage}
+                    alt="Ver historial"
+                    className="result-final-icon"
+                  />
+                </span>
+
                 <div>
                   <strong>Ver historial</strong>
                   <p>Revisa tus evaluaciones anteriores.</p>

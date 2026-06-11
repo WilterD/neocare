@@ -260,7 +260,7 @@
   color: #ffffff;
 }
 
-/* Tarjeta principal de riesgo más compacta */
+/* Tarjeta principal de riesgo */
 
 .result-risk-card {
   border-radius: 16px;
@@ -371,6 +371,8 @@
   line-height: 1.3;
 }
 
+/* Datos de puntaje, clasificación y fecha */
+
 .result-risk-stats {
   margin-top: 14px;
   padding-top: 12px;
@@ -381,9 +383,9 @@
 
 .result-stat-item {
   display: grid;
-  grid-template-columns: 40px 1fr;
+  grid-template-columns: 82px 1fr;
   align-items: center;
-  gap: 9px;
+  gap: 12px;
   padding: 0 12px;
   border-right: 1px solid #e8d8c2;
 }
@@ -396,17 +398,22 @@
   border-right: none;
 }
 
-.result-stat-item span {
-  width: 34px;
-  height: 34px;
+.result-stat-icon-box {
+  width: 76px;
+  height: 76px;
   border-radius: 50%;
-  background: #fff0cf;
-  color: #f0a000;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 17px;
-  font-weight: 900;
+  overflow: visible;
+}
+
+.result-stat-icon {
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+  display: block;
 }
 
 .result-stat-item p {
@@ -442,13 +449,7 @@
   margin-bottom: 14px;
 }
 
-/* Resumen */
-
-.result-summary-card {
-  display: grid;
-  grid-template-columns: 54px 1fr;
-  gap: 14px;
-}
+/* Imágenes de secciones */
 
 .result-card-icon {
   width: 46px;
@@ -463,19 +464,48 @@
   font-weight: 900;
 }
 
-.result-card-icon.yellow {
-  background: #fff0cf;
-  color: #f0a000;
+.result-card-icon.image-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  overflow: visible;
 }
 
-.result-card-icon.green {
-  background: rgba(213, 230, 196, 0.45);
-  color: #3f8a36;
+.result-section-image {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+  display: block;
 }
 
-.result-card-icon.follow {
-  background: rgba(213, 230, 196, 0.45);
-  color: #3f8a36;
+/* Resumen */
+
+.result-summary-card {
+  display: grid;
+  grid-template-columns: 108px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.result-summary-card .result-card-icon.image-icon {
+  width: 96px;
+  height: 96px;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.result-summary-card .result-section-image {
+  width: 108px;
+  height: 108px;
+  object-fit: contain;
+  display: block;
 }
 
 .result-summary-card h2,
@@ -494,6 +524,32 @@
   font-size: 13.6px;
   font-weight: 500;
   line-height: 1.28;
+}
+
+/* Resumen materno/neonatal */
+
+.result-combined-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin: 8px 0 13px;
+  color: #343349;
+  font-size: 13.6px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.result-combined-summary span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.result-combined-summary strong {
+  color: #1f1f24;
+  font-weight: 850;
 }
 
 .result-summary-card h3 {
@@ -544,19 +600,81 @@
 
 .result-action-card {
   display: grid;
-  grid-template-columns: 1fr 220px;
-  gap: 16px;
+  grid-template-columns: 1fr 170px;
+  gap: 14px;
   align-items: center;
+}
+
+.result-action-card.bajo {
+  border-color: rgba(111, 160, 79, 0.32);
+  background: linear-gradient(135deg, #f7fbf2 0%, #ffffff 100%);
+}
+
+.result-action-card.medio {
+  border-color: rgba(240, 160, 0, 0.34);
+  background: linear-gradient(135deg, #fff8e6 0%, #ffffff 100%);
+}
+
+.result-action-card.alto {
+  border-color: rgba(223, 82, 82, 0.34);
+  background: linear-gradient(135deg, #fff1ef 0%, #ffffff 100%);
+}
+
+.result-action-text {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  column-gap: 22px;
+  align-items: start;
 }
 
 .result-action-heading {
+  display: contents;
+}
+
+.result-action-heading .result-card-icon.image-icon {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  width: 120px;
+  height: 120px;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 7px;
+  justify-content: center;
+  overflow: visible;
+}
+
+.result-action-heading h2 {
+  grid-column: 2;
+  margin: 0 0 12px;
+  color: #1f1f24;
+  font-size: 20px;
+  font-weight: 850;
+  line-height: 1.15;
+}
+
+.result-action-card .result-action-risk-image {
+  width: 138px;
+  height: 138px;
+  object-fit: contain;
+  display: block;
+}
+
+.result-action-card.bajo .result-action-risk-image {
+  filter: drop-shadow(0 8px 14px rgba(111, 160, 79, 0.14));
+}
+
+.result-action-card.medio .result-action-risk-image {
+  filter: drop-shadow(0 8px 14px rgba(240, 160, 0, 0.16));
+}
+
+.result-action-card.alto .result-action-risk-image {
+  filter: drop-shadow(0 8px 14px rgba(223, 82, 82, 0.16));
 }
 
 .result-action-text ul {
+  grid-column: 2;
   margin: 0;
   padding-left: 18px;
 }
@@ -569,8 +687,16 @@
   line-height: 1.25;
 }
 
-.result-action-text li::marker {
+.result-action-card.bajo .result-action-text li::marker {
+  color: #6fa04f;
+}
+
+.result-action-card.medio .result-action-text li::marker {
   color: #f0a000;
+}
+
+.result-action-card.alto .result-action-text li::marker {
+  color: #df5252;
 }
 
 .result-user-image-box {
@@ -582,67 +708,77 @@
 
 .result-user-image {
   width: 100%;
-  max-width: 200px;
+  max-width: 155px;
   height: auto;
   object-fit: contain;
   display: block;
 }
 
-/* Seguimiento */
+/* Seguimiento - mismo estilo visual que Recuerda */
 
 .result-follow-card {
   margin-bottom: 14px;
-  padding: 16px 22px;
+  padding: 14px 20px;
   display: grid;
   grid-template-columns: 1fr 240px;
   gap: 16px;
   align-items: center;
-}
-
-.result-follow-card.low {
   background: linear-gradient(135deg, #f6fbf1 0%, #fffdf8 100%);
   border-color: #d4e5c9;
 }
 
-.result-follow-card.medium {
-  background: linear-gradient(135deg, #fff8e8 0%, #fffdf8 100%);
-  border-color: #f0ddb5;
-}
-
+.result-follow-card.low,
+.result-follow-card.medium,
 .result-follow-card.high {
-  background: linear-gradient(135deg, #fff1ef 0%, #fffdf8 100%);
-  border-color: #f2b8b8;
+  background: linear-gradient(135deg, #f6fbf1 0%, #fffdf8 100%);
+  border-color: #d4e5c9;
 }
 
 .result-follow-info {
   display: grid;
-  grid-template-columns: 52px 1fr;
-  gap: 14px;
-  align-items: start;
+  grid-template-columns: 100px 1fr;
+  gap: 18px;
+  align-items: center;
 }
 
 .result-follow-info h2 {
-  margin: 0 0 4px;
+  margin: 0 0 3px;
   color: #2f7d32;
-  font-size: 18px;
+  font-size: 17.5px;
   font-weight: 850;
   line-height: 1.15;
 }
 
-.result-follow-card.medium .result-follow-info h2 {
-  color: #ad6e00;
-}
-
+.result-follow-card.medium .result-follow-info h2,
 .result-follow-card.high .result-follow-info h2 {
-  color: #c83232;
+  color: #2f7d32;
 }
 
 .result-follow-info p {
   margin: 0;
   color: #343349;
-  font-size: 13.3px;
+  font-size: 13.2px;
   font-weight: 500;
-  line-height: 1.28;
+  line-height: 1.25;
+}
+
+.result-follow-card .result-card-icon.image-icon {
+  width: 92px;
+  height: 92px;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.result-follow-card .result-section-image {
+  width: 108px;
+  height: 108px;
+  object-fit: contain;
+  display: block;
 }
 
 .result-follow-button {
@@ -669,7 +805,15 @@
 }
 
 .result-follow-card.high .result-follow-button {
-  background: linear-gradient(135deg, #df5252, #b92d2d);
+  background: linear-gradient(135deg, #75a85d, #4f8a3d);
+}
+
+.result-follow-button-icon {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  display: block;
+  margin-left: -4px;
 }
 
 /* Recuerda */
@@ -687,14 +831,29 @@
 .result-remember-icon {
   width: 42px;
   height: 42px;
-  border-radius: 50%;
-  background: #6fa04f;
-  color: white;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
-  font-weight: 900;
+  overflow: visible;
+}
+
+.result-remember-icon.image-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  overflow: visible;
+}
+
+.result-remember-icon.image-icon .result-section-image {
+  width: 126px;
+  height: 126px;
+  object-fit: contain;
+  display: block;
 }
 
 .result-remember-card h2 {
@@ -738,7 +897,7 @@
   padding: 9px 11px;
   background: #fffdf8;
   display: grid;
-  grid-template-columns: 36px 1fr;
+  grid-template-columns: 38px 1fr;
   align-items: center;
   gap: 9px;
   text-align: left;
@@ -751,16 +910,10 @@
   box-shadow: 0 12px 24px rgba(146, 116, 78, 0.12);
 }
 
-.result-final-action span {
-  font-size: 32px;
-  line-height: 1;
-}
-
 .result-final-action.green {
   background: #f6fbf1;
 }
 
-.result-final-action.green span,
 .result-final-action.green strong {
   color: #3f8a36;
 }
@@ -769,7 +922,6 @@
   background: #f8f4ff;
 }
 
-.result-final-action.purple span,
 .result-final-action.purple strong {
   color: #5a4aa0;
 }
@@ -778,9 +930,43 @@
   background: #fff8ef;
 }
 
-.result-final-action.brown span,
 .result-final-action.brown strong {
   color: #7a4d15;
+}
+
+.result-final-icon-box {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.result-final-icon {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Duplicar tamaño de Libreta y Ver */
+
+.result-final-action.purple,
+.result-final-action.brown {
+  grid-template-columns: 82px 1fr;
+  min-height: 86px;
+}
+
+.result-final-action.purple .result-final-icon-box,
+.result-final-action.brown .result-final-icon-box {
+  width: 78px;
+  height: 78px;
+}
+
+.result-final-action.purple .result-final-icon,
+.result-final-action.brown .result-final-icon {
+  width: 92px;
+  height: 92px;
 }
 
 .result-final-action strong {
@@ -867,6 +1053,47 @@
 
   .result-summary-card {
     grid-template-columns: 1fr;
+  }
+
+  .result-action-text {
+    display: block;
+  }
+
+  .result-action-heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+
+  .result-action-heading .result-card-icon.image-icon {
+    width: 112px;
+    height: 112px;
+    flex: 0 0 auto;
+  }
+
+  .result-action-card .result-action-risk-image {
+    width: 126px;
+    height: 126px;
+  }
+
+  .result-action-text ul {
+    margin-top: 8px;
+  }
+
+  .result-follow-info {
+    grid-template-columns: 1fr;
+    text-align: left;
+  }
+
+  .result-follow-card .result-card-icon.image-icon {
+    width: 82px;
+    height: 82px;
+  }
+
+  .result-follow-card .result-section-image {
+    width: 96px;
+    height: 96px;
   }
 
   .result-follow-button {
