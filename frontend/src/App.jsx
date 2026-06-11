@@ -9,6 +9,7 @@ import Evaluation from "./pages/Evaluation/Evaluation.jsx";
 import About from "./pages/About/About.jsx";
 import Contact from "./pages/Contact/Contact.jsx";
 import Result from "./pages/Result/Result.jsx";
+import Education from "./pages/Education/Education.jsx";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/contacto" element={<Contact />} />
         <Route path="/resultado" element={<Result />} />
         <Route path="/resultado" element={<Result />} />
+        <Route path="/educacion" element={<Education />} />
 
         {/* Ruta interna: no va en el header principal */}
         <Route path="/evaluacion" element={<Evaluation />} />
