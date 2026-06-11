@@ -95,9 +95,38 @@ export const calcularRiesgoCombinado = (
   };
 };
 
+/** Normaliza el payload del formulario (Sí/No, gramos) al formato del motor de riesgo */
+export const normalizarParaRiesgo = (madre, bebe, datosClinicos) => {
+  const nivel = madre.nivelEducativo;
+  const nivelRiesgo =
+    nivel === "Básico" || nivel === "Básica" || nivel === "Ninguno" ? "Básica" : nivel;
+
+  return {
+    madre: {
+      edad: Number(madre.edad),
+      nivelEducativo: nivelRiesgo,
+      zonaResidencia: madre.zonaResidencia,
+      accesoCentroSalud: madre.accesoCentroSalud !== "Sí",
+      madreSola: madre.cuidaSinApoyo === "Sí",
+      apoyoFamiliar: madre.apoyoFamiliar !== "Sí",
+      numeroHijos: Number(madre.numeroNinosCuidado) || 0,
+      situacionEconomica: madre.situacionEconomica,
+    },
+    bebe: {
+      edadGestacional: Number(bebe.edadGestacional),
+      pesoNacer: Number(bebe.pesoNacer) / 1000,
+    },
+    datosClinicos: {
+      complicacionesNacer: datosClinicos.complicacionesNacer === "Sí",
+      hospitalizacionNeonatal: datosClinicos.hospitalizacionNeonatal === "Sí",
+    },
+  };
+};
+
 export const evaluarRegistro = ({ madre, bebe, datosClinicos }) => {
-  const riesgoMaterno = calcularRiesgoMaterno(madre);
-  const riesgoNeonatal = calcularRiesgoNeonatal(bebe, datosClinicos);
+  const normalizado = normalizarParaRiesgo(madre, bebe, datosClinicos);
+  const riesgoMaterno = calcularRiesgoMaterno(normalizado.madre);
+  const riesgoNeonatal = calcularRiesgoNeonatal(normalizado.bebe, normalizado.datosClinicos);
 
   const riesgoCombinado = calcularRiesgoCombinado(
     riesgoMaterno.clasificacionMaterna,

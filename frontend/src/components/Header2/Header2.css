@@ -96,6 +96,18 @@
   line-height: 1;
 }
 
+.header2-notif-btn {
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  margin-right: 0.5rem;
+}
+
 /* Botón cierre */
 
 .header2-logout-button {

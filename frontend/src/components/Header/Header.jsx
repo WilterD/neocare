@@ -2,7 +2,7 @@ import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import "./Header.css";
 
-import logoImage from "../../assets/logo.png";
+import logoImage from "../../assets/LOGO.png";
 
 const Header = () => {
   const navigate = useNavigate();

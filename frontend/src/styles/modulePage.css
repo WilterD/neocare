@@ -1,0 +1,10 @@
+.module-form { display: grid; gap: 0.75rem; max-width: 520px; }
+.module-form label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.9rem; }
+.module-form input, .module-form select, .module-form textarea { padding: 0.5rem; border: 1px solid #ddd; border-radius: 8px; }
+.module-btn { padding: 0.6rem 1rem; background: #7bb54a; color: #fff; border: none; border-radius: 8px; cursor: pointer; }
+.module-list { display: grid; gap: 0.75rem; }
+.module-card { background: #f8f6f2; padding: 1rem; border-radius: 10px; }
+.module-error { color: #b42318; }
+.module-success { color: #3d7d24; }
+.module-checklist { display: grid; gap: 0.5rem; }
+.module-checklist label { display: flex; align-items: center; gap: 0.5rem; }

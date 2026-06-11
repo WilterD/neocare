@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getTestimonios } from "../../services/api.js";
 import "./About.css";
 
 import Header from "../../components/Header/Header.jsx";
@@ -65,6 +66,11 @@ const teamMembers = [
 
 const About = () => {
   const navigate = useNavigate();
+  const [testimonios, setTestimonios] = useState([]);
+
+  useEffect(() => {
+    getTestimonios().then((d) => setTestimonios((d.testimonios || []).slice(0, 2)));
+  }, []);
 
   const handleStartEvaluation = () => {
     navigate("/registro");
@@ -201,6 +207,22 @@ const About = () => {
               </div>
             </div>
           </article>
+        </section>
+
+        <section className="about-testimonios-section" style={{ margin: "2rem 0" }}>
+          <h2>Voces de Mama Plena</h2>
+          <p>Experiencias de madres que usan acompañamiento digital en su proceso.</p>
+          <div style={{ display: "grid", gap: "1rem", marginTop: "1rem" }}>
+            {testimonios.map((t) => (
+              <article key={t.id} style={{ background: "#f8f6f2", padding: "1rem", borderRadius: 12 }}>
+                <h3>{t.nombre}</h3>
+                <p>{t.contenido}</p>
+              </article>
+            ))}
+          </div>
+          <button type="button" className="about-cta-button" style={{ marginTop: "1rem" }} onClick={() => navigate("/testimonios")}>
+            Ver todos los testimonios
+          </button>
         </section>
 
         <section className="about-cta-section">

@@ -81,7 +81,7 @@ const Services = () => {
   };
 
   const handleEducationalContent = () => {
-    console.log("Ir a contenido educativo");
+    navigate("/educacion");
   };
 
   return (

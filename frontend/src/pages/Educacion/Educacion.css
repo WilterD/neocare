@@ -1,0 +1,144 @@
+.educacion-page-wrapper {
+  min-height: 100vh;
+  background: #fdfbf7;
+}
+
+.educacion-desktop {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.educacion-sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.educacion-sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #444;
+}
+
+.educacion-sidebar a.active {
+  background: #e8efd4;
+  font-weight: 600;
+}
+
+.educacion-sidebar img {
+  width: 24px;
+  height: 24px;
+}
+
+.educacion-panel {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+
+.educacion-intro {
+  color: #666;
+  margin-bottom: 1.25rem;
+}
+
+.educacion-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.educacion-card {
+  background: #f8f6f2;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+}
+
+.educacion-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s;
+}
+
+.educacion-card-link:hover {
+  transform: translateY(-2px);
+}
+
+.educacion-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.educacion-card-header h3 {
+  margin: 0;
+}
+
+.educacion-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.educacion-badge-alto {
+  background: #fde8e8;
+  color: #b42318;
+}
+
+.educacion-badge-medio {
+  background: #fef3cd;
+  color: #856404;
+}
+
+.educacion-badge-bajo {
+  background: #e8efd4;
+  color: #3d5a1e;
+}
+
+.educacion-tema {
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 0.5rem;
+}
+
+.educacion-recomendacion {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.educacion-filtros {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.educacion-filtros button {
+  padding: 0.35rem 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.educacion-filtros .educacion-filtro-active {
+  background: #e8efd4;
+  border-color: #b8c99a;
+  font-weight: 600;
+}
+
+.educacion-error {
+  color: #b42318;
+}

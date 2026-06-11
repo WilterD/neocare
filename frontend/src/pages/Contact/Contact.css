@@ -405,3 +405,19 @@
     margin: 0 auto;
   }
 }
+
+.contact-success {
+  color: #3d7d24;
+  background: #e8efd4;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.contact-error {
+  color: #b42318;
+  background: #fde8e8;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}

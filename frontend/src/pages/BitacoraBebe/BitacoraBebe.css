@@ -1,0 +1,19 @@
+.bitacora-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.bitacora-tabs button {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.bitacora-tab-active {
+  background: #e8efd4 !important;
+  font-weight: 600;
+}

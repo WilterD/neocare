@@ -1,13 +1,58 @@
-import React from "react";
+import React, { useState } from "react";
 import "./Contact.css";
 
 import Header from "../../components/Header/Header.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
+import { enviarContacto } from "../../services/api.js";
+
+const ASUNTO_LABELS = {
+  registro: "Duda sobre el registro",
+  login: "Problema para iniciar sesión",
+  riesgo: "Consulta sobre evaluación de riesgo",
+  contenido: "Consulta sobre contenido educativo",
+  proyecto: "Información sobre el proyecto",
+  otro: "Otro",
+};
 
 const Contact = () => {
-  const handleSubmit = (event) => {
+  const [form, setForm] = useState({
+    nombre: "",
+    correo: "",
+    telefono: "",
+    asunto: "",
+    mensaje: "",
+  });
+  const [enviando, setEnviando] = useState(false);
+  const [exito, setExito] = useState(null);
+  const [error, setError] = useState(null);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    alert("Mensaje enviado correctamente. Nos pondremos en contacto contigo.");
+    setEnviando(true);
+    setExito(null);
+    setError(null);
+
+    try {
+      const asuntoTexto = ASUNTO_LABELS[form.asunto] || form.asunto;
+      const res = await enviarContacto({
+        nombre: form.nombre,
+        correo: form.correo,
+        telefono: form.telefono,
+        asunto: asuntoTexto,
+        mensaje: form.mensaje,
+      });
+      setExito(res.mensaje);
+      setForm({ nombre: "", correo: "", telefono: "", asunto: "", mensaje: "" });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setEnviando(false);
+    }
   };
 
   return (
@@ -41,36 +86,55 @@ const Contact = () => {
               Completa el formulario y nos pondremos en contacto contigo.
             </p>
 
+            {exito && <p className="contact-success">{exito}</p>}
+            {error && <p className="contact-error">{error}</p>}
+
             <form className="contact-form" onSubmit={handleSubmit}>
               <label>
                 Nombre completo <span>*</span>
-                <input type="text" placeholder="Tu nombre" required />
+                <input
+                  type="text"
+                  name="nombre"
+                  value={form.nombre}
+                  onChange={handleChange}
+                  placeholder="Tu nombre"
+                  required
+                />
               </label>
 
               <label>
                 Correo electrónico <span>*</span>
-                <input type="email" placeholder="tu@email.com" required />
+                <input
+                  type="email"
+                  name="correo"
+                  value={form.correo}
+                  onChange={handleChange}
+                  placeholder="tu@email.com"
+                  required
+                />
               </label>
 
               <label>
                 Teléfono <small>(opcional)</small>
-                <input type="tel" placeholder="+58 412 1234567" />
+                <input
+                  type="tel"
+                  name="telefono"
+                  value={form.telefono}
+                  onChange={handleChange}
+                  placeholder="+58 412 1234567"
+                />
               </label>
 
               <label>
                 Asunto <span>*</span>
-                <select required defaultValue="">
+                <select name="asunto" value={form.asunto} onChange={handleChange} required>
                   <option value="" disabled>
                     Selecciona un asunto
                   </option>
                   <option value="registro">Duda sobre el registro</option>
                   <option value="login">Problema para iniciar sesión</option>
-                  <option value="riesgo">
-                    Consulta sobre evaluación de riesgo
-                  </option>
-                  <option value="contenido">
-                    Consulta sobre contenido educativo
-                  </option>
+                  <option value="riesgo">Consulta sobre evaluación de riesgo</option>
+                  <option value="contenido">Consulta sobre contenido educativo</option>
                   <option value="proyecto">Información sobre el proyecto</option>
                   <option value="otro">Otro</option>
                 </select>
@@ -79,14 +143,17 @@ const Contact = () => {
               <label>
                 Mensaje <span>*</span>
                 <textarea
+                  name="mensaje"
+                  value={form.mensaje}
+                  onChange={handleChange}
                   placeholder="Cuéntanos en qué podemos ayudarte..."
                   required
-                ></textarea>
+                />
               </label>
 
-              <button type="submit" className="contact-submit-button">
+              <button type="submit" className="contact-submit-button" disabled={enviando}>
                 <span>✈</span>
-                Enviar mensaje
+                {enviando ? "Enviando..." : "Enviar mensaje"}
               </button>
 
               <p className="contact-privacy-text">

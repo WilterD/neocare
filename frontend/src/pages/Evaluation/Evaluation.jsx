@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { crearEvaluacion } from "../../services/api.js";
+import { mapEvaluacionFromRegistro } from "../../utils/mapRegistroPayload.js";
 import "./Evaluation.css";
 
-import Header2 from "../../components/Header2/Header2.jsx";
-import Footer from "../../components/Footer/Footer.jsx";
+import AppShell from "../../components/AppShell/AppShell.jsx";
 
 import ctImage from "../../assets/CT.png";
 import qsImage from "../../assets/QS.png";
@@ -19,66 +20,36 @@ import datosBebeImage from "../../assets/DatosBebe.png";
 import avImage from "../../assets/Peso.png";
 import saImage from "../../assets/AR.png";
 
-import inicioImage from "../../assets/Inicio.png";
-import evaluacionImage from "../../assets/evaluacion.png";
-import educacionImage from "../../assets/educacion.png";
-import historialImage from "../../assets/h.png";
-import perfilImage from "../../assets/perfil.png";
-
-const sidebarItems = [
-  {
-    image: inicioImage,
-    label: "Inicio",
-    path: "/",
-  },
-  {
-    image: evaluacionImage,
-    label: "Evaluación",
-    path: "/evaluacion",
-  },
-  {
-    image: educacionImage,
-    label: "Educación",
-    path: "/educacion",
-  },
-  {
-    image: historialImage,
-    label: "Historial",
-    path: "/historial",
-  },
-  {
-    image: perfilImage,
-    label: "Perfil",
-    path: "/perfil",
-  },
-];
-
 const Evaluation = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const [usuario, setUsuario] = useState(location.state?.user || null);
   const [registro, setRegistro] = useState(location.state?.registro || null);
+  const [evaluando, setEvaluando] = useState(false);
 
   useEffect(() => {
-    const cargarDatosRegistro = () => {
-      try {
-        const storedUser = localStorage.getItem("neocareUser");
-        const storedRegisterData = localStorage.getItem("neocareRegisterData");
+    if (usuario && registro) return;
 
-        if (storedUser && !usuario) {
-          setUsuario(JSON.parse(storedUser));
-        }
+    try {
+      const storedUser = localStorage.getItem("neocareUser");
+      const storedRegisterData = localStorage.getItem("neocareRegisterData");
+      const storedRiesgo = localStorage.getItem("neocareResultadoRiesgo");
 
-        if (storedRegisterData && !registro) {
-          setRegistro(JSON.parse(storedRegisterData));
-        }
-      } catch (error) {
-        console.error("Error al cargar datos guardados:", error);
+      if (storedUser && !usuario) {
+        setUsuario(JSON.parse(storedUser));
       }
-    };
 
-    cargarDatosRegistro();
+      if (storedRegisterData && !registro) {
+        const parsed = JSON.parse(storedRegisterData);
+        if (!parsed.resultadoRiesgo && storedRiesgo) {
+          parsed.resultadoRiesgo = JSON.parse(storedRiesgo);
+        }
+        setRegistro(parsed);
+      }
+    } catch (error) {
+      console.error("Error al cargar datos guardados:", error);
+    }
   }, [usuario, registro]);
 
   const datosPersonales =
@@ -157,54 +128,63 @@ const Evaluation = () => {
   ];
 
   const handleGoBack = () => {
-    navigate("/registro");
+    navigate("/perfil/editar");
   };
 
-  const handleRunEvaluation = () => {
-    console.log("Realizar evaluación");
+  const irAResultado = (resultadoRiesgo, registroActualizado) => {
+    navigate("/resultado", {
+      state: {
+        user: usuario,
+        registro: registroActualizado || registro,
+        resultadoRiesgo,
+      },
+    });
+  };
 
-    // Cuando creemos la pantalla de resultado, se conecta aquí:
-    // navigate("/resultado", {
-    //   state: {
-    //     user: usuario,
-    //     registro,
-    //   },
-    // });
+  const handleRunEvaluation = async () => {
+    if (!registro) {
+      alert("No hay datos de registro. Completa el registro primero.");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      setEvaluando(true);
+      try {
+        const payload = mapEvaluacionFromRegistro(registro);
+        const res = await crearEvaluacion(payload);
+        const registroActualizado = {
+          ...registro,
+          resultadoRiesgo: res.resultadoRiesgo,
+          evaluacionId: res.evaluacionId,
+        };
+        setRegistro(registroActualizado);
+        localStorage.setItem("neocareResultadoRiesgo", JSON.stringify(res.resultadoRiesgo));
+        localStorage.setItem("neocareRegisterData", JSON.stringify(registroActualizado));
+        irAResultado(res.resultadoRiesgo, registroActualizado);
+      } catch (err) {
+        alert(err.message || "No se pudo realizar la evaluación.");
+      } finally {
+        setEvaluando(false);
+      }
+      return;
+    }
+
+    const resultadoRiesgo =
+      registro?.resultadoRiesgo ||
+      JSON.parse(localStorage.getItem("neocareResultadoRiesgo") || "null");
+
+    if (!resultadoRiesgo) {
+      alert("No hay datos de evaluación. Completa el registro primero.");
+      return;
+    }
+
+    irAResultado(resultadoRiesgo);
   };
 
   return (
-    <main className="evaluation-page-wrapper">
-      <Header2 user={usuario} />
-
-      <section className="evaluation-desktop">
-        <aside className="evaluation-sidebar">
-          <nav className="evaluation-sidebar-nav">
-            {sidebarItems.map((item) => (
-              <NavLink
-                key={item.label}
-                to={item.path}
-                end={item.path === "/"}
-                className={({ isActive }) =>
-                  isActive
-                    ? "evaluation-sidebar-item active"
-                    : "evaluation-sidebar-item"
-                }
-              >
-                <span className="evaluation-sidebar-icon-box">
-                  <img
-                    src={item.image}
-                    alt={item.label}
-                    className="evaluation-sidebar-icon"
-                  />
-                </span>
-
-                {item.label}
-              </NavLink>
-            ))}
-          </nav>
-        </aside>
-
-        <section className="evaluation-main-panel">
+    <AppShell title="Evaluación de riesgo">
+        <section className="evaluation-main-panel" style={{ padding: 0 }}>
           <header className="evaluation-title-row">
             <h1>Evaluación de riesgo</h1>
 
@@ -293,6 +273,7 @@ const Evaluation = () => {
                 type="button"
                 className="evaluation-main-button"
                 onClick={handleRunEvaluation}
+                disabled={evaluando}
               >
                 <img
                   src={realizarEImage}
@@ -301,7 +282,7 @@ const Evaluation = () => {
                 />
 
                 <span className="evaluation-main-button-text">
-                  Realizar evaluación
+                  {evaluando ? "Evaluando..." : "Realizar evaluación"}
                 </span>
 
                 <span className="evaluation-main-button-space"></span>
@@ -314,10 +295,7 @@ const Evaluation = () => {
             </aside>
           </section>
         </section>
-      </section>
-
-      <Footer />
-    </main>
+    </AppShell>
   );
 };
 

@@ -1,0 +1,68 @@
+.perfil-page-wrapper {
+  min-height: 100vh;
+  background: #fdfbf7;
+}
+
+.perfil-desktop {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.perfil-sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.perfil-sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #444;
+}
+
+.perfil-sidebar a.active {
+  background: #e8efd4;
+  font-weight: 600;
+}
+
+.perfil-sidebar img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.perfil-panel {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.perfil-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+}
+
+.perfil-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.perfil-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.perfil-error {
+  color: #c44;
+  font-size: 0.9rem;
+}

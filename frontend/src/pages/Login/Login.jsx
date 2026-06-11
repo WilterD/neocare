@@ -1,22 +1,32 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import "./Login.css";
 
 import Header from "../../components/Header/Header.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
 
 import googleImage from "../../assets/Google.png";
-import faceImage from "../../assets/Face.png";
+import { login, googleAuthUrl } from "../../services/api.js";
+import { persistSession } from "../../utils/mapRegistroPayload.js";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+    remember: false,
   });
 
   const [loginError, setLoginError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("error") === "oauth") {
+      setLoginError("No se pudo iniciar sesión con Google. Verifica la configuración OAuth del servidor.");
+    }
+  }, [searchParams]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -29,46 +39,35 @@ const Login = () => {
     setLoginError("");
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setLoading(true);
+    setLoginError("");
 
-    const storedUser = localStorage.getItem("neocareUser");
-    const storedRegisterData = localStorage.getItem("neocareRegisterData");
+    try {
+      const data = await login(formData.email.trim(), formData.password);
 
-    if (!storedUser) {
-      setLoginError(
-        "No se encontró un usuario registrado. Primero debes completar el registro."
-      );
-      return;
+      persistSession({
+        token: data.token,
+        usuario: data.usuario,
+        registro: data.registro,
+      });
+      if (!formData.remember) {
+        sessionStorage.setItem("token", data.token);
+        localStorage.removeItem("token");
+      }
+
+      navigate("/inicio", {
+        state: {
+          user: data.usuario,
+          registro: data.registro,
+        },
+      });
+    } catch (err) {
+      setLoginError(err.message || "No se pudo iniciar sesión.");
+    } finally {
+      setLoading(false);
     }
-
-    const usuario = JSON.parse(storedUser);
-    const registro = storedRegisterData ? JSON.parse(storedRegisterData) : usuario;
-
-    const correoRegistrado =
-      usuario?.correo ||
-      usuario?.datosPersonales?.correo ||
-      registro?.correo ||
-      registro?.datosPersonales?.correo ||
-      "";
-
-    if (
-      correoRegistrado.trim().toLowerCase() !==
-      formData.email.trim().toLowerCase()
-    ) {
-      setLoginError("El correo ingresado no coincide con un usuario registrado.");
-      return;
-    }
-
-    localStorage.setItem("neocareUser", JSON.stringify(usuario));
-    localStorage.setItem("neocareRegisterData", JSON.stringify(registro));
-
-    navigate("/inicio", {
-      state: {
-        user: usuario,
-        registro,
-      },
-    });
   };
 
   return (
@@ -116,17 +115,21 @@ const Login = () => {
 
             <div className="login-options">
               <label className="login-remember">
-                <input type="checkbox" />
+                <input
+                  type="checkbox"
+                  checked={formData.remember}
+                  onChange={(e) => setFormData((p) => ({ ...p, remember: e.target.checked }))}
+                />
                 Recordarme
               </label>
 
-              <button type="button" className="login-forgot-button">
+              <button type="button" className="login-forgot-button" onClick={() => navigate("/olvide-contrasena")}>
                 ¿Olvidaste tu contraseña?
               </button>
             </div>
 
-            <button type="submit" className="login-submit-button">
-              Iniciar sesión
+            <button type="submit" className="login-submit-button" disabled={loading}>
+              {loading ? "Ingresando..." : "Iniciar sesión"}
             </button>
           </form>
 
@@ -147,22 +150,13 @@ const Login = () => {
             </div>
 
             <div className="login-social-buttons">
-              <button type="button" className="login-social-button">
-                <img
-                  src={googleImage}
-                  alt="Google"
-                  className="login-social-icon google-social-icon"
-                />
+              <button
+                type="button"
+                className="login-social-button"
+                onClick={() => { window.location.href = googleAuthUrl(); }}
+              >
+                <img src={googleImage} alt="Google" className="login-social-icon google-social-icon" />
                 Google
-              </button>
-
-              <button type="button" className="login-social-button">
-                <img
-                  src={faceImage}
-                  alt="Facebook"
-                  className="login-social-icon face-social-icon"
-                />
-                Facebook
               </button>
             </div>
           </div>

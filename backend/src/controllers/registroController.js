@@ -2,6 +2,12 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { query, transaction } from "../db.js";
 import { evaluarRegistro } from "../services/riesgoService.js";
+import {
+  buildRegistroFromPayload,
+  formatRegistroFromDb,
+} from "../utils/formatRegistro.js";
+import { guardarEvaluacion } from "../services/evaluacionService.js";
+import { seedVacunasParaBebe } from "../services/vacunasService.js";
 
 // Helper para parsear fecha de dd/mm/aaaa a yyyy-mm-dd
 const parseFecha = (fechaStr) => {
@@ -36,7 +42,7 @@ export const crearRegistro = async (req, res) => {
     const nombreMadre = madre.nombreCompleto;
     const edadMadre = Number(madre.edad);
     const telefonoMadre = madre.telefono;
-    const correoMadre = madre.correo;
+    const correoMadre = madre.correo.trim().toLowerCase();
     const numeroIdentificacion = madre.numeroIdentificacion;
     
     const nivelEducacion = madre.nivelEducativo;
@@ -111,8 +117,16 @@ export const crearRegistro = async (req, res) => {
       return { madreId, bebeId };
     });
 
-    // Calcular riesgo de la evaluación
     const resultadoRiesgo = evaluarRegistro({ madre, bebe, datosClinicos });
+
+    const fechaNac = parseFecha(bebe.fechaNacimiento);
+    await seedVacunasParaBebe(result.bebeId, fechaNac);
+
+    const evaluacionGuardada = await guardarEvaluacion(
+      result.madreId,
+      result.bebeId,
+      resultadoRiesgo
+    );
 
     // Crear token JWT para inicio de sesión inmediato
     const token = jwt.sign(
@@ -121,37 +135,40 @@ export const crearRegistro = async (req, res) => {
       { expiresIn: "7d" }
     );
 
+    const registro = buildRegistroFromPayload(madre, bebe, datosClinicos, resultadoRiesgo);
+
     return res.status(201).json({
       mensaje: "Registro creado correctamente y guardado en la base de datos.",
       token,
+      evaluacionId: evaluacionGuardada.id,
       usuario: {
         id: result.madreId,
         nombre: nombreMadre,
+        nombreCompleto: nombreMadre,
         correo: correoMadre,
         bebe: {
           id: result.bebeId,
-          nombre: bebe.nombreBebe
-        }
-      },
-      registro: {
-        datosPersonales: { ...madre, password: null, confirmPassword: null },
-        sociodemografica,
-        condicionesCuidado: { ...madre, numeroNinosCuidado: numeroHijos, primeraVezCuidando: madre.primeraVezCuidando },
-        recienNacido: {
-          ...bebe,
-          pesoNacer: bebe.pesoNacer,
-          edadActual: resultadoRiesgo.edadActual || "Calculado",
+          nombre: bebe.nombreBebe,
         },
-        datosClinicos,
-        resultadoRiesgo
-      }
+      },
+      registro,
     });
-
   } catch (error) {
     console.error("Error al registrar:", error);
+
+    if (
+      error.code === "23505" ||
+      error.code === "SQLITE_CONSTRAINT_UNIQUE" ||
+      error.code === "ER_DUP_ENTRY"
+    ) {
+      return res.status(409).json({
+        mensaje: "Este correo electrónico ya está registrado.",
+      });
+    }
+
     return res.status(500).json({
       mensaje: "Error interno al crear el registro en la base de datos.",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -191,47 +208,25 @@ export const loginUsuario = async (req, res) => {
     const resBebe = await query(sqlBebe, [madre.id]);
     const bebe = resBebe.rows[0] || {};
 
-    // Formatear datos de vuelta para el frontend
-    const payload = {
-      datosPersonales: {
-        nombreCompleto: madre.nombre,
-        edad: String(madre.edad),
-        numeroIdentificacion: madre.numero_identificacion,
-        telefono: madre.telefono,
-        correo: madre.correo_electronico
-      },
-      sociodemografica: {
-        nivelEducativo: madre.nivel_educacion,
-        zonaResidencia: madre.zona_residencia,
-        accesoCentroSalud: madre.acceso_centro_salud ? "Sí" : "No",
-        situacionEconomica: madre.situacion_economica
-      },
-      condicionesCuidado: {
-        relacionRecienNacido: madre.relacion_bebe,
-        primeraVezCuidando: madre.es_madre_primeriza ? "Sí" : "No",
-        cuidaSinApoyo: madre.es_madre_sola ? "Sí" : "No",
-        numeroNinosCuidado: String(madre.numero_hijos),
-        apoyoFamiliar: madre.tiene_apoyo_familiar ? "Sí" : "No",
-        apoyoPrincipal: madre.apoyo_principal
-      },
-      recienNacido: bebe.id ? {
-        nombreBebe: bebe.nombre_bebe,
-        fechaNacimiento: new Date(bebe.fecha_nacimiento).toLocaleDateString("es-ES"),
-        sexo: bebe.sexo,
-        pesoNacer: String(Math.round(Number(bebe.peso_al_nacer) * 1000)), // De kg a gramos
-        edadGestacional: String(bebe.edad_gestacional)
-      } : {},
-      datosClinicos: bebe.id ? {
-        tipoParto: bebe.tipo_parto,
-        complicacionesNacer: bebe.complicaciones_al_nacer ? "Sí" : "No",
-        complicacion: bebe.especificacion_complicaciones || "",
-        hospitalizacionNeonatal: bebe.hospitalizacion_neonatal ? "Sí" : "No",
-        motivoHospitalizacion: bebe.motivo_hospitalizacion || "",
-        duracionHospitalizacion: bebe.duracion_hospitalizacion || "",
-        cuidadosEspeciales: bebe.requirio_cuidados_especiales || "No",
-        tipoCuidadoRecibido: bebe.tipo_cuidado_recibido || ""
-      } : {}
-    };
+    const payload = formatRegistroFromDb(madre, bebe.id ? bebe : null);
+
+    const evalRes = await query(
+      `SELECT * FROM evaluaciones_riesgo_registro
+       WHERE madre_id = $1 ORDER BY fecha_evaluacion DESC LIMIT 1`,
+      [madre.id]
+    );
+    if (evalRes.rows[0]) {
+      const e = evalRes.rows[0];
+      payload.resultadoRiesgo = {
+        puntajeMaterno: e.puntaje_materno,
+        clasificacionMaterna: e.clasificacion_materna,
+        puntajeNeonatal: e.puntaje_neonatal,
+        clasificacionNeonatal: e.clasificacion_neonatal,
+        clasificacionFinal: e.clasificacion_final,
+        recomendacionSeguimiento: e.recomendacion_seguimiento,
+      };
+      payload.evaluacionId = e.id;
+    }
 
     // Crear token
     const token = jwt.sign(
@@ -246,7 +241,8 @@ export const loginUsuario = async (req, res) => {
       usuario: {
         id: madre.id,
         nombre: madre.nombre,
-        correo: madre.correo_electronico
+        nombreCompleto: madre.nombre,
+        correo: madre.correo_electronico,
       },
       registro: payload
     });
@@ -260,24 +256,12 @@ export const loginUsuario = async (req, res) => {
   }
 };
 
-export const obtenerRegistros = async (req, res) => {
-  try {
-    const resMadres = await query("SELECT * FROM madres_cuidadores");
-    return res.json({
-      total: resMadres.rows.length,
-      registros: resMadres.rows
-    });
-  } catch (error) {
-    return res.status(500).json({
-      mensaje: "Error al obtener registros de la base de datos.",
-      error: error.message
-    });
-  }
-};
-
 export const obtenerRegistroPorId = async (req, res) => {
   try {
     const { id } = req.params;
+    if (Number(req.user.id) !== Number(id)) {
+      return res.status(403).json({ mensaje: "No autorizado." });
+    }
     const resMadre = await query("SELECT * FROM madres_cuidadores WHERE id = $1", [id]);
     
     if (resMadre.rows.length === 0) {
@@ -289,9 +273,11 @@ export const obtenerRegistroPorId = async (req, res) => {
     const madre = resMadre.rows[0];
     const resBebe = await query("SELECT * FROM recien_nacidos WHERE madre_id = $1", [id]);
 
+    const bebe = resBebe.rows[0] || null;
     return res.json({
       madre,
-      bebe: resBebe.rows[0] || null
+      bebe,
+      registro: formatRegistroFromDb(madre, bebe),
     });
   } catch (error) {
     return res.status(500).json({

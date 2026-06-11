@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "./Footer.css";
 
 import logoImage from "../../assets/LOGO.png";
@@ -24,18 +25,10 @@ const Footer = () => {
           <h3>Navegación</h3>
 
           <ul>
-            <li>
-              <a href="/">Inicio</a>
-            </li>
-            <li>
-              <a href="/servicios">Servicios</a>
-            </li>
-            <li>
-              <a href="/nosotros">Nosotros</a>
-            </li>
-            <li>
-              <a href="/contacto">Contacto</a>
-            </li>
+            <li><Link to="/">Inicio</Link></li>
+            <li><Link to="/servicios">Servicios</Link></li>
+            <li><Link to="/nosotros">Nosotros</Link></li>
+            <li><Link to="/contacto">Contacto</Link></li>
           </ul>
         </section>
 
@@ -43,10 +36,10 @@ const Footer = () => {
           <h3>Servicios</h3>
 
           <ul>
-            <li>Evaluación de riesgo</li>
-            <li>Contenido educativo</li>
-            <li>Seguimiento neonatal</li>
-            <li>Orientación confiable</li>
+            <li><Link to="/evaluacion">Evaluación de riesgo</Link></li>
+            <li><Link to="/educacion">Contenido educativo</Link></li>
+            <li><Link to="/seguimiento">Seguimiento neonatal</Link></li>
+            <li><Link to="/testimonios">Testimonios</Link></li>
           </ul>
         </section>
 

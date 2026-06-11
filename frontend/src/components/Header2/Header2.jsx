@@ -6,7 +6,7 @@ import logoImage from "../../assets/LOGO.png";
 import avatarImage from "../../assets/Avatar.png";
 import cierreImage from "../../assets/Cierre.png";
 
-const Header2 = ({ user }) => {
+const Header2 = ({ user, badge = 0 }) => {
   const navigate = useNavigate();
 
   const userName =
@@ -34,11 +34,10 @@ const Header2 = ({ user }) => {
   const firstName = userName ? userName.trim().split(" ")[0] : "";
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("neocareUser");
-    localStorage.removeItem("neocareRegisterData");
-    localStorage.removeItem("user");
-
+    ["token", "neocareUser", "neocareRegisterData", "neocareResultadoRiesgo", "bebeActivoId", "user"].forEach((k) => {
+      localStorage.removeItem(k);
+      sessionStorage.removeItem(k);
+    });
     navigate("/");
   };
 
@@ -51,7 +50,12 @@ const Header2 = ({ user }) => {
         </div>
 
         <div className="header2-user-area">
-          <button type="button" className="header2-user-button">
+          {badge > 0 && (
+            <button type="button" className="header2-notif-btn" onClick={() => navigate("/notificaciones")}>
+              {badge}
+            </button>
+          )}
+          <button type="button" className="header2-user-button" onClick={() => navigate("/perfil")}>
             <img src={avatarImage} alt="Usuario" className="header2-avatar" />
 
             <span>{firstName ? `Hola, ${firstName}` : "Hola"}</span>

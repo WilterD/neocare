@@ -1,0 +1,67 @@
+.historial-page-wrapper {
+  min-height: 100vh;
+  background: #fdfbf7;
+}
+
+.historial-desktop {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.historial-sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.historial-sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #444;
+}
+
+.historial-sidebar a.active {
+  background: #e8efd4;
+  font-weight: 600;
+}
+
+.historial-sidebar img {
+  width: 24px;
+  height: 24px;
+}
+
+.historial-panel {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+
+.historial-item {
+  background: #f8f6f2;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-top: 1rem;
+}
+
+.historial-rec {
+  color: #555;
+  margin-top: 0.5rem;
+}
+
+.historial-fecha {
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 0.5rem;
+}
+
+.historial-error {
+  color: #b42318;
+}

@@ -1,0 +1,85 @@
+.resultado-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #fdfbf7 0%, #f5f3ef 100%);
+}
+
+.resultado-card,
+.resultado-empty {
+  max-width: 640px;
+  margin: 2rem auto 3rem;
+  padding: 2rem 1.5rem;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.resultado-sub {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.resultado-badge {
+  border: 3px solid;
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.resultado-nivel {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.resultado-label {
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.resultado-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.resultado-grid article {
+  background: #f8f6f2;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.resultado-recomendacion {
+  background: #f0f7e8;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.resultado-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.resultado-actions .btn-primary,
+.resultado-actions .btn-secondary {
+  flex: 1;
+  min-width: 140px;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.resultado-actions .btn-primary {
+  background: #b6c97e;
+  color: #2d3a1f;
+}
+
+.resultado-actions .btn-secondary {
+  background: #eee;
+  color: #444;
+}

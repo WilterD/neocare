@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Register.css";
+import { crearRegistro } from "../../services/api.js";
+import { mapRegistroPayload, persistSession } from "../../utils/mapRegistroPayload.js";
 
 import Header from "../../components/Header/Header.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
@@ -84,6 +86,7 @@ const Register = () => {
   const [consentimientoAceptado, setConsentimientoAceptado] = useState(false);
   const [consentimientoError, setConsentimientoError] = useState("");
   const [formError, setFormError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handlePersonalInputChange = (event) => {
     const { name, value } = event.target;
@@ -535,7 +538,7 @@ const Register = () => {
     return "";
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     const error = validarPasoActual();
 
     if (error) {
@@ -556,14 +559,7 @@ const Register = () => {
       return;
     }
 
-    const usuarioRegistrado = {
-      nombre: datosPersonales.nombreCompleto.trim(),
-      nombreCompleto: datosPersonales.nombreCompleto.trim(),
-      edad: datosPersonales.edad,
-      numeroIdentificacion: datosPersonales.numeroIdentificacion,
-      telefono: datosPersonales.telefono,
-      correo: datosPersonales.correo,
-      password: datosPersonales.password,
+    const registroLocal = {
       datosPersonales,
       sociodemografica,
       condicionesCuidado,
@@ -578,18 +574,37 @@ const Register = () => {
       consentimientoAceptado,
     };
 
-    localStorage.setItem("neocareUser", JSON.stringify(usuarioRegistrado));
-    localStorage.setItem(
-      "neocareRegisterData",
-      JSON.stringify(usuarioRegistrado)
-    );
+    setLoading(true);
 
-    navigate("/evaluacion", {
-      state: {
-        user: usuarioRegistrado,
-        registro: usuarioRegistrado,
-      },
-    });
+    try {
+      const payload = mapRegistroPayload(registroLocal);
+      const data = await crearRegistro(payload);
+
+      const registro = {
+        ...data.registro,
+        recienNacido: {
+          ...data.registro.recienNacido,
+          edadActual: calcularEdadActual(),
+        },
+      };
+
+      persistSession({
+        token: data.token,
+        usuario: data.usuario,
+        registro,
+      });
+
+      navigate("/evaluacion", {
+        state: {
+          user: data.usuario,
+          registro,
+        },
+      });
+    } catch (err) {
+      setFormError(err.message || "No se pudo completar el registro.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePrevious = () => {
@@ -1480,8 +1495,9 @@ const Register = () => {
                 : "btn-primary"
             }
             onClick={handleNext}
+            disabled={loading}
           >
-            {step === 6 ? "Finalizar" : "Siguiente →"}
+            {loading ? "Guardando..." : step === 6 ? "Finalizar" : "Siguiente →"}
           </button>
         </footer>
       </section>
