@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { crearEvaluacion } from "../../services/api.js";
+import { crearEvaluacion, getToken } from "../../services/api.js";
 import { mapEvaluacionFromRegistro } from "../../utils/mapRegistroPayload.js";
 import "./Evaluation.css";
 
@@ -147,8 +147,7 @@ const Evaluation = () => {
       return;
     }
 
-    const token = localStorage.getItem("token");
-    if (token) {
+    if (getToken()) {
       setEvaluando(true);
       try {
         const payload = mapEvaluacionFromRegistro(registro);

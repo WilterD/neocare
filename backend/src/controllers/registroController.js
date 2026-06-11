@@ -136,6 +136,7 @@ export const crearRegistro = async (req, res) => {
     );
 
     const registro = buildRegistroFromPayload(madre, bebe, datosClinicos, resultadoRiesgo);
+    registro.recienNacido = { ...registro.recienNacido, id: result.bebeId };
 
     return res.status(201).json({
       mensaje: "Registro creado correctamente y guardado en la base de datos.",
@@ -243,6 +244,9 @@ export const loginUsuario = async (req, res) => {
         nombre: madre.nombre,
         nombreCompleto: madre.nombre,
         correo: madre.correo_electronico,
+        ...(bebe.id
+          ? { bebe: { id: bebe.id, nombre: bebe.nombre_bebe } }
+          : {}),
       },
       registro: payload
     });

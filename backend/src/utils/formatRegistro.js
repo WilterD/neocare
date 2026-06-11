@@ -23,6 +23,7 @@ export const formatRegistroFromDb = (madre, bebe = null) => ({
   },
   recienNacido: bebe?.id
     ? {
+        id: bebe.id,
         nombreBebe: bebe.nombre_bebe,
         fechaNacimiento: new Date(bebe.fecha_nacimiento).toLocaleDateString("es-ES"),
         sexo: bebe.sexo,
