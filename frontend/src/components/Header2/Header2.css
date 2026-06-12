@@ -98,7 +98,14 @@
 
 /* Botón cierre */
 
-.header2-logout-button {
+/* Contenedor de Ajustes */
+.header2-settings-wrapper {
+  position: relative;
+  display: inline-block;
+  transform: translateX(38px);
+}
+
+.header2-settings-button {
   width: 46px;
   height: 46px;
   border: none;
@@ -110,22 +117,79 @@
   padding: 0;
   box-shadow: none;
   overflow: visible;
-  transform: translateX(38px);
   transition: transform 0.2s ease;
 }
 
-.header2-logout-button:hover {
-  transform: translateX(38px) translateY(-1px);
+.header2-settings-button:hover {
+  transform: translateY(-1px);
 }
 
-.header2-logout-icon {
+.header2-settings-icon {
   width: 46px;
   height: 46px;
   object-fit: contain;
   display: block;
   flex-shrink: 0;
-  transform: scale(3);
+  transform: scale(2.8);
   transform-origin: center;
+}
+
+/* Dropdown de Ajustes */
+.header2-dropdown {
+  position: absolute;
+  top: 55px;
+  right: -20px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(146, 116, 78, 0.1);
+  padding: 6px;
+  min-width: 150px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+}
+
+.header2-dropdown::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  right: 32px;
+  width: 10px;
+  height: 10px;
+  background: #ffffff;
+  border-left: 1px solid rgba(146, 116, 78, 0.1);
+  border-top: 1px solid rgba(146, 116, 78, 0.1);
+  transform: rotate(45deg);
+}
+
+.header2-dropdown-item {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #5d5752;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  font-family: inherit;
+  font-weight: 700;
+  text-align: left;
+}
+
+.header2-dropdown-item:hover {
+  background-color: #faf8f5;
+  color: #b83b3b;
+}
+
+.header2-dropdown-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
 }
 
 /* Responsive */
@@ -173,20 +237,19 @@
     font-size: 14px;
   }
 
-  .header2-logout-button {
-    width: 42px;
-    height: 42px;
+  .header2-settings-wrapper {
     transform: translateX(24px);
   }
 
-  .header2-logout-button:hover {
-    transform: translateX(24px) translateY(-1px);
-  }
-
-  .header2-logout-icon {
+  .header2-settings-button {
     width: 42px;
     height: 42px;
-    transform: scale(2.7);
+  }
+
+  .header2-settings-icon {
+    width: 42px;
+    height: 42px;
+    transform: scale(2.5);
   }
 }
 
@@ -240,19 +303,18 @@
     font-size: 14px;
   }
 
-  .header2-logout-button {
-    width: 38px;
-    height: 38px;
+  .header2-settings-wrapper {
     transform: translateX(0);
   }
 
-  .header2-logout-button:hover {
-    transform: translateY(-1px);
-  }
-
-  .header2-logout-icon {
+  .header2-settings-button {
     width: 38px;
     height: 38px;
-    transform: scale(2.4);
+  }
+
+  .header2-settings-icon {
+    width: 38px;
+    height: 38px;
+    transform: scale(2.2);
   }
 }
