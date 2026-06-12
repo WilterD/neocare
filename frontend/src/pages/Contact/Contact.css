@@ -99,6 +99,7 @@
 }
 
 /* Bloque de información con color tipo datos personales de Register */
+
 .contact-card.contact-info-card {
   padding: 28px;
   background: linear-gradient(180deg, #fffaf2 0%, #fff6ec 100%);
@@ -211,9 +212,23 @@
   transform: translateY(-1px);
 }
 
-.contact-submit-button span {
-  font-size: 18px;
-  line-height: 1;
+.contact-submit-icon-box {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.contact-submit-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  display: block;
+  transform: scale(3);
+  transform-origin: center;
 }
 
 .contact-privacy-text {
@@ -253,6 +268,8 @@
   padding-bottom: 0;
 }
 
+/* Círculos verdes con imágenes encima */
+
 .contact-info-icon {
   width: 52px;
   height: 52px;
@@ -262,8 +279,33 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
-  font-weight: 850;
+  overflow: visible;
+  flex-shrink: 0;
+}
+
+.contact-info-icon img {
+  width: 78px;
+  height: 78px;
+  object-fit: contain;
+  display: block;
+}
+
+/* CORREO */
+.contact-info-item:nth-child(1) .contact-info-icon img {
+  width: 88px;
+  height: 88px;
+}
+
+/* UBI */
+.contact-info-item:nth-child(2) .contact-info-icon img {
+  width: 96px;
+  height: 96px;
+}
+
+/* FACULTAS */
+.contact-info-item:nth-child(3) .contact-info-icon img {
+  width: 88px;
+  height: 88px;
 }
 
 .contact-info-item h3 {
@@ -392,7 +434,26 @@
   .contact-info-icon {
     width: 52px;
     height: 52px;
-    font-size: 24px;
+  }
+
+  .contact-info-icon img {
+    width: 78px;
+    height: 78px;
+  }
+
+  .contact-info-item:nth-child(1) .contact-info-icon img {
+    width: 88px;
+    height: 88px;
+  }
+
+  .contact-info-item:nth-child(2) .contact-info-icon img {
+    width: 96px;
+    height: 96px;
+  }
+
+  .contact-info-item:nth-child(3) .contact-info-icon img {
+    width: 88px;
+    height: 88px;
   }
 
   .contact-emergency-inside {
