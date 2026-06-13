@@ -12,6 +12,7 @@ import Result from "./pages/Result/Result.jsx";
 import Education from "./pages/Education/Education.jsx";
 import History from "./pages/History/History.jsx";
 import Home from "./pages/Home/Home.jsx";
+import Profile from "./pages/Profile/Profile.jsx";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/educacion" element={<Education />} />
         <Route path="/historial" element={<History />} />
         <Route path="/inicio" element={<Home />} />
+        <Route path="/perfil" element={<Profile />} />
 
         {/* Ruta interna: no va en el header principal */}
         <Route path="/evaluacion" element={<Evaluation />} />

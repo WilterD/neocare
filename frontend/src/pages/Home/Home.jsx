@@ -2,17 +2,26 @@ import React, { useEffect, useMemo, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import "./Home.css";
 
+import Header2 from "../../components/Header2/Header2.jsx";
+import Footer from "../../components/Footer/Footer.jsx";
+
 import inicioImage from "../../assets/Inicio.png";
 import evaluacionImage from "../../assets/evaluacion.png";
 import educacionImage from "../../assets/educacion.png";
 import historialImage from "../../assets/h.png";
 import perfilImage from "../../assets/perfil.png";
 
-import motherBabyImage from "../../assets/DT.png";
-import shieldImage from "../../assets/QS.png";
-import seguimientoImage from "../../assets/RealizarE.png";
-import controlImage from "../../assets/CONTROL.png";
-import vacuImage from "../../assets/VACU.png";
+import dtImage from "../../assets/DT.png";
+import seguirImage from "../../assets/SEGUIR.png";
+import inicioEvaImage from "../../assets/INICIOEVA.png";
+import inicIeImage from "../../assets/INICIE.png";
+import inicioUImage from "../../assets/INICIOU.png";
+import libretaImage from "../../assets/Libreta.png";
+import tvrImage from "../../assets/TVR.png";
+import inicioActImage from "../../assets/INICIOACT.png";
+import inicioProxiImage from "../../assets/INICIOPROXI.png";
+import tablaImage from "../../assets/TABLA.png";
+import controlImage from "../../assets/DUDA.png";
 
 const sidebarItems = [
   {
@@ -24,11 +33,6 @@ const sidebarItems = [
     image: evaluacionImage,
     label: "Evaluación",
     path: "/evaluacion",
-  },
-  {
-    image: seguimientoImage,
-    label: "Seguimiento",
-    path: "/seguimiento",
   },
   {
     image: educacionImage,
@@ -51,7 +55,6 @@ const latestEvaluation = {
   baby: "Mateo",
   babyAge: "12 días",
   lastDate: "20 mayo, 2025",
-  risk: "medio",
   riskLabel: "Riesgo medio",
   recommendation: "Mantener vigilancia y repetir evaluación en 24 horas.",
 };
@@ -83,90 +86,38 @@ const Home = () => {
     );
   }, [usuario]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("neocareUser");
-    navigate("/login");
-  };
-
   return (
-    <main className="home-page">
-      <aside className="home-sidebar">
-        <div className="home-logo-box">
-          <div className="home-logo-mark">
-            <span>♡</span>
-          </div>
+    <main className="home-page-wrapper">
+      <Header2 user={usuario} />
 
-          <h2>
-            Neo<span>Care</span>
-          </h2>
-        </div>
+      <section className="home-desktop">
+        <aside className="home-sidebar">
+          <nav className="home-sidebar-nav">
+            {sidebarItems.map((item) => (
+              <NavLink
+                key={item.label}
+                to={item.path}
+                end={item.path === "/inicio"}
+                className={({ isActive }) =>
+                  isActive ? "home-sidebar-item active" : "home-sidebar-item"
+                }
+              >
+                <span className="home-sidebar-icon-box">
+                  <img
+                    src={item.image}
+                    alt={item.label}
+                    className="home-sidebar-icon"
+                  />
+                </span>
 
-        <nav className="home-sidebar-nav">
-          {sidebarItems.map((item) => (
-            <NavLink
-              key={item.label}
-              to={item.path}
-              end={item.path === "/inicio"}
-              className={({ isActive }) =>
-                isActive ? "home-sidebar-item active" : "home-sidebar-item"
-              }
-            >
-              <span className="home-sidebar-icon-box">
-                <img
-                  src={item.image}
-                  alt={item.label}
-                  className="home-sidebar-icon"
-                />
-              </span>
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
+        </aside>
 
-              {item.label}
-            </NavLink>
-          ))}
-
-          <button
-            type="button"
-            className="home-sidebar-item settings"
-            onClick={() => navigate("/perfil")}
-          >
-            <span className="home-sidebar-icon-box home-settings-icon">⚙</span>
-            Configuración
-          </button>
-        </nav>
-
-        <button
-          type="button"
-          className="home-logout-button"
-          onClick={handleLogout}
-        >
-          <span>↪</span>
-          Cerrar sesión
-        </button>
-      </aside>
-
-      <section className="home-main">
-        <header className="home-topbar">
-          <div />
-
-          <div className="home-user-box">
-            <div className="home-avatar">
-              <img src={motherBabyImage} alt="Usuario" />
-            </div>
-
-            <strong>Hola, {userName}</strong>
-
-            <button
-              type="button"
-              className="home-exit-button"
-              onClick={handleLogout}
-              aria-label="Cerrar sesión"
-            >
-              ↪
-            </button>
-          </div>
-        </header>
-
-        <section className="home-content">
-          <section className="home-hero">
+        <section className="home-main-panel">
+          <section className="home-hero-section">
             <div className="home-hero-text">
               <h1>¡Bienvenida, {userName}!</h1>
 
@@ -182,8 +133,8 @@ const Home = () => {
 
             <div className="home-hero-image-box">
               <img
-                src={motherBabyImage}
-                alt="Madre sosteniendo a su recién nacido"
+                src={dtImage}
+                alt="Madre con recién nacido"
                 className="home-hero-image"
               />
             </div>
@@ -191,7 +142,7 @@ const Home = () => {
 
           <section className="home-current-card">
             <div className="home-current-main-icon">
-              <img src={shieldImage} alt="Seguimiento actual" />
+              <img src={seguirImage} alt="Seguimiento actual" />
             </div>
 
             <div className="home-current-content">
@@ -199,7 +150,9 @@ const Home = () => {
 
               <div className="home-current-data">
                 <article className="home-current-item">
-                  <span className="home-current-small-icon">♡</span>
+                  <span className="home-current-small-icon baby">
+                    <img src={inicioUImage} alt="Bebé" />
+                  </span>
 
                   <div>
                     <h3>Bebé:</h3>
@@ -208,7 +161,9 @@ const Home = () => {
                 </article>
 
                 <article className="home-current-item">
-                  <span className="home-current-small-icon">▣</span>
+                  <span className="home-current-small-icon">
+                    <img src={inicIeImage} alt="Edad actual" />
+                  </span>
 
                   <div>
                     <h3>Edad actual:</h3>
@@ -217,7 +172,9 @@ const Home = () => {
                 </article>
 
                 <article className="home-current-item">
-                  <span className="home-current-small-icon">◷</span>
+                  <span className="home-current-small-icon">
+                    <img src={inicioEvaImage} alt="Última evaluación" />
+                  </span>
 
                   <div>
                     <h3>Última evaluación:</h3>
@@ -243,42 +200,51 @@ const Home = () => {
                 </article>
               </div>
             </div>
-
-            <button
-              type="button"
-              className="home-primary-button"
-              onClick={() => navigate("/resultado")}
-            >
-              Ver último resultado
-              <span>›</span>
-            </button>
           </section>
 
           <section className="home-metrics-grid">
             <article className="home-metric-card blue">
-              <span className="home-metric-icon">◷</span>
+              <span className="home-metric-icon image proxi">
+                <img
+                  src={inicioProxiImage}
+                  alt="Próxima evaluación sugerida"
+                />
+              </span>
 
-              <div>
+              <div className="home-metric-text">
                 <h3>Próxima evaluación sugerida</h3>
-                <strong>En 24 horas</strong>
+
+                <p className="home-metric-value">
+                  En <strong>24</strong> horas
+                </p>
               </div>
             </article>
 
             <article className="home-metric-card purple">
-              <span className="home-metric-icon">☑</span>
+              <span className="home-metric-icon image">
+                <img src={inicioActImage} alt="Seguimiento activo" />
+              </span>
 
-              <div>
+              <div className="home-metric-text">
                 <h3>Seguimiento activo</h3>
-                <strong>1 seguimiento</strong>
+
+                <p className="home-metric-value">
+                  <strong>1</strong> seguimiento
+                </p>
               </div>
             </article>
 
             <article className="home-metric-card red">
-              <span className="home-metric-icon">▤</span>
+              <span className="home-metric-icon image">
+                <img src={tablaImage} alt="Evaluaciones realizadas" />
+              </span>
 
-              <div>
+              <div className="home-metric-text">
                 <h3>Evaluaciones realizadas</h3>
-                <strong>6 evaluaciones</strong>
+
+                <p className="home-metric-value">
+                  <strong>6</strong> evaluaciones
+                </p>
               </div>
             </article>
           </section>
@@ -289,7 +255,7 @@ const Home = () => {
 
               <div className="home-next-content">
                 <div className="home-next-icon">
-                  <img src={seguimientoImage} alt="Seguimiento diario" />
+                  <img src={inicIeImage} alt="Activar seguimiento diario" />
                 </div>
 
                 <div className="home-next-text">
@@ -322,7 +288,9 @@ const Home = () => {
                   className="home-access-item green"
                   onClick={() => navigate("/evaluacion")}
                 >
-                  <span className="home-access-icon">▣</span>
+                  <span className="home-access-icon image">
+                    <img src={tvrImage} alt="Realizar nueva evaluación" />
+                  </span>
 
                   <h3>Realizar nueva evaluación</h3>
 
@@ -339,7 +307,12 @@ const Home = () => {
                   className="home-access-item purple"
                   onClick={() => navigate("/educacion")}
                 >
-                  <span className="home-access-icon">▥</span>
+                  <span className="home-access-icon image">
+                    <img
+                      src={libretaImage}
+                      alt="Consultar contenido educativo"
+                    />
+                  </span>
 
                   <h3>Consultar contenido educativo</h3>
 
@@ -356,7 +329,9 @@ const Home = () => {
                   className="home-access-item blue"
                   onClick={() => navigate("/historial")}
                 >
-                  <span className="home-access-icon">◷</span>
+                  <span className="home-access-icon image history">
+                    <img src={inicioProxiImage} alt="Ver historial" />
+                  </span>
 
                   <h3>Ver historial</h3>
 
@@ -371,26 +346,6 @@ const Home = () => {
           </section>
 
           <section className="home-bottom-grid">
-            <article className="home-activity-card">
-              <div className="home-activity-icon">
-                <span>▤</span>
-              </div>
-
-              <div>
-                <h2>Última actividad</h2>
-                <p>Evaluación realizada el 20 mayo, 2025 — Riesgo medio.</p>
-              </div>
-
-              <button
-                type="button"
-                className="home-outline-button"
-                onClick={() => navigate("/historial")}
-              >
-                Ver historial completo
-                <span>›</span>
-              </button>
-            </article>
-
             <article className="home-reminder-card">
               <div className="home-reminder-image">
                 <img src={controlImage} alt="Recuerda" />
@@ -410,6 +365,8 @@ const Home = () => {
           </section>
         </section>
       </section>
+
+      <Footer />
     </main>
   );
 };
