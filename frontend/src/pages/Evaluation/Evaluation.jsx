@@ -29,7 +29,7 @@ const sidebarItems = [
   {
     image: inicioImage,
     label: "Inicio",
-    path: "/",
+    path: "/inicio",
   },
   {
     image: evaluacionImage,
@@ -933,7 +933,7 @@ const Evaluation = () => {
               <NavLink
                 key={item.label}
                 to={item.path}
-                end={item.path === "/"}
+                end={item.path === "/inicio"}
                 className={({ isActive }) =>
                   isActive
                     ? "evaluation-sidebar-item active"

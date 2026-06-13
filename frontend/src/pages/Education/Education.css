@@ -186,14 +186,23 @@
   color: #77717b;
 }
 
-.education-help-button {
-  width: 42px;
-  height: 42px;
+/* Botón de ayuda con tooltip igual a Result */
+
+.education-help-tooltip-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   justify-self: end;
-  border: 2.5px solid #6fa04f;
+}
+
+.education-help-button {
+  width: 38px;
+  height: 38px;
+  border: 3px solid #6fa04f;
   border-radius: 50%;
-  background: #ffffff;
-  color: #2f8a35;
+  background: transparent;
+  color: #6fa04f;
   font-family: inherit;
   font-size: 22px;
   font-weight: 850;
@@ -201,7 +210,99 @@
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  box-shadow: 0 8px 18px rgba(146, 116, 78, 0.08);
+  line-height: 1;
+  box-shadow: none;
+}
+
+.education-help-tooltip {
+  position: absolute;
+  top: 52px;
+  right: 0;
+  width: 320px;
+  min-height: 94px;
+  background: #ffffff;
+  border: 1.5px solid rgba(111, 160, 79, 0.22);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 14px 34px rgba(146, 116, 78, 0.16);
+  display: grid;
+  grid-template-columns: 54px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: all 0.22s ease;
+  z-index: 100;
+}
+
+.education-help-tooltip::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  right: 20px;
+  width: 14px;
+  height: 14px;
+  background: #ffffff;
+  border-left: 1.5px solid rgba(111, 160, 79, 0.22);
+  border-top: 1.5px solid rgba(111, 160, 79, 0.22);
+  transform: rotate(45deg);
+}
+
+.education-help-tooltip-wrapper:hover .education-help-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.education-help-tooltip-icon {
+  width: 46px;
+  height: 46px;
+  border: 3px solid #6fa04f;
+  border-radius: 50%;
+  color: #6fa04f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 23px;
+  font-weight: 900;
+  letter-spacing: -2px;
+}
+
+.education-help-tooltip-text h3 {
+  margin: 0 0 3px;
+  color: #1f1f24;
+  font-size: 15px;
+  font-weight: 850;
+  line-height: 1.1;
+}
+
+.education-help-tooltip-text p {
+  margin: 0;
+  color: #343349;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.education-help-tooltip-button {
+  min-width: 106px;
+  height: 38px;
+  border: 2px solid #6fa04f;
+  border-radius: 11px;
+  background: #ffffff;
+  color: #4f8a3d;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 850;
+  cursor: pointer;
+  padding: 0 12px;
+  transition: all 0.2s ease;
+}
+
+.education-help-tooltip-button:hover {
+  background: #6fa04f;
+  color: #ffffff;
 }
 
 /* Hero */
@@ -326,15 +427,12 @@
   flex-shrink: 0;
 }
 
-/* BLOQUEBLANCO más grande sin agrandar el botón */
 .education-filter-row > .education-filter-button:first-child .education-filter-icon {
   width: 56px;
   height: 56px;
   margin-left: -10px;
   margin-right: -7px;
 }
-
-/* Puntos de Más más pequeños */
 
 .education-more-dots {
   font-size: 11px;
@@ -461,8 +559,6 @@
   flex-shrink: 0;
 }
 
-/* Solo GORRO más grande */
-
 .education-modules-card .education-section-title-image {
   width: 64px;
   height: 64px;
@@ -515,8 +611,6 @@
   transform: translateY(-2px);
   box-shadow: 0 14px 24px rgba(146, 116, 78, 0.12);
 }
-
-/* Imágenes internas de temas esenciales */
 
 .education-topic-image-box {
   width: 52px;
@@ -776,6 +870,22 @@
   }
 }
 
+@media (max-width: 850px) {
+  .education-help-tooltip-wrapper {
+    justify-self: start;
+  }
+
+  .education-help-tooltip {
+    left: 0;
+    right: auto;
+  }
+
+  .education-help-tooltip::before {
+    left: 20px;
+    right: auto;
+  }
+}
+
 @media (max-width: 760px) {
   .education-desktop {
     width: 100%;
@@ -799,12 +909,7 @@
   }
 
   .education-title-actions {
-    grid-template-columns: 1fr;
-  }
-
-  .education-help-button {
-    width: 100%;
-    border-radius: 14px;
+    grid-template-columns: 1fr 42px;
   }
 
   .education-hero-card {
@@ -832,6 +937,18 @@
   }
 }
 
+@media (max-width: 560px) {
+  .education-help-tooltip {
+    width: 290px;
+    grid-template-columns: 46px 1fr;
+  }
+
+  .education-help-tooltip-button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+
 @media (max-width: 430px) {
   .education-main-panel {
     padding: 22px 14px;
@@ -843,6 +960,14 @@
 
   .education-title-left h1 {
     font-size: 21px;
+  }
+
+  .education-title-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .education-help-tooltip-wrapper {
+    justify-self: start;
   }
 
   .education-filter-button,

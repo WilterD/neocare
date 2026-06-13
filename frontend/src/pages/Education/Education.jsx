@@ -40,7 +40,7 @@ const sidebarItems = [
   {
     image: inicioImage,
     label: "Inicio",
-    path: "/",
+    path: "/inicio",
   },
   {
     image: evaluacionImage,
@@ -316,7 +316,7 @@ const Education = () => {
               <NavLink
                 key={item.label}
                 to={item.path}
-                end={item.path === "/"}
+                end={item.path === "/inicio"}
                 className={({ isActive }) =>
                   isActive
                     ? "education-sidebar-item active"
@@ -356,14 +356,32 @@ const Education = () => {
                 />
               </label>
 
-              <button
-                type="button"
-                className="education-help-button"
-                aria-label="Ayuda"
-                onClick={() => navigate("/contacto")}
-              >
-                ?
-              </button>
+              <div className="education-help-tooltip-wrapper">
+                <button
+                  type="button"
+                  className="education-help-button"
+                  aria-label="Ayuda"
+                >
+                  ?
+                </button>
+
+                <div className="education-help-tooltip">
+                  <div className="education-help-tooltip-icon">...</div>
+
+                  <div className="education-help-tooltip-text">
+                    <h3>¿Necesitas ayuda?</h3>
+                    <p>Estamos aquí para ayudarte.</p>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="education-help-tooltip-button"
+                    onClick={() => navigate("/contacto")}
+                  >
+                    Contáctanos ›
+                  </button>
+                </div>
+              </div>
             </div>
           </header>
 

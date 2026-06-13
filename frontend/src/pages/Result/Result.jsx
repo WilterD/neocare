@@ -37,7 +37,7 @@ const sidebarItems = [
   {
     image: inicioImage,
     label: "Inicio",
-    path: "/",
+    path: "/inicio",
   },
   {
     image: evaluacionImage,
@@ -414,7 +414,7 @@ const Result = () => {
               <NavLink
                 key={item.label}
                 to={item.path}
-                end={item.path === "/"}
+                end={item.path === "/inicio"}
                 className={({ isActive }) =>
                   isActive
                     ? "result-sidebar-item active"
