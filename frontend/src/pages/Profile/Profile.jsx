@@ -11,7 +11,7 @@ import educacionImage from "../../assets/educacion.png";
 import historialImage from "../../assets/h.png";
 import perfilImage from "../../assets/perfil.png";
 
-import userImage from "../../assets/USER.png";
+import userImage from "../../assets/AVATAR.png";
 import seguridadImage from "../../assets/InformacionSegura.png";
 
 const sidebarItems = [

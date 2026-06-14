@@ -5,31 +5,7 @@ import "./Register.css";
 import Header from "../../components/Header/Header.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
 
-import datosPersonalesIcon from "../../assets/DatosP.png";
-import informacionIcon from "../../assets/InformacionS.png";
-import condicionesIcon from "../../assets/Condiciones.png";
-import bebeIcon from "../../assets/DatosBebe.png";
-import clinicosIcon from "../../assets/DatosClinicos.png";
-import consentimientoIcon from "../../assets/Consentimiento.png";
 import dtImage from "../../assets/DT.png";
-
-const steps = [
-  "Datos personales",
-  "Información sociodemográfica",
-  "Condiciones de cuidado",
-  "Datos del recién nacido",
-  "Datos clínicos neonatales",
-  "Consentimiento informado",
-];
-
-const stepIcons = [
-  datosPersonalesIcon,
-  informacionIcon,
-  condicionesIcon,
-  bebeIcon,
-  clinicosIcon,
-  consentimientoIcon,
-];
 
 const Register = () => {
   const navigate = useNavigate();
@@ -652,42 +628,6 @@ const Register = () => {
         </section>
 
         <section className="register-main">
-          <aside className="register-sidebar">
-            {steps.map((label, index) => {
-              const number = index + 1;
-
-              return (
-                <button
-                  key={label}
-                  type="button"
-                  className={
-                    step === number ? "sidebar-step active" : "sidebar-step"
-                  }
-                  tabIndex="-1"
-                >
-                  <span className={`sidebar-icon icon-${number}`}>
-                    <img
-                      src={stepIcons[index]}
-                      alt={label}
-                      style={{
-                        width: "94px",
-                        height: "94px",
-                        maxWidth: "94px",
-                        maxHeight: "94px",
-                        objectFit: "contain",
-                        display: "block",
-                      }}
-                    />
-                  </span>
-
-                  <span className="sidebar-label">
-                    {number}. {label}
-                  </span>
-                </button>
-              );
-            })}
-          </aside>
-
           <section className="register-card">
             <div className="card-illustration">
               <img
@@ -717,7 +657,6 @@ const Register = () => {
                       <label>
                         Nombre completo
                         <div className="input-box">
-                          <span>♙</span>
                           <input
                             type="text"
                             name="nombreCompleto"
@@ -731,7 +670,6 @@ const Register = () => {
                       <label>
                         Edad
                         <div className="input-box">
-                          <span>▣</span>
                           <input
                             type="number"
                             name="edad"
@@ -747,7 +685,6 @@ const Register = () => {
                       <label>
                         Número de identificación
                         <div className="input-box">
-                          <span>▤</span>
                           <input
                             type="text"
                             name="numeroIdentificacion"
@@ -761,7 +698,6 @@ const Register = () => {
                       <label>
                         Teléfono
                         <div className="input-box">
-                          <span>♧</span>
                           <input
                             type="tel"
                             name="telefono"
@@ -785,7 +721,6 @@ const Register = () => {
                       <label>
                         Correo electrónico
                         <div className="input-box">
-                          <span>✉</span>
                           <input
                             type="email"
                             name="correo"
@@ -799,7 +734,6 @@ const Register = () => {
                       <label>
                         Contraseña
                         <div className="input-box">
-                          <span>🔒</span>
                           <input
                             type="password"
                             name="password"
@@ -813,7 +747,6 @@ const Register = () => {
                       <label>
                         Confirmar contraseña
                         <div className="input-box">
-                          <span>🔐</span>
                           <input
                             type="password"
                             name="confirmPassword"
@@ -845,6 +778,7 @@ const Register = () => {
 
                   <div className="option-group">
                     <h3>Nivel educativo</h3>
+
                     <div className="option-row">
                       {["Ninguno", "Básico", "Medio", "Superior"].map(
                         (opcion) => (
@@ -865,6 +799,7 @@ const Register = () => {
 
                   <div className="option-group">
                     <h3>Zona de residencia</h3>
+
                     <div className="option-row">
                       {["Urbana", "Rural"].map((opcion) => (
                         <button
@@ -883,6 +818,7 @@ const Register = () => {
 
                   <div className="option-group">
                     <h3>¿Tienes acceso a un centro de salud cercano?</h3>
+
                     <div className="option-row">
                       {["Sí", "No"].map((opcion) => (
                         <button
@@ -901,6 +837,7 @@ const Register = () => {
 
                   <div className="option-group">
                     <h3>Situación económica del hogar</h3>
+
                     <div className="option-row">
                       {["Baja", "Media", "Alta"].map((opcion) => (
                         <button
@@ -932,6 +869,7 @@ const Register = () => {
 
                   <div className="option-group">
                     <h3>¿Cuál es tu relación con el recién nacido?</h3>
+
                     <div className="option-row">
                       {[
                         "Madre",
@@ -962,6 +900,7 @@ const Register = () => {
 
                   <div className="option-group">
                     <h3>¿Es tu primera vez cuidando a un recién nacido?</h3>
+
                     <div className="option-row">
                       {["Sí", "No"].map((opcion) => (
                         <button
@@ -986,6 +925,7 @@ const Register = () => {
 
                   <div className="option-group">
                     <h3>¿Cuidas al recién nacido sin apoyo constante?</h3>
+
                     <div className="option-row">
                       {["Sí", "No"].map((opcion) => (
                         <button
@@ -1019,6 +959,7 @@ const Register = () => {
 
                   <div className="option-group">
                     <h3>¿Cuentas con apoyo familiar o de otra persona?</h3>
+
                     <div className="option-row">
                       {["Sí", "No"].map((opcion) => (
                         <button
@@ -1037,6 +978,7 @@ const Register = () => {
 
                   <div className="option-group">
                     <h3>¿Quién te apoya principalmente?</h3>
+
                     <div className="option-row">
                       {[
                         "Pareja",
@@ -1108,6 +1050,7 @@ const Register = () => {
 
                     <div className="option-group baby-sex-group">
                       <h3>Sexo</h3>
+
                       <div className="option-row">
                         {["Masculino", "Femenino"].map((opcion) => (
                           <button
@@ -1182,6 +1125,7 @@ const Register = () => {
 
                   <div className="option-group">
                     <h3>Tipo de parto</h3>
+
                     <div className="option-row">
                       {["Vaginal", "Cesárea", "Vaginal instrumentado"].map(
                         (opcion) => (
@@ -1205,6 +1149,7 @@ const Register = () => {
 
                   <div className="option-group">
                     <h3>¿Hubo complicaciones al nacer?</h3>
+
                     <div className="option-row">
                       {["Sí", "No"].map((opcion) => (
                         <button
@@ -1230,6 +1175,7 @@ const Register = () => {
                   {datosClinicos.complicacionesNacer === "Sí" && (
                     <div className="option-group conditional-group">
                       <h3>¿Cuál fue la complicación?</h3>
+
                       <div className="option-row">
                         {[
                           "Dificultad respiratoria",
@@ -1262,6 +1208,7 @@ const Register = () => {
 
                   <div className="option-group">
                     <h3>¿El bebé requirió hospitalización neonatal?</h3>
+
                     <div className="option-row">
                       {["Sí", "No"].map((opcion) => (
                         <button
@@ -1329,6 +1276,7 @@ const Register = () => {
 
                   <div className="option-group">
                     <h3>¿Requirió cuidados especiales al nacer?</h3>
+
                     <div className="option-row">
                       {["Sí", "No", "No lo sé"].map((opcion) => (
                         <button
@@ -1354,6 +1302,7 @@ const Register = () => {
                   {datosClinicos.cuidadosEspeciales === "Sí" && (
                     <div className="option-group conditional-group">
                       <h3>Tipo de cuidado recibido</h3>
+
                       <div className="option-row">
                         {[
                           "Oxígeno",
