@@ -11,8 +11,14 @@ import educacionImage from "../../assets/educacion.png";
 import historialImage from "../../assets/h.png";
 import perfilImage from "../../assets/perfil.png";
 
-import userImage from "../../assets/AVATAR.png";
-import seguridadImage from "../../assets/InformacionSegura.png";
+import avatarImage from "../../assets/Avatar.png";
+import teleImage from "../../assets/TELE.png";
+import gmailImage from "../../assets/GMAIL.png";
+import uImage from "../../assets/U.png";
+import candadoImage from "../../assets/CANDADO.png";
+import guardarImage from "../../assets/GUARDAR.png";
+import tusDImage from "../../assets/TusD.png";
+import informacionSeguraImage from "../../assets/InformacionSegura.png";
 
 const sidebarItems = [
   {
@@ -59,12 +65,6 @@ const Profile = () => {
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
-  });
-
-  const [showPassword, setShowPassword] = useState({
-    currentPassword: false,
-    newPassword: false,
-    confirmPassword: false,
   });
 
   const [profileMessage, setProfileMessage] = useState("");
@@ -124,13 +124,6 @@ const Profile = () => {
     }));
 
     setPasswordMessage("");
-  };
-
-  const togglePasswordVisibility = (fieldName) => {
-    setShowPassword((currentState) => ({
-      ...currentState,
-      [fieldName]: !currentState[fieldName],
-    }));
   };
 
   const handleSaveProfile = (event) => {
@@ -238,7 +231,7 @@ const Profile = () => {
           <section className="profile-summary-card">
             <div className="profile-avatar-box">
               <img
-                src={userImage}
+                src={avatarImage}
                 alt="Usuario registrado"
                 className="profile-avatar-image"
               />
@@ -252,7 +245,9 @@ const Profile = () => {
             <div className="profile-summary-divider" />
 
             <article className="profile-summary-item">
-              <span className="profile-summary-icon">✉</span>
+              <span className="profile-summary-icon image">
+                <img src={gmailImage} alt="Correo electrónico" />
+              </span>
 
               <div>
                 <h3>Correo electrónico</h3>
@@ -263,7 +258,9 @@ const Profile = () => {
             <div className="profile-summary-divider" />
 
             <article className="profile-summary-item">
-              <span className="profile-summary-icon">☎</span>
+              <span className="profile-summary-icon image">
+                <img src={teleImage} alt="Teléfono" />
+              </span>
 
               <div>
                 <h3>Teléfono</h3>
@@ -274,7 +271,9 @@ const Profile = () => {
             <div className="profile-summary-divider" />
 
             <article className="profile-summary-item">
-              <span className="profile-summary-icon">●</span>
+              <span className="profile-summary-icon image">
+                <img src={uImage} alt="Relación con el recién nacido" />
+              </span>
 
               <div>
                 <h3>Relación con el recién nacido</h3>
@@ -286,7 +285,9 @@ const Profile = () => {
           <section className="profile-content-grid">
             <form className="profile-form-card" onSubmit={handleSaveProfile}>
               <div className="profile-card-heading">
-                <span className="profile-card-icon">♙</span>
+                <span className="profile-card-icon image">
+                  <img src={uImage} alt="Datos personales" />
+                </span>
 
                 <div>
                   <h2>Datos personales</h2>
@@ -365,7 +366,11 @@ const Profile = () => {
 
               <div className="profile-button-row">
                 <button type="submit" className="profile-save-button">
-                  <span>▣</span>
+                  <img
+                    src={guardarImage}
+                    alt="Guardar cambios"
+                    className="profile-button-icon"
+                  />
                   Guardar cambios
                 </button>
 
@@ -384,7 +389,9 @@ const Profile = () => {
               onSubmit={handleUpdatePassword}
             >
               <div className="profile-card-heading">
-                <span className="profile-card-icon">▣</span>
+                <span className="profile-card-icon image">
+                  <img src={tusDImage} alt="Cambiar contraseña" />
+                </span>
 
                 <div>
                   <h2>Cambiar contraseña</h2>
@@ -398,22 +405,12 @@ const Profile = () => {
 
                   <div className="profile-password-input">
                     <input
-                      type={showPassword.currentPassword ? "text" : "password"}
+                      type="password"
                       name="currentPassword"
                       placeholder="Ingresa tu contraseña actual"
                       value={passwordData.currentPassword}
                       onChange={handlePasswordChange}
                     />
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        togglePasswordVisibility("currentPassword")
-                      }
-                      aria-label="Mostrar contraseña actual"
-                    >
-                      ◉
-                    </button>
                   </div>
                 </label>
 
@@ -422,20 +419,12 @@ const Profile = () => {
 
                   <div className="profile-password-input">
                     <input
-                      type={showPassword.newPassword ? "text" : "password"}
+                      type="password"
                       name="newPassword"
                       placeholder="Ingresa tu nueva contraseña"
                       value={passwordData.newPassword}
                       onChange={handlePasswordChange}
                     />
-
-                    <button
-                      type="button"
-                      onClick={() => togglePasswordVisibility("newPassword")}
-                      aria-label="Mostrar nueva contraseña"
-                    >
-                      ◉
-                    </button>
                   </div>
                 </label>
 
@@ -444,22 +433,12 @@ const Profile = () => {
 
                   <div className="profile-password-input">
                     <input
-                      type={showPassword.confirmPassword ? "text" : "password"}
+                      type="password"
                       name="confirmPassword"
                       placeholder="Repite tu nueva contraseña"
                       value={passwordData.confirmPassword}
                       onChange={handlePasswordChange}
                     />
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        togglePasswordVisibility("confirmPassword")
-                      }
-                      aria-label="Mostrar confirmación de contraseña"
-                    >
-                      ◉
-                    </button>
                   </div>
                 </label>
               </div>
@@ -475,7 +454,11 @@ const Profile = () => {
               )}
 
               <button type="submit" className="profile-password-button">
-                <span>▣</span>
+                <img
+                  src={candadoImage}
+                  alt="Actualizar contraseña"
+                  className="profile-button-icon"
+                />
                 Actualizar contraseña
               </button>
             </form>
@@ -484,7 +467,7 @@ const Profile = () => {
           <section className="profile-security-card">
             <div className="profile-security-image-box">
               <img
-                src={seguridadImage}
+                src={informacionSeguraImage}
                 alt="Seguridad de la información"
                 className="profile-security-image"
               />
