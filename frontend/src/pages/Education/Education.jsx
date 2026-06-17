@@ -6,10 +6,10 @@ import Header2 from "../../components/Header2/Header2.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
 
 import inicioImage from "../../assets/Inicio.png";
-import evaluacionImage from "../../assets/evaluacion.png";
-import educacionImage from "../../assets/educacion.png";
-import historialImage from "../../assets/h.png";
-import perfilImage from "../../assets/perfil.png";
+import evaluacionImage from "../../assets/Evaluacion.png";
+import educacionImage from "../../assets/Educacion.png";
+import historialImage from "../../assets/H.png";
+import perfilImage from "../../assets/Perfil.png";
 
 import dtImage from "../../assets/DT.png";
 
@@ -201,7 +201,7 @@ const neocareModules = [
     description:
       "Conoce qué significan los niveles verde, amarillo y rojo en NeoCare.",
     image: qsImage,
-    path: "/evaluacion",
+    path: "/educacion/triaje",
   },
   {
     id: "seguimiento-diario",
@@ -209,7 +209,7 @@ const neocareModules = [
     description:
       "Registra durante 5 días la evolución del bebé después de una evaluación.",
     image: realizarEImage,
-    path: "/seguimiento",
+    path: "/educacion/seguimiento",
   },
   {
     id: "vacunas-controles",
@@ -217,7 +217,7 @@ const neocareModules = [
     description:
       "Consulta recordatorios generales sobre vacunación, control neonatal y seguimiento del crecimiento.",
     image: vacuImage,
-    path: "/educacion",
+    path: "/educacion/vacunas-controles",
   },
 ];
 

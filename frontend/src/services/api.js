@@ -56,3 +56,38 @@ export const obtenerRegistroPorId = async (id) => {
     throw error;
   }
 };
+
+// =================== BEBÉS Y MÓDULOS EDUCATIVOS ===================
+
+const handleFetch = async (url, options = {}) => {
+  const response = await fetch(url, options);
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.mensaje || "Error en la petición");
+  }
+  return data;
+};
+
+export const listarBebes = async () => {
+  return handleFetch(`${API_URL}/bebes`);
+};
+
+export const obtenerBebeDetalle = async (id) => {
+  return handleFetch(`${API_URL}/bebes/${id}`);
+};
+
+export const obtenerModuloEducativo = async (id) => {
+  return handleFetch(`${API_URL}/bebes/${id}/modulo-educativo`);
+};
+
+export const obtenerTriajeBebe = async (id) => {
+  return handleFetch(`${API_URL}/bebes/${id}/triaje`);
+};
+
+export const obtenerSeguimientoBebe = async (id) => {
+  return handleFetch(`${API_URL}/bebes/${id}/seguimiento`);
+};
+
+export const obtenerVacunasControlesBebe = async (id) => {
+  return handleFetch(`${API_URL}/bebes/${id}/vacunas-controles`);
+};
