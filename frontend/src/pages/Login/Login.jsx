@@ -63,7 +63,7 @@ const Login = () => {
     localStorage.setItem("neocareUser", JSON.stringify(usuario));
     localStorage.setItem("neocareRegisterData", JSON.stringify(registro));
 
-    navigate("/inicio", {
+    navigate("/educacion", {
       state: {
         user: usuario,
         registro,

@@ -12,46 +12,93 @@ const parseFecha = (fechaStr) => {
   return `${anio}-${mes.padStart(2, "0")}-${dia.padStart(2, "0")}`;
 };
 
+// Helper para formatear fecha de yyyy-mm-dd o Date a dd/mm/aaaa
+const formatFechaEs = (fecha) => {
+  if (!fecha) return "";
+  let fechaStr = "";
+  if (fecha instanceof Date) {
+    const dia = String(fecha.getDate()).padStart(2, "0");
+    const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+    const anio = fecha.getFullYear();
+    return `${dia}/${mes}/${anio}`;
+  } else {
+    fechaStr = String(fecha);
+  }
+  if (fechaStr.includes("-")) {
+    const partes = fechaStr.split("T")[0].split("-");
+    if (partes.length === 3) {
+      const [anio, mes, dia] = partes;
+      return `${dia}/${mes}/${anio}`;
+    }
+  }
+  return fechaStr;
+};
+
 export const crearRegistro = async (req, res) => {
   try {
-    const { madre, bebe, datosClinicos, consentimiento } = req.body;
+    const { 
+      madre, 
+      bebe, 
+      datosClinicos, 
+      consentimiento,
+      datosPersonales,
+      sociodemografica,
+      condicionesCuidado,
+      recienNacido,
+      consentimientoAceptado
+    } = req.body;
 
-    if (!madre || !bebe || !datosClinicos) {
+    // Normalizar datos de la madre/cuidador
+    const datosM = datosPersonales || madre;
+    const socioM = sociodemografica || madre;
+    const cuidadoM = condicionesCuidado || madre;
+    
+    // Normalizar recien nacido y consentimiento
+    const recienN = recienNacido || bebe;
+    const aceptacionTerminos = consentimientoAceptado !== undefined ? consentimientoAceptado : consentimiento;
+
+    if (!datosM || !recienN || !datosClinicos) {
       return res.status(400).json({
         mensaje: "Faltan datos obligatorios del registro."
       });
     }
 
-    if (consentimiento !== true) {
+    if (aceptacionTerminos !== true) {
       return res.status(400).json({
         mensaje: "Debe aceptar el consentimiento informado para continuar."
       });
     }
 
+    const password = datosM.password || datosM.contrasena;
+    if (!password) {
+      return res.status(400).json({
+        mensaje: "La contraseña es obligatoria."
+      });
+    }
+
     // Hash de la contraseña
     const salt = await bcrypt.genSalt(10);
-    const contrasenaHash = await bcrypt.hash(madre.password, salt);
+    const contrasenaHash = await bcrypt.hash(password, salt);
 
-    // Mapeo de campos del frontend a columnas de la base de datos
-    const nombreMadre = madre.nombreCompleto;
-    const edadMadre = Number(madre.edad);
-    const telefonoMadre = madre.telefono;
-    const correoMadre = madre.correo;
-    const numeroIdentificacion = madre.numeroIdentificacion;
+    // Mapeo de campos a columnas de la base de datos
+    const nombreMadre = datosM.nombreCompleto || datosM.nombre;
+    const edadMadre = Number(datosM.edad);
+    const telefonoMadre = String(datosM.telefono || "").replace(/\D/g, ""); // Sanitizar teléfono (eliminar no dígitos)
+    const correoMadre = datosM.correo || datosM.correo_electronico || datosM.correoElectronico;
+    const numeroIdentificacion = datosM.numeroIdentificacion || datosM.numero_identificacion;
     
-    const nivelEducacion = madre.nivelEducativo;
-    const zonaResidencia = madre.zonaResidencia;
-    const accesoCentroSalud = madre.accesoCentroSalud === "Sí";
-    const situacionEconomica = madre.situacionEconomica;
+    const nivelEducacion = socioM.nivelEducativo || socioM.nivel_educacion;
+    const zonaResidencia = socioM.zonaResidencia || socioM.zona_residencia;
+    const accesoCentroSalud = socioM.accesoCentroSalud === "Sí" || socioM.acceso_centro_salud === true || socioM.accesoCentroSalud === true;
+    const situacionEconomica = socioM.situacionEconomica || socioM.situacion_economica;
 
-    const relacionBebe = madre.relacionRecienNacido;
-    const numeroHijos = Number(madre.numeroNinosCuidado);
+    const relacionBebe = cuidadoM.relacionRecienNacido || cuidadoM.relacion_bebe || cuidadoM.relacionBebe;
+    const numeroHijos = Number(cuidadoM.numeroNinosCuidado || cuidadoM.numero_hijos || cuidadoM.numeroHijos || 0);
     const tieneDosOMasHijos = numeroHijos >= 2;
-    const esMadreSola = madre.cuidaSinApoyo === "Sí";
-    const tieneApoyoFamiliar = madre.apoyoFamiliar === "Sí";
-    const apoyoPrincipal = madre.apoyoPrincipal;
-    const esMadrePrimeriza = madre.primeraVezCuidando === "Sí";
-    const aceptacionTerminos = consentimiento;
+    const esMadreSola = cuidadoM.cuidaSinApoyo === "Sí" || cuidadoM.es_madre_sola === true || cuidadoM.esMadreSola === true;
+    const tieneApoyoFamiliar = cuidadoM.apoyoFamiliar === "Sí" || cuidadoM.tiene_apoyo_familiar === true || cuidadoM.tieneApoyoFamiliar === true;
+    const apoyoPrincipal = cuidadoM.apoyoPrincipal;
+    const esMadrePrimeriza = cuidadoM.primeraVezCuidando === "Sí" || cuidadoM.es_madre_primeriza === true || cuidadoM.esMadrePrimeriza === true;
 
     // Ejecutar transacción para insertar madre y recién nacido
     const result = await transaction(async (executeQuery) => {
@@ -76,20 +123,21 @@ export const crearRegistro = async (req, res) => {
       const madreId = resMadre.rows[0].id || resMadre.rows[0].insertId; // postgres o mysql
 
       // 2. Insertar recién nacido
-      const nombreBebe = bebe.nombreBebe;
-      const fechaNacimiento = parseFecha(bebe.fechaNacimiento);
-      const pesoAlNacer = Number(bebe.pesoNacer) / 1000; // Convertir gramos a kg
-      const edadGestacional = Number(bebe.edadGestacional);
-      const sexo = bebe.sexo;
+      const nombreBebe = recienN.nombreBebe || recienN.nombre_bebe;
+      const fechaNacimiento = parseFecha(recienN.fechaNacimiento || recienN.fecha_nacimiento);
+      const rawPeso = Number(recienN.pesoNacer || recienN.peso_al_nacer || 0);
+      const pesoAlNacer = rawPeso > 10 ? rawPeso / 1000 : rawPeso; // Convertir gramos a kg si es necesario
+      const edadGestacional = Number(recienN.edadGestacional || recienN.edad_gestacional);
+      const sexo = recienN.sexo;
 
-      const tipoParto = datosClinicos.tipoParto;
-      const complicacionesAlNacer = datosClinicos.complicacionesNacer === "Sí";
-      const especificacionComplicaciones = complicacionesAlNacer ? datosClinicos.complicacion : null;
-      const hospitalizacionNeonatal = datosClinicos.hospitalizacionNeonatal === "Sí";
-      const motivoHospitalizacion = hospitalizacionNeonatal ? datosClinicos.motivoHospitalizacion : null;
-      const duracionHospitalizacion = hospitalizacionNeonatal ? datosClinicos.duracionHospitalizacion : null;
-      const requirioCuidadosEspeciales = datosClinicos.cuidadosEspeciales;
-      const tipoCuidadoRecibido = datosClinicos.cuidadosEspeciales === "Sí" ? datosClinicos.tipoCuidadoRecibido : null;
+      const tipoParto = datosClinicos.tipoParto || datosClinicos.tipo_parto;
+      const complicacionesAlNacer = datosClinicos.complicacionesNacer === "Sí" || datosClinicos.complicaciones_al_nacer === true || datosClinicos.complicacionesAlNacer === true;
+      const especificacionComplicaciones = complicacionesAlNacer ? (datosClinicos.complicacion || datosClinicos.especificacion_complicaciones) : null;
+      const hospitalizacionNeonatal = datosClinicos.hospitalizacionNeonatal === "Sí" || datosClinicos.hospitalizacion_neonatal === true || datosClinicos.hospitalizacionNeonatal === true;
+      const motivoHospitalizacion = hospitalizacionNeonatal ? (datosClinicos.motivoHospitalizacion || datosClinicos.motivo_hospitalizacion) : null;
+      const duracionHospitalizacion = hospitalizacionNeonatal ? (datosClinicos.duracionHospitalizacion || datosClinicos.duracion_hospitalizacion) : null;
+      const requirioCuidadosEspeciales = datosClinicos.cuidadosEspeciales || datosClinicos.requirio_cuidados_especiales || "No";
+      const tipoCuidadoRecibido = (requirioCuidadosEspeciales === "Sí" || requirioCuidadosEspeciales === true) ? (datosClinicos.tipoCuidadoRecibido || datosClinicos.tipo_cuidado_recibido) : null;
 
       const sqlBebe = `
         INSERT INTO recien_nacidos (
@@ -108,11 +156,46 @@ export const crearRegistro = async (req, res) => {
 
       const bebeId = resBebe.rows[0].id || resBebe.rows[0].insertId;
 
-      return { madreId, bebeId };
+      return { 
+        madreId, 
+        bebeId, 
+        pesoAlNacer, 
+        fechaNacimiento, 
+        nombreBebe, 
+        sexo, 
+        edadGestacional, 
+        tipoParto, 
+        complicacionesAlNacer, 
+        especificacionComplicaciones, 
+        hospitalizacionNeonatal, 
+        motivoHospitalizacion, 
+        duracionHospitalizacion, 
+        requirioCuidadosEspeciales, 
+        tipoCuidadoRecibido 
+      };
     });
 
-    // Calcular riesgo de la evaluación
-    const resultadoRiesgo = evaluarRegistro({ madre, bebe, datosClinicos });
+    // Calcular riesgo de la evaluación con datos normalizados
+    const resultadoRiesgo = evaluarRegistro({
+      madre: {
+        edad: edadMadre,
+        nivelEducativo: nivelEducacion,
+        zonaResidencia: zonaResidencia,
+        accesoCentroSalud: accesoCentroSalud,
+        madreSola: esMadreSola,
+        apoyoFamiliar: tieneApoyoFamiliar,
+        numeroHijos: numeroHijos,
+        situacionEconomica: situacionEconomica
+      },
+      bebe: {
+        edadGestacional: edadGestacional,
+        pesoNacer: result.pesoAlNacer
+      },
+      datosClinicos: {
+        complicacionesNacer: result.complicacionesAlNacer,
+        hospitalizacionNeonatal: result.hospitalizacionNeonatal
+      }
+    });
 
     // Crear token JWT para inicio de sesión inmediato
     const token = jwt.sign(
@@ -120,6 +203,49 @@ export const crearRegistro = async (req, res) => {
       process.env.JWT_SECRET || "neocare_secret_key",
       { expiresIn: "7d" }
     );
+
+    const responsePayload = {
+      datosPersonales: {
+        nombreCompleto: nombreMadre,
+        edad: String(edadMadre),
+        numeroIdentificacion: numeroIdentificacion,
+        telefono: telefonoMadre,
+        correo: correoMadre
+      },
+      sociodemografica: {
+        nivelEducativo: nivelEducacion,
+        zonaResidencia: zonaResidencia,
+        accesoCentroSalud: accesoCentroSalud ? "Sí" : "No",
+        situacionEconomica: situacionEconomica
+      },
+      condicionesCuidado: {
+        relacionRecienNacido: relacionBebe,
+        primeraVezCuidando: esMadrePrimeriza ? "Sí" : "No",
+        cuidaSinApoyo: esMadreSola ? "Sí" : "No",
+        numeroNinosCuidado: String(numeroHijos),
+        apoyoFamiliar: tieneApoyoFamiliar ? "Sí" : "No",
+        apoyoPrincipal: apoyoPrincipal
+      },
+      recienNacido: {
+        nombreBebe: result.nombreBebe,
+        fechaNacimiento: formatFechaEs(result.fechaNacimiento),
+        sexo: result.sexo,
+        pesoNacer: String(Math.round(result.pesoAlNacer * 1000)), // kg a gramos
+        edadGestacional: String(result.edadGestacional),
+        edadActual: resultadoRiesgo.edadActual || "Calculado"
+      },
+      datosClinicos: {
+        tipoParto: result.tipoParto,
+        complicacionesNacer: result.complicacionesAlNacer ? "Sí" : "No",
+        complicacion: result.especificacionComplicaciones || "",
+        hospitalizacionNeonatal: result.hospitalizacionNeonatal ? "Sí" : "No",
+        motivoHospitalizacion: result.motivoHospitalizacion || "",
+        duracionHospitalizacion: result.duracionHospitalizacion || "",
+        cuidadosEspeciales: result.requirioCuidadosEspeciales || "No",
+        tipoCuidadoRecibido: result.tipoCuidadoRecibido || ""
+      },
+      resultadoRiesgo
+    };
 
     return res.status(201).json({
       mensaje: "Registro creado correctamente y guardado en la base de datos.",
@@ -130,21 +256,10 @@ export const crearRegistro = async (req, res) => {
         correo: correoMadre,
         bebe: {
           id: result.bebeId,
-          nombre: bebe.nombreBebe
+          nombre: result.nombreBebe
         }
       },
-      registro: {
-        datosPersonales: { ...madre, password: null, confirmPassword: null },
-        sociodemografica,
-        condicionesCuidado: { ...madre, numeroNinosCuidado: numeroHijos, primeraVezCuidando: madre.primeraVezCuidando },
-        recienNacido: {
-          ...bebe,
-          pesoNacer: bebe.pesoNacer,
-          edadActual: resultadoRiesgo.edadActual || "Calculado",
-        },
-        datosClinicos,
-        resultadoRiesgo
-      }
+      registro: responsePayload
     });
 
   } catch (error) {
@@ -216,7 +331,7 @@ export const loginUsuario = async (req, res) => {
       },
       recienNacido: bebe.id ? {
         nombreBebe: bebe.nombre_bebe,
-        fechaNacimiento: new Date(bebe.fecha_nacimiento).toLocaleDateString("es-ES"),
+        fechaNacimiento: formatFechaEs(bebe.fecha_nacimiento),
         sexo: bebe.sexo,
         pesoNacer: String(Math.round(Number(bebe.peso_al_nacer) * 1000)), // De kg a gramos
         edadGestacional: String(bebe.edad_gestacional)

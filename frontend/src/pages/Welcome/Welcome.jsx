@@ -6,8 +6,8 @@ import Footer from "../../components/Footer/Footer.jsx";
 
 import mbImage from "../../assets/PIM.png";
 import signosAImage from "../../assets/SignosA.png";
-import orientacionImage from "../../assets/orientacion.png";
-import acompanamientoImage from "../../assets/acompañamiento.png";
+import orientacionImage from "../../assets/Orientacion.png";
+import acompanamientoImage from "../../assets/Acompañamiento.png";
 
 const Welcome = () => {
   return (

@@ -8,10 +8,10 @@ import Footer from "../../components/Footer/Footer.jsx";
 import userImage from "../../assets/USER.png";
 
 import inicioImage from "../../assets/Inicio.png";
-import evaluacionImage from "../../assets/evaluacion.png";
-import educacionImage from "../../assets/educacion.png";
-import historialImage from "../../assets/h.png";
-import perfilImage from "../../assets/perfil.png";
+import evaluacionImage from "../../assets/Evaluacion.png";
+import educacionImage from "../../assets/Educacion.png";
+import historialImage from "../../assets/H.png";
+import perfilImage from "../../assets/Perfil.png";
 
 import TARImage from "../../assets/TAR.png";
 import TRRImage from "../../assets/TRR.png";

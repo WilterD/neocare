@@ -1,0 +1,511 @@
+* {
+  box-sizing: border-box;
+}
+
+.edu-vac-page-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  background: #fff6ec;
+  font-family: "Segoe UI", Arial, sans-serif;
+  color: #343349;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.edu-vac-desktop {
+  width: calc(100% - 44px);
+  max-width: 1180px;
+  min-height: 700px;
+  margin-top: 10px;
+  margin-bottom: 28px;
+  background: linear-gradient(180deg, #fffaf2 0%, #fff3e7 100%);
+  border: 1px solid #eee7df;
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: 185px 1fr;
+  overflow: hidden;
+  box-shadow: 0 16px 48px rgba(146, 116, 78, 0.12);
+}
+
+.edu-vac-sidebar {
+  background: linear-gradient(180deg, #fffaf2 0%, #fff3e7 100%);
+  border-right: 1px solid #eadfd3;
+  padding: 42px 14px 24px;
+}
+.edu-vac-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.edu-vac-sidebar-item {
+  width: 100%;
+  height: 50px;
+  border: none;
+  border-radius: 16px;
+  background: transparent;
+  color: #343349;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  align-items: center;
+  text-align: left;
+  padding: 0 12px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.edu-vac-sidebar-icon-box {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.edu-vac-sidebar-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+.edu-vac-sidebar-item:hover { color: #6fa04f; }
+.edu-vac-sidebar-item:hover .edu-vac-sidebar-icon { transform: scale(1.06); }
+.edu-vac-sidebar-item.active {
+  background: rgba(213, 230, 196, 0.45);
+  border: 1.5px solid rgba(111, 160, 79, 0.38);
+  color: #6fa04f;
+  font-weight: 800;
+}
+.edu-vac-sidebar-item.active .edu-vac-sidebar-icon { transform: scale(1.08); }
+
+.edu-vac-main-panel {
+  padding: 26px 28px 28px;
+  background: linear-gradient(180deg, #fffaf2 0%, #fff3e7 100%);
+  overflow-y: auto;
+}
+
+.edu-vac-topbar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.edu-vac-back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1.5px solid #e2d8cf;
+  color: #343349;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.edu-vac-back-button img { width: 16px; height: 16px; }
+.edu-vac-back-button img.flip { transform: scaleX(-1); }
+.edu-vac-back-button:hover { border-color: #6fa04f; color: #6fa04f; }
+
+.edu-vac-hero {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  align-items: center;
+  gap: 18px;
+  background: #ffffff;
+  border: 1.5px solid #ece2d4;
+  border-radius: 18px;
+  padding: 22px 24px;
+  margin-bottom: 18px;
+  box-shadow: 0 8px 22px rgba(146, 116, 78, 0.08);
+}
+
+.edu-vac-hero-label {
+  color: #6fa04f;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.edu-vac-hero h1 {
+  margin: 4px 0 12px;
+  color: #343349;
+  font-size: 28px;
+  font-weight: 850;
+  letter-spacing: -0.5px;
+}
+
+.edu-vac-hero p {
+  margin: 0 0 12px;
+  color: #343349;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.edu-vac-hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.edu-vac-tag {
+  background: #f6efe2;
+  color: #343349;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+.edu-vac-hero-image-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.edu-vac-hero-image-box img {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+}
+
+.edu-vac-intro-card,
+.edu-vac-vacunas-card,
+.edu-vac-controles-card,
+.edu-vac-crecimiento-card,
+.edu-vac-consejos-card,
+.edu-vac-recordatorio-card {
+  background: #ffffff;
+  border: 1.5px solid #ece2d4;
+  border-radius: 18px;
+  padding: 22px 24px;
+  margin-bottom: 18px;
+  box-shadow: 0 8px 22px rgba(146, 116, 78, 0.08);
+}
+
+.edu-vac-intro-card h3,
+.edu-vac-vacunas-card h3,
+.edu-vac-controles-card h3,
+.edu-vac-crecimiento-card h3,
+.edu-vac-consejos-card h3 {
+  margin: 0 0 12px;
+  color: #343349;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.edu-vac-intro-card p {
+  color: #343349;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0 0 10px;
+}
+
+.edu-vac-subtitle {
+  color: #6b6b7c;
+  font-size: 13px;
+  margin: 0 0 14px;
+}
+
+.edu-vac-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.edu-vac-section-title img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.edu-vac-vacunas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.edu-vac-vacuna {
+  background: #fffaf2;
+  border: 1.5px solid #ece2d4;
+  border-left: 4px solid #6fa04f;
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.edu-vac-vacuna-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.edu-vac-vacuna-head strong {
+  color: #343349;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.edu-vac-vacuna-dosis {
+  background: #6fa04f;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+
+.edu-vac-vacuna-momento {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #343349;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.edu-vac-vacuna-icono {
+  color: #6fa04f;
+  font-size: 14px;
+}
+
+.edu-vac-vacuna-previene {
+  background: #ffffff;
+  border: 1px dashed #ece2d4;
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: #343349;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.edu-vac-vacuna-label {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6fa04f;
+  margin-right: 4px;
+}
+
+.edu-vac-controles-linea {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+}
+
+.edu-vac-controles-linea::before {
+  content: "";
+  position: absolute;
+  left: 22px;
+  top: 16px;
+  bottom: 16px;
+  width: 2px;
+  background: linear-gradient(180deg, #6fa04f 0%, #54813a 100%);
+  z-index: 0;
+}
+
+.edu-vac-control {
+  position: relative;
+  display: grid;
+  grid-template-columns: 50px 1fr;
+  gap: 12px;
+  align-items: center;
+  background: #fffaf2;
+  border: 1.5px solid #ece2d4;
+  border-radius: 12px;
+  padding: 10px 14px;
+  z-index: 1;
+}
+
+.edu-vac-control-punto {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edu-vac-control-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: #ffffff;
+  border: 3px solid #6fa04f;
+  color: #2f6b1d;
+  font-size: 14px;
+  font-weight: 800;
+  border-radius: 50%;
+}
+
+.edu-vac-control-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.edu-vac-control-edad {
+  color: #6fa04f;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.edu-vac-control-info strong {
+  color: #343349;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.edu-vac-control-info p {
+  margin: 2px 0 0;
+  color: #6b6b7c;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.edu-vac-medidas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.edu-vac-medida {
+  background: #fffaf2;
+  border: 1.5px solid #ece2d4;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.edu-vac-medida strong {
+  display: block;
+  color: #343349;
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.edu-vac-medida p {
+  margin: 0;
+  color: #6b6b7c;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.edu-vac-crecimiento-nota {
+  margin: 0;
+  background: rgba(111, 160, 79, 0.08);
+  border-left: 3px solid #6fa04f;
+  border-radius: 6px;
+  padding: 10px 14px;
+  color: #343349;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.edu-vac-consejos-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.edu-vac-consejos-list li {
+  position: relative;
+  padding: 10px 14px 10px 38px;
+  background: #fffaf2;
+  border: 1.5px solid #ece2d4;
+  border-left: 4px solid #6fa04f;
+  border-radius: 10px;
+  color: #343349;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.edu-vac-consejos-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  background: #6fa04f;
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.edu-vac-recordatorio-card {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 16px;
+  align-items: center;
+  background: rgba(111, 160, 79, 0.10);
+  border: 1.5px solid rgba(111, 160, 79, 0.3);
+}
+
+.edu-vac-recordatorio-card img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+
+.edu-vac-recordatorio-card h3 {
+  margin: 0 0 6px;
+  color: #2f6b1d;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.edu-vac-recordatorio-card p {
+  margin: 0 0 12px;
+  color: #343349;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.edu-vac-recordatorio-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: linear-gradient(135deg, #6fa04f 0%, #54813a 100%);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 9px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.edu-vac-recordatorio-button span {
+  font-size: 18px;
+  line-height: 1;
+}
+
+@media (max-width: 1000px) {
+  .edu-vac-hero { grid-template-columns: 1fr; }
+  .edu-vac-medidas-grid,
+  .edu-vac-consejos-list { grid-template-columns: 1fr; }
+}

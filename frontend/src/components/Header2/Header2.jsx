@@ -1,13 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Header2.css";
 
 import logoImage from "../../assets/LOGO.png";
 import avatarImage from "../../assets/Avatar.png";
 import cierreImage from "../../assets/Cierre.png";
+import settingsImage from "../../assets/CONF.png";
 
 const Header2 = ({ user }) => {
   const navigate = useNavigate();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
 
   const userName =
     user?.nombre ||
@@ -57,18 +63,37 @@ const Header2 = ({ user }) => {
             <span>{firstName ? `Hola, ${firstName}` : "Hola"}</span>
           </button>
 
-          <button
-            type="button"
-            className="header2-logout-button"
-            aria-label="Cerrar sesión"
-            onClick={handleLogout}
-          >
-            <img
-              src={cierreImage}
-              alt="Cerrar sesión"
-              className="header2-logout-icon"
-            />
-          </button>
+          <div className="header2-settings-wrapper">
+            <button
+              type="button"
+              className="header2-settings-button"
+              aria-label="Ajustes"
+              onClick={toggleDropdown}
+            >
+              <img
+                src={settingsImage}
+                alt="Ajustes"
+                className="header2-settings-icon"
+              />
+            </button>
+
+            {dropdownOpen && (
+              <div className="header2-dropdown">
+                <button
+                  type="button"
+                  className="header2-dropdown-item logout"
+                  onClick={handleLogout}
+                >
+                  <img
+                    src={cierreImage}
+                    alt=""
+                    className="header2-dropdown-icon"
+                  />
+                  <span>Cerrar sesión</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>

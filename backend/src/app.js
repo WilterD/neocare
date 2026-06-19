@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import registroRoutes from "./routes/registroRoutes.js";
+import bebesRoutes from "./routes/bebesRoutes.js";
 
 dotenv.config();
 
@@ -36,5 +37,6 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api", registroRoutes);
+app.use("/api", bebesRoutes);
 
 export default app;
