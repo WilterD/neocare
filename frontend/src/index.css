@@ -5,3 +5,132 @@ body,
   height: 100%;
   margin: 0;
 }
+
+/* Global Mobile Navigation (Sticky Bottom Nav) */
+@media (max-width: 1050px) {
+  .home-sidebar,
+  .education-sidebar,
+  .evaluation-sidebar,
+  .history-sidebar,
+  .profile-sidebar,
+  .bebes-sidebar,
+  .all-evaluations-sidebar {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 65px;
+    z-index: 1000;
+    flex-direction: row !important;
+    padding: 0 !important;
+    border-right: none !important;
+    border-top: 1px solid #eadfd3;
+    background: #ffffff !important;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.05);
+    justify-content: space-around !important;
+    align-items: center;
+  }
+
+  .home-sidebar-nav,
+  .education-sidebar-nav,
+  .evaluation-sidebar-nav,
+  .history-sidebar-nav,
+  .profile-sidebar-nav,
+  .bebes-sidebar-nav,
+  .all-evaluations-sidebar-nav {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 0 !important;
+    width: 100%;
+    justify-content: space-around;
+    align-items: center;
+    height: 100%;
+  }
+
+  .home-sidebar-item,
+  .education-sidebar-item,
+  .evaluation-sidebar-item,
+  .history-sidebar-item,
+  .profile-sidebar-item,
+  .bebes-sidebar-item,
+  .all-evaluations-sidebar-item {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    height: 100% !important;
+    width: 20%;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    gap: 4px !important;
+    background: transparent !important;
+    border: none !important;
+    font-size: 10px !important;
+    text-align: center;
+  }
+
+  .home-sidebar-item.active,
+  .education-sidebar-item.active,
+  .evaluation-sidebar-item.active,
+  .history-sidebar-item.active,
+  .profile-sidebar-item.active,
+  .bebes-sidebar-item.active,
+  .all-evaluations-sidebar-item.active {
+    color: #6fa04f !important;
+    font-weight: 800 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    position: relative;
+  }
+
+  .home-sidebar-item.active::after,
+  .education-sidebar-item.active::after,
+  .evaluation-sidebar-item.active::after,
+  .history-sidebar-item.active::after,
+  .profile-sidebar-item.active::after,
+  .bebes-sidebar-item.active::after,
+  .all-evaluations-sidebar-item.active::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 30px;
+    height: 3px;
+    background: #6fa04f;
+    border-radius: 0 0 4px 4px;
+  }
+
+  .home-sidebar-icon-box,
+  .education-sidebar-icon-box,
+  .evaluation-sidebar-icon-box,
+  .history-sidebar-icon-box,
+  .profile-sidebar-icon-box,
+  .bebes-sidebar-icon-box,
+  .all-evaluations-sidebar-icon-box {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  .home-sidebar-icon,
+  .education-sidebar-icon,
+  .evaluation-sidebar-icon,
+  .history-sidebar-icon,
+  .profile-sidebar-icon,
+  .bebes-sidebar-icon,
+  .all-evaluations-sidebar-icon {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  /* Adjust desktop wrappers to not overlap with bottom nav */
+  .home-desktop,
+  .education-desktop,
+  .evaluation-desktop,
+  .history-desktop,
+  .profile-desktop,
+  .bebes-desktop,
+  .all-evaluations-desktop {
+    margin-bottom: 80px !important;
+  }
+}
