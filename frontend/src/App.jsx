@@ -12,6 +12,7 @@ import Result from "./pages/Result/Result.jsx";
 import Education from "./pages/Education/Education.jsx";
 
 import History from "./pages/History/History.jsx";
+import AllEvaluations from "./pages/AllEvaluations/AllEvaluations.jsx";
 import Home from "./pages/Home/Home.jsx";
 import Profile from "./pages/Profile/Profile.jsx";
 
@@ -37,7 +38,7 @@ function App() {
         <Route path="/historial" element={<History />} />
         <Route path="/inicio" element={<Home />} />
         <Route path="/perfil" element={<Profile />} />
-
+        <Route path="/historial/evaluaciones" element={<AllEvaluations />} />
         <Route path="/bebes" element={<Bebes />} />
         <Route path="/bebes/:id" element={<BebeDetalle />} />
         <Route path="/educacion/triaje" element={<EducacionTriaje />} />

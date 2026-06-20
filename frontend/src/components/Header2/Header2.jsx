@@ -5,7 +5,7 @@ import "./Header2.css";
 import logoImage from "../../assets/LOGO.png";
 import avatarImage from "../../assets/Avatar.png";
 import cierreImage from "../../assets/Cierre.png";
-import settingsImage from "../../assets/CONF.png";
+import settingsImage from "../../assets/Cierre.png";
 
 const Header2 = ({ user }) => {
   const navigate = useNavigate();
