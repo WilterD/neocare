@@ -6,13 +6,11 @@ import evaluacionImage from "../../assets/Evaluacion.png";
 import educacionImage from "../../assets/Educacion.png";
 import historialImage from "../../assets/H.png";
 import perfilImage from "../../assets/Perfil.png";
-import bebesImage from "../../assets/DatosBebe.png";
 
 const sidebarItems = [
   { image: inicioImage, label: "Inicio", path: "/inicio" },
   { image: evaluacionImage, label: "Evaluación", path: "/evaluacion" },
   { image: educacionImage, label: "Educación", path: "/educacion" },
-  { image: bebesImage, label: "Bebés", path: "/bebes" },
   { image: historialImage, label: "Historial", path: "/historial" },
   { image: perfilImage, label: "Perfil", path: "/perfil" },
 ];
@@ -27,8 +25,8 @@ const SidebarNeoCare = ({ className = "", activePath = "" }) => {
             to={item.path}
             className={({ isActive }) => {
               const isCurrent =
-                isActive ||
-                (activePath && item.path === activePath);
+                isActive || (activePath && item.path === activePath);
+
               return isCurrent
                 ? `${className}-sidebar-item active`
                 : `${className}-sidebar-item`;
@@ -41,6 +39,7 @@ const SidebarNeoCare = ({ className = "", activePath = "" }) => {
                 className={`${className}-sidebar-icon`}
               />
             </span>
+
             {item.label}
           </NavLink>
         ))}

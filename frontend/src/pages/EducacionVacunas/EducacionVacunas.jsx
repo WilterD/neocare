@@ -11,8 +11,6 @@ import controlImage from "../../assets/CONTROL.png";
 import pesoImage from "../../assets/Peso.png";
 import gorroImage from "../../assets/GORRO.png";
 import duvidaImage from "../../assets/DUDA.png";
-import flechImage from "../../assets/FLECH.png";
-import saImage from "../../assets/SA.png";
 
 const VACUNAS = [
   {
@@ -31,7 +29,8 @@ const VACUNAS = [
     nombre: "Pentavalente (1ra)",
     dosis: "Primera",
     momento: "A los 2 meses",
-    previene: "Difteria, tétanos, tosferina, polio y Haemophilus influenzae tipo b",
+    previene:
+      "Difteria, tétanos, tosferina, polio y Haemophilus influenzae tipo b",
   },
   {
     nombre: "Polio (1ra)",
@@ -163,33 +162,26 @@ const EducacionVacunas = () => {
         <SidebarNeoCare className="edu-vac" activePath="/educacion" />
 
         <section className="edu-vac-main-panel">
-          <header className="edu-vac-topbar">
-            <button
-              type="button"
-              className="edu-vac-back-button"
-              onClick={() => navigate("/educacion")}
-            >
-              <img src={flechImage} alt="Volver" className="flip" />
-              Volver a Educación
-            </button>
-          </header>
-
           <section className="edu-vac-hero">
             <div className="edu-vac-hero-text">
               <span className="edu-vac-hero-label">Módulo educativo</span>
+
               <h1>Vacunas y controles del bebé</h1>
+
               <p>
-                Conoce el <strong>esquema nacional de vacunación</strong> y
-                los <strong>controles de niño sano</strong> recomendados
-                durante el primer año de vida. La vacunación oportuna y los
-                controles periódicos son la base de una infancia saludable.
+                Conoce el <strong>esquema nacional de vacunación</strong> y los{" "}
+                <strong>controles de niño sano</strong> recomendados durante el
+                primer año de vida. La vacunación oportuna y los controles
+                periódicos son la base de una infancia saludable.
               </p>
+
               <div className="edu-vac-hero-tags">
                 <span className="edu-vac-tag">Esquema PAI/OPS</span>
                 <span className="edu-vac-tag">15 vacunas</span>
                 <span className="edu-vac-tag">7 controles</span>
               </div>
             </div>
+
             <div className="edu-vac-hero-image-box">
               <img src={vacuImage} alt="Vacunas y controles" />
             </div>
@@ -197,19 +189,20 @@ const EducacionVacunas = () => {
 
           <section className="edu-vac-intro-card">
             <h3>¿Por qué son importantes las vacunas y los controles?</h3>
+
             <p>
-              Las <strong>vacunas</strong> protegen al bebé contra
-              enfermedades potencialmente graves como tuberculosis,
-              hepatitis B, poliomielitis, sarampión o neumonía. Aplicarlas en
-              las fechas indicadas es esencial para que el niño esté
-              protegido desde los primeros meses de vida.
+              Las <strong>vacunas</strong> protegen al bebé contra enfermedades
+              potencialmente graves como tuberculosis, hepatitis B,
+              poliomielitis, sarampión o neumonía. Aplicarlas en las fechas
+              indicadas es esencial para que el niño esté protegido desde los
+              primeros meses de vida.
             </p>
+
             <p>
-              Los <strong>controles de niño sano</strong> permiten vigilar
-              el crecimiento (peso, talla, perímetro cefálico), evaluar el
-              desarrollo psicomotor y detectar a tiempo cualquier alteración.
-              Son la mejor oportunidad para resolver dudas sobre
-              alimentación, sueño, vacunas o crianza.
+              Los <strong>controles de niño sano</strong> permiten vigilar el
+              crecimiento, evaluar el desarrollo psicomotor y detectar a tiempo
+              cualquier alteración. Son la mejor oportunidad para resolver dudas
+              sobre alimentación, sueño, vacunas o crianza.
             </p>
           </section>
 
@@ -218,11 +211,13 @@ const EducacionVacunas = () => {
               <img src={vacuImage} alt="Vacunas" />
               <h3>Esquema nacional de vacunación</h3>
             </div>
+
             <p className="edu-vac-subtitle">
-              El esquema combina vacunas individuales y combinadas. Las
-              edades son tentativas a partir de la fecha de nacimiento.
-              Aplicarlas a tiempo es clave para la protección del bebé.
+              El esquema combina vacunas individuales y combinadas. Las edades
+              son tentativas a partir de la fecha de nacimiento. Aplicarlas a
+              tiempo es clave para la protección del bebé.
             </p>
+
             <div className="edu-vac-vacunas-grid">
               {VACUNAS.map((v, idx) => (
                 <div key={idx} className="edu-vac-vacuna">
@@ -230,10 +225,12 @@ const EducacionVacunas = () => {
                     <strong>{v.nombre}</strong>
                     <span className="edu-vac-vacuna-dosis">{v.dosis}</span>
                   </div>
+
                   <div className="edu-vac-vacuna-momento">
                     <span className="edu-vac-vacuna-icono">⏱</span>
                     {v.momento}
                   </div>
+
                   <div className="edu-vac-vacuna-previene">
                     <span className="edu-vac-vacuna-label">Previene</span>
                     {v.previene}
@@ -248,16 +245,19 @@ const EducacionVacunas = () => {
               <img src={controlImage} alt="Controles" />
               <h3>Controles de niño sano</h3>
             </div>
+
             <p className="edu-vac-subtitle">
-              Controles periódicos de crecimiento y desarrollo sugeridos por
-              la OMS/OPS durante el primer año. Asiste a cada uno puntualmente.
+              Controles periódicos de crecimiento y desarrollo sugeridos por la
+              OMS/OPS durante el primer año. Asiste a cada uno puntualmente.
             </p>
+
             <div className="edu-vac-controles-linea">
               {CONTROLES.map((c, idx) => (
                 <div key={idx} className="edu-vac-control">
                   <div className="edu-vac-control-punto">
                     <span className="edu-vac-control-num">{idx + 1}</span>
                   </div>
+
                   <div className="edu-vac-control-info">
                     <span className="edu-vac-control-edad">{c.edad}</span>
                     <strong>{c.titulo}</strong>
@@ -273,9 +273,9 @@ const EducacionVacunas = () => {
               <img src={pesoImage} alt="Crecimiento" />
               <h3>Curva de crecimiento</h3>
             </div>
-            <p>
-              En cada control se registran tres medidas clave del bebé:
-            </p>
+
+            <p>En cada control se registran tres medidas clave del bebé:</p>
+
             <div className="edu-vac-medidas-grid">
               <div className="edu-vac-medida">
                 <strong>Peso</strong>
@@ -284,13 +284,14 @@ const EducacionVacunas = () => {
                   deshidratación o problemas de alimentación.
                 </p>
               </div>
+
               <div className="edu-vac-medida">
                 <strong>Talla</strong>
                 <p>
-                  Permite evaluar el crecimiento lineal a lo largo del
-                  tiempo.
+                  Permite evaluar el crecimiento lineal a lo largo del tiempo.
                 </p>
               </div>
+
               <div className="edu-vac-medida">
                 <strong>Perímetro cefálico</strong>
                 <p>
@@ -299,6 +300,7 @@ const EducacionVacunas = () => {
                 </p>
               </div>
             </div>
+
             <p className="edu-vac-crecimiento-nota">
               NeoCare compara las medidas del bebé con las{" "}
               <strong>tablas de referencia de la OMS</strong> y clasifica
@@ -311,28 +313,34 @@ const EducacionVacunas = () => {
               <img src={gorroImage} alt="Consejos" />
               <h3>Consejos prácticos</h3>
             </div>
+
             <ul className="edu-vac-consejos-list">
               <li>
                 <strong>Lleva siempre la tarjeta de vacunación</strong> y
                 enséñala en cada consulta.
               </li>
+
               <li>
                 <strong>No faltes a los controles</strong> aunque el bebé
                 parezca sano: muchas condiciones se detectan solo en consulta.
               </li>
+
               <li>
                 <strong>Respeta los intervalos</strong> entre dosis: cada
                 refuerzo aumenta la protección.
               </li>
+
               <li>
-                <strong>Si el bebé está enfermo</strong> el día de la
-                vacuna, consulta con el profesional de salud si es
-                conveniente posponerla.
+                <strong>Si el bebé está enfermo</strong> el día de la vacuna,
+                consulta con el profesional de salud si es conveniente
+                posponerla.
               </li>
+
               <li>
-                <strong>Comunica reacciones</strong> inusuales tras la
-                vacuna (fiebre alta, llanto persistente, alergias).
+                <strong>Comunica reacciones</strong> inusuales tras la vacuna,
+                como fiebre alta, llanto persistente o alergias.
               </li>
+
               <li>
                 <strong>Confía en el esquema oficial</strong>: las vacunas
                 incluidas son seguras y gratuitas.
@@ -342,14 +350,17 @@ const EducacionVacunas = () => {
 
           <section className="edu-vac-recordatorio-card">
             <img src={duvidaImage} alt="Recordatorio" />
+
             <div>
               <h3>Importante</h3>
+
               <p>
-                El esquema de vacunación puede variar ligeramente según el
-                país o la región. NeoCare te ayuda a llevar el control
-                personalizado de tu bebé, pero sigue siempre las indicaciones
-                del personal de salud local.
+                El esquema de vacunación puede variar ligeramente según el país
+                o la región. NeoCare te ayuda a llevar el control personalizado
+                de tu bebé, pero sigue siempre las indicaciones del personal de
+                salud local.
               </p>
+
               <button
                 type="button"
                 className="edu-vac-recordatorio-button"

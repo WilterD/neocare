@@ -78,15 +78,18 @@
 .edu-triaje-sidebar-item:hover {
   color: #6fa04f;
 }
+
 .edu-triaje-sidebar-item:hover .edu-triaje-sidebar-icon {
   transform: scale(1.06);
 }
+
 .edu-triaje-sidebar-item.active {
   background: rgba(213, 230, 196, 0.45);
   border: 1.5px solid rgba(111, 160, 79, 0.38);
   color: #6fa04f;
   font-weight: 800;
 }
+
 .edu-triaje-sidebar-item.active .edu-triaje-sidebar-icon {
   transform: scale(1.08);
 }
@@ -97,82 +100,54 @@
   overflow-y: auto;
 }
 
-.edu-triaje-topbar {
-  display: flex;
-  align-items: center;
-  margin-bottom: 14px;
-}
-
-.edu-triaje-back-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: #ffffff;
-  border: 1.5px solid #e2d8cf;
-  color: #343349;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  padding: 8px 14px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: all 0.18s ease;
-}
-.edu-triaje-back-button img { width: 16px; height: 16px; }
-.edu-triaje-back-button img.flip { transform: scaleX(-1); }
-.edu-triaje-back-button:hover {
-  border-color: #6fa04f;
-  color: #6fa04f;
-}
-
 .edu-triaje-hero {
   display: grid;
-  grid-template-columns: 1fr 220px;
+  grid-template-columns: 1fr 150px;
   align-items: center;
-  gap: 18px;
+  gap: 14px;
   background: #ffffff;
   border: 1.5px solid #ece2d4;
   border-radius: 18px;
-  padding: 22px 24px;
+  padding: 16px 22px;
   margin-bottom: 18px;
   box-shadow: 0 8px 22px rgba(146, 116, 78, 0.08);
 }
 
 .edu-triaje-hero-label {
   color: #6fa04f;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .edu-triaje-hero h1 {
-  margin: 4px 0 12px;
+  margin: 4px 0 8px;
   color: #343349;
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 850;
   letter-spacing: -0.5px;
 }
 
 .edu-triaje-hero p {
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   color: #343349;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 .edu-triaje-hero-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 7px;
 }
 
 .edu-triaje-tag {
   background: #f6efe2;
   color: #343349;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
-  padding: 4px 12px;
+  padding: 3px 11px;
   border-radius: 999px;
 }
 
@@ -183,8 +158,8 @@
 }
 
 .edu-triaje-hero-image-box img {
-  width: 200px;
-  height: 200px;
+  width: 120px;
+  height: 120px;
   object-fit: contain;
 }
 
@@ -309,9 +284,18 @@
   padding: 10px 12px;
   position: relative;
 }
-.edu-triaje-signo-card.alto { border-left: 4px solid #c64a4a; }
-.edu-triaje-signo-card.medio { border-left: 4px solid #e0a64a; }
-.edu-triaje-signo-card.bajo { border-left: 4px solid #6fa04f; }
+
+.edu-triaje-signo-card.alto {
+  border-left: 4px solid #c64a4a;
+}
+
+.edu-triaje-signo-card.medio {
+  border-left: 4px solid #e0a64a;
+}
+
+.edu-triaje-signo-card.bajo {
+  border-left: 4px solid #6fa04f;
+}
 
 .edu-triaje-signo-puntos {
   position: absolute;
@@ -341,9 +325,21 @@
   padding: 2px 8px;
   border-radius: 999px;
 }
-.edu-triaje-signo-cat.alto { background: rgba(198, 74, 74, 0.15); color: #c64a4a; }
-.edu-triaje-signo-cat.medio { background: rgba(224, 166, 74, 0.18); color: #b67817; }
-.edu-triaje-signo-cat.bajo { background: rgba(111, 160, 79, 0.18); color: #4d7635; }
+
+.edu-triaje-signo-cat.alto {
+  background: rgba(198, 74, 74, 0.15);
+  color: #c64a4a;
+}
+
+.edu-triaje-signo-cat.medio {
+  background: rgba(224, 166, 74, 0.18);
+  color: #b67817;
+}
+
+.edu-triaje-signo-cat.bajo {
+  background: rgba(111, 160, 79, 0.18);
+  color: #4d7635;
+}
 
 .edu-triaje-quehacer-grid {
   display: grid;
@@ -358,9 +354,18 @@
   border-radius: 12px;
   padding: 14px 16px;
 }
-.edu-triaje-quehacer.bajo { border-left: 4px solid #6fa04f; }
-.edu-triaje-quehacer.moderado { border-left: 4px solid #e0a64a; }
-.edu-triaje-quehacer.alto { border-left: 4px solid #c64a4a; }
+
+.edu-triaje-quehacer.bajo {
+  border-left: 4px solid #6fa04f;
+}
+
+.edu-triaje-quehacer.moderado {
+  border-left: 4px solid #e0a64a;
+}
+
+.edu-triaje-quehacer.alto {
+  border-left: 4px solid #c64a4a;
+}
 
 .edu-triaje-quehacer header {
   display: flex;
@@ -415,7 +420,7 @@
   grid-template-columns: 80px 1fr;
   gap: 16px;
   align-items: center;
-  background: rgba(111, 160, 79, 0.10);
+  background: rgba(111, 160, 79, 0.1);
   border: 1.5px solid rgba(111, 160, 79, 0.3);
 }
 
@@ -454,6 +459,11 @@
   cursor: pointer;
 }
 
+.edu-triaje-recordatorio-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(84, 129, 58, 0.22);
+}
+
 .edu-triaje-recordatorio-button span {
   font-size: 18px;
   line-height: 1;
@@ -463,6 +473,12 @@
   .edu-triaje-hero {
     grid-template-columns: 1fr;
   }
+
+  .edu-triaje-hero-image-box img {
+    width: 110px;
+    height: 110px;
+  }
+
   .edu-triaje-rangos-grid,
   .edu-triaje-quehacer-grid {
     grid-template-columns: 1fr;
