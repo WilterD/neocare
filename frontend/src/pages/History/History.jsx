@@ -6,10 +6,10 @@ import Header2 from "../../components/Header2/Header2.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
 
 import inicioImage from "../../assets/Inicio.png";
-import evaluacionImage from "../../assets/evaluacion.png";
-import educacionImage from "../../assets/educacion.png";
-import historialImage from "../../assets/h.png";
-import perfilImage from "../../assets/perfil.png";
+import evaluacionImage from "../../assets/Evaluacion.png";
+import educacionImage from "../../assets/Educacion.png";
+import historialImage from "../../assets/H.png";
+import perfilImage from "../../assets/Perfil.png";
 
 import bebeImage from "../../assets/BEBE.png";
 import uImage from "../../assets/U.png";

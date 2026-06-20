@@ -21,6 +21,7 @@ import BebeDetalle from "./pages/BebeDetalle/BebeDetalle.jsx";
 import EducacionTriaje from "./pages/EducacionTriaje/EducacionTriaje.jsx";
 import EducacionSeguimiento from "./pages/EducacionSeguimiento/EducacionSeguimiento.jsx";
 import EducacionVacunas from "./pages/EducacionVacunas/EducacionVacunas.jsx";
+import TopicDetail from "./pages/TopicDetail/TopicDetail.jsx";
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
         <Route path="/educacion/triaje" element={<EducacionTriaje />} />
         <Route path="/educacion/seguimiento" element={<EducacionSeguimiento />} />
         <Route path="/educacion/vacunas-controles" element={<EducacionVacunas />} />
+        <Route path="/educacion/tema/:id" element={<TopicDetail />} />
 
         {/* Ruta interna: no va en el header principal */}
         <Route path="/evaluacion" element={<Evaluation />} />

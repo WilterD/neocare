@@ -500,6 +500,7 @@ const Education = () => {
                       key={topic.id}
                       type="button"
                       className="education-topic-card"
+                      onClick={() => navigate(`/educacion/tema/${topic.id}`)}
                     >
                       <span className="education-topic-image-box">
                         <img
