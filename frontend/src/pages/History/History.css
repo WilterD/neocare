@@ -308,53 +308,59 @@
 
 .history-current-card {
   width: 100%;
-  min-height: 150px;
+  min-height: 108px;
   border: 1.5px solid #eadfd3;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.96);
-  display: grid;
-  grid-template-columns: 138px minmax(0, 1fr);
-  align-items: center;
-  gap: 16px;
-  padding: 18px 20px;
+  padding: 14px 16px;
   box-shadow: 0 10px 26px rgba(146, 116, 78, 0.08);
   margin-bottom: 18px;
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  overflow: hidden;
 }
 
 .history-current-image-box {
-  width: 120px;
-  height: 112px;
+  width: 74px;
+  height: 74px;
   display: flex;
   align-items: center;
   justify-content: center;
+  justify-self: center;
+  align-self: center;
   overflow: visible;
 }
 
 .history-current-image {
-  width: 124px;
-  height: 124px;
+  width: 74px;
+  height: 74px;
   object-fit: contain;
   display: block;
 }
 
 .history-current-content {
+  width: 100%;
   min-width: 0;
 }
 
 .history-current-content h2 {
-  margin: 0 0 16px;
+  margin: 0 0 10px;
   color: #2f7f2f;
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 900;
   line-height: 1.1;
+  text-align: left;
 }
 
 .history-current-details {
   width: 100%;
+  min-width: 0;
   display: grid;
-  grid-template-columns: 92px 82px 105px 118px minmax(135px, 1fr) 128px;
+  grid-template-columns: 92px 96px 126px 108px minmax(145px, 1fr) 112px;
   align-items: start;
-  gap: 10px;
+  gap: 8px;
 }
 
 .history-current-item {
@@ -362,96 +368,90 @@
   display: grid;
   grid-template-columns: 28px minmax(0, 1fr);
   align-items: start;
-  align-self: start;
   gap: 7px;
 }
 
+.history-current-item.result,
 .history-current-item.recommendation {
   grid-template-columns: 1fr;
+  align-items: start;
 }
 
 .history-current-icon {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   margin-top: 0;
-  border-radius: 0;
-  background: transparent;
+  border-radius: 50%;
+  background: #edf7e7;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   overflow: visible;
   align-self: start;
 }
 
 .history-current-icon.image {
-  background: transparent !important;
-  border-radius: 0 !important;
+  background: #edf7e7 !important;
+  border: 1.4px solid rgba(111, 160, 79, 0.28);
+  border-radius: 50% !important;
   box-shadow: none !important;
 }
 
 .history-current-icon.image img {
-  width: 34px;
-  height: 34px;
+  width: 23px;
+  height: 23px;
   object-fit: contain;
   display: block;
 }
 
-/* Alineación interna de títulos e información */
-
 .history-current-item > div,
+.history-current-item.result > div,
 .history-current-item.recommendation > div {
   min-width: 0;
   width: 100%;
-  display: grid;
-  grid-template-rows: 34px auto;
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 2px;
 }
 
 .history-current-item h3,
+.history-current-item.result h3,
 .history-current-item.recommendation h3 {
-  height: 34px;
-  min-height: 34px;
+  width: 100%;
   margin: 0;
   color: #11142c;
-  font-size: 10.5px;
+  font-size: 9.6px;
   font-weight: 900;
-  line-height: 1.1;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  text-align: center;
+  line-height: 1.05;
+  text-align: left;
 }
 
 .history-current-item p,
 .history-current-item.recommendation p {
   margin: 0;
   color: #11142c;
-  font-size: 10.8px;
+  font-size: 9.6px;
   font-weight: 600;
-  line-height: 1.28;
-  text-align: center;
-  align-self: start;
-}
-
-.history-current-item.recommendation h3 {
-  justify-content: flex-start;
+  line-height: 1.15;
   text-align: left;
 }
 
 .history-current-item.recommendation p {
-  text-align: left;
+  max-width: 150px;
 }
 
 /* Badges de riesgo */
 
 .history-risk-badge {
-  min-height: 32px;
-  border-radius: 9px;
-  padding: 0 16px;
+  min-height: 30px;
+  border-radius: 8px;
+  padding: 0 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 11.6px;
+  font-size: 10.8px;
   font-weight: 900;
   line-height: 1;
   white-space: nowrap;
@@ -476,34 +476,35 @@
 }
 
 .history-current-item .history-risk-badge {
-  width: 112px;
-  height: 34px;
-  min-height: 34px;
-  margin-top: 0;
-  padding: 0 10px;
-  border-radius: 9px;
-  font-size: 10.8px;
+  width: 92px;
+  height: 26px;
+  min-height: 26px;
+  padding: 0 8px;
+  border-radius: 8px;
+  font-size: 9.4px;
+  font-weight: 900;
+  justify-self: start;
   align-self: start;
-  justify-self: center;
+  margin-top: 1px;
 }
 
 /* Botón ver último resultado */
 
 .history-result-button {
-  width: 128px;
+  width: 112px;
   height: 46px;
   border: none;
   border-radius: 9px;
   background: linear-gradient(135deg, #4f963f, #2f7f2f);
   color: #ffffff;
   font-family: inherit;
-  font-size: 11.2px;
+  font-size: 10.4px;
   font-weight: 850;
-  padding: 0 12px;
+  padding: 0 10px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 6px;
   cursor: pointer;
   justify-self: end;
   align-self: center;
@@ -512,7 +513,7 @@
 }
 
 .history-result-button span {
-  font-size: 19px;
+  font-size: 17px;
   line-height: 1;
 }
 
@@ -1140,6 +1141,11 @@
     grid-template-columns: 1fr;
   }
 
+  .history-result-button {
+    justify-self: stretch;
+    width: 100%;
+  }
+
   .history-evaluations-section {
     flex-direction: column;
     align-items: flex-start;
@@ -1171,8 +1177,8 @@
   }
 
   .history-current-image {
-    width: 118px;
-    height: 118px;
+    width: 70px;
+    height: 70px;
   }
 
   .history-summary-icon.image img {

@@ -457,7 +457,7 @@ const History = () => {
                   </div>
                 </article>
 
-                <article className="history-current-item">
+                <article className="history-current-item result">
                   <div>
                     <h3>Resultado más reciente:</h3>
 
