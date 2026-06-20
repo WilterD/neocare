@@ -164,6 +164,7 @@ const getRiskWeight = (risk) => {
   if (risk === "bajo") return 1;
   if (risk === "medio") return 2;
   if (risk === "alto") return 3;
+
   return 0;
 };
 
@@ -171,6 +172,7 @@ const getRiskClass = (risk) => {
   if (risk === "bajo") return "low";
   if (risk === "medio") return "medium";
   if (risk === "alto") return "high";
+
   return "medium";
 };
 
@@ -286,7 +288,7 @@ const History = () => {
 
       return matchesRisk && matchesSearch;
     });
-  }, [activeRisk, searchTerm, sortedEvaluations]);
+  }, [searchTerm, activeRisk, sortedEvaluations]);
 
   const visibleEvaluations = filteredEvaluations.slice(0, 3);
 
@@ -306,6 +308,14 @@ const History = () => {
         user: usuario,
         fromHistory: true,
         evaluation,
+      },
+    });
+  };
+
+  const handleViewAllEvaluations = () => {
+    navigate("/historial/evaluaciones", {
+      state: {
+        user: usuario,
       },
     });
   };
@@ -346,6 +356,7 @@ const History = () => {
           <header className="history-title-row">
             <div className="history-title-left">
               <h1>Historial de evaluaciones</h1>
+
               <p>
                 Consulta los resultados anteriores y revisa cómo ha cambiado el
                 seguimiento del recién nacido.
@@ -404,7 +415,7 @@ const History = () => {
             <div className="history-current-image-box">
               <img
                 src={bebeImage}
-                alt="Seguimiento actual"
+                alt="Bebé en seguimiento"
                 className="history-current-image"
               />
             </div>
@@ -420,7 +431,7 @@ const History = () => {
 
                   <div>
                     <h3>Bebé:</h3>
-                    <p>{latestEvaluation?.baby || "Mateo"}</p>
+                    <p>{latestEvaluation?.baby || "Sin registro"}</p>
                   </div>
                 </article>
 
@@ -431,7 +442,7 @@ const History = () => {
 
                   <div>
                     <h3>Edad actual:</h3>
-                    <p>{latestEvaluation?.babyAge || "12 días"}</p>
+                    <p>{latestEvaluation?.babyAge || "Sin registro"}</p>
                   </div>
                 </article>
 
@@ -442,7 +453,7 @@ const History = () => {
 
                   <div>
                     <h3>Última evaluación:</h3>
-                    <p>{latestEvaluation?.date || "20 mayo, 2025"}</p>
+                    <p>{latestEvaluation?.date || "Sin registro"}</p>
                   </div>
                 </article>
 
@@ -455,7 +466,7 @@ const History = () => {
                         latestEvaluation?.risk
                       )}`}
                     >
-                      {latestEvaluation?.riskLabel || "Riesgo medio"}
+                      {latestEvaluation?.riskLabel || "Sin registro"}
                     </span>
                   </div>
                 </article>
@@ -463,8 +474,10 @@ const History = () => {
                 <article className="history-current-item recommendation">
                   <div>
                     <h3>Recomendación:</h3>
+
                     <p>
-                      Mantener vigilancia y repetir evaluación en 24 horas.
+                      {latestEvaluation?.recommendation ||
+                        "Aún no hay recomendaciones registradas."}
                     </p>
                   </div>
                 </article>
@@ -483,17 +496,17 @@ const History = () => {
           <section className="history-summary-grid">
             <article className="history-summary-card purple">
               <span className="history-summary-icon image">
-                <img
-                  src={inicioActImage}
-                  alt="Evaluaciones realizadas"
-                />
+                <img src={inicioActImage} alt="Evaluaciones realizadas" />
               </span>
 
               <div>
                 <h3>Evaluaciones realizadas</h3>
+
                 <p>
                   <strong>{selectedBabyEvaluations.length}</strong>{" "}
-                  evaluaciones
+                  {selectedBabyEvaluations.length === 1
+                    ? "evaluación"
+                    : "evaluaciones"}
                 </p>
               </div>
             </article>
@@ -512,7 +525,7 @@ const History = () => {
                     latestEvaluation?.risk
                   )}`}
                 >
-                  {latestEvaluation?.riskLabel || "Riesgo medio"}
+                  {latestEvaluation?.riskLabel || "Sin registro"}
                 </span>
               </div>
             </article>
@@ -524,22 +537,24 @@ const History = () => {
 
               <div>
                 <h3>Seguimientos activos</h3>
+
                 <p>
-                  <strong>{activeTrackingCount}</strong> seguimiento
+                  <strong>{activeTrackingCount}</strong>{" "}
+                  {activeTrackingCount === 1
+                    ? "seguimiento"
+                    : "seguimientos"}
                 </p>
               </div>
             </article>
 
             <article className="history-summary-card blue">
               <span className="history-summary-icon image">
-                <img
-                  src={inicioProxiImage}
-                  alt="Próxima evaluación sugerida"
-                />
+                <img src={inicioProxiImage} alt="Próxima evaluación sugerida" />
               </span>
 
               <div>
                 <h3>Próxima evaluación sugerida</h3>
+
                 <p>
                   <strong>{nextEvaluationText}</strong>
                 </p>
@@ -585,61 +600,76 @@ const History = () => {
               </thead>
 
               <tbody>
-                {visibleEvaluations.map((evaluation) => (
-                  <tr key={evaluation.id}>
-                    <td>
-                      <div className="history-date-cell">
-                        <span className="history-table-icon image">
-                          <img src={erImage} alt="Fecha y hora" />
-                        </span>
+                {visibleEvaluations.length > 0 ? (
+                  visibleEvaluations.map((evaluation) => (
+                    <tr key={evaluation.id}>
+                      <td>
+                        <div className="history-date-cell">
+                          <span className="history-table-icon image">
+                            <img src={erImage} alt="Fecha y hora" />
+                          </span>
 
-                        <div>
-                          <strong>{evaluation.date}</strong>
-                          <p>{evaluation.time}</p>
+                          <div>
+                            <strong>{evaluation.date}</strong>
+                            <p>{evaluation.time}</p>
+                          </div>
                         </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    <td>
-                      <strong>{evaluation.score}</strong>
-                    </td>
+                      <td>
+                        <strong>{evaluation.score}</strong>
+                      </td>
 
-                    <td>
-                      <span
-                        className={`history-risk-badge ${getRiskClass(
-                          evaluation.risk
-                        )}`}
-                      >
-                        {evaluation.riskLabel}
-                      </span>
-                    </td>
-
-                    <td>
-                      <div className="history-tracking-cell">
-                        <span className="history-table-icon image">
-                          <img
-                            src={getTrackingImage(evaluation.risk)}
-                            alt="Tipo de seguimiento"
-                          />
+                      <td>
+                        <span
+                          className={`history-risk-badge ${getRiskClass(
+                            evaluation.risk
+                          )}`}
+                        >
+                          {evaluation.riskLabel}
                         </span>
+                      </td>
 
-                        <span>{evaluation.trackingType}</span>
+                      <td>
+                        <div className="history-tracking-cell">
+                          <span className="history-table-icon image">
+                            <img
+                              src={getTrackingImage(evaluation.risk)}
+                              alt="Tipo de seguimiento"
+                            />
+                          </span>
+
+                          <span>{evaluation.trackingType}</span>
+                        </div>
+                      </td>
+
+                      <td>{evaluation.recommendation}</td>
+
+                      <td>
+                        <button
+                          type="button"
+                          className="history-detail-button"
+                          onClick={() => handleViewDetail(evaluation)}
+                        >
+                          Ver detalle <span>›</span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6">
+                      <div className="history-empty-state">
+                        <h3>No se encontraron evaluaciones</h3>
+
+                        <p>
+                          Prueba con otro filtro, otra búsqueda o selecciona
+                          otro nivel de riesgo.
+                        </p>
                       </div>
-                    </td>
-
-                    <td>{evaluation.recommendation}</td>
-
-                    <td>
-                      <button
-                        type="button"
-                        className="history-detail-button"
-                        onClick={() => handleViewDetail(evaluation)}
-                      >
-                        Ver detalle <span>›</span>
-                      </button>
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
 
@@ -649,7 +679,11 @@ const History = () => {
                 {filteredEvaluations.length} evaluaciones
               </p>
 
-              <button type="button" className="history-view-all-button">
+              <button
+                type="button"
+                className="history-view-all-button"
+                onClick={handleViewAllEvaluations}
+              >
                 Ver todas las evaluaciones <span>›</span>
               </button>
             </div>

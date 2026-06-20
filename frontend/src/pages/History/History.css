@@ -594,7 +594,7 @@
 }
 
 .history-summary-card.orange .history-summary-icon.image img {
-  width: 76px !important;
+  width: 116px !important;
   height: 116px !important;
   object-fit: contain;
   display: block;
@@ -609,7 +609,7 @@
 }
 
 .history-summary-card.green .history-summary-icon.image img {
-  width: 120px !important;
+  width: 174px !important;
   height: 174px !important;
   object-fit: contain;
   display: block;
@@ -974,6 +974,8 @@
   font-weight: 700;
 }
 
+/* Botón Ver todas las evaluaciones */
+
 .history-view-all-button {
   border: none;
   background: transparent;
@@ -985,11 +987,53 @@
   align-items: center;
   gap: 8px;
   cursor: pointer;
+  padding: 8px 10px;
+  border-radius: 9px;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 .history-view-all-button span {
   font-size: 22px;
   line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.history-view-all-button:hover {
+  background: rgba(111, 160, 79, 0.12);
+  color: #1f6b25;
+  transform: translateY(-1px);
+}
+
+.history-view-all-button:hover span {
+  transform: translateX(3px);
+}
+
+/* Estado vacío */
+
+.history-empty-state {
+  width: 100%;
+  min-height: 92px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.history-empty-state h3 {
+  margin: 0;
+  color: #11142c;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.history-empty-state p {
+  margin: 0;
+  color: #686a75;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
 }
 
 /* Footer */
