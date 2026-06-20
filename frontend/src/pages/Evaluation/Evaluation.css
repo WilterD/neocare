@@ -456,7 +456,7 @@
   }
 
   .evaluation-sidebar {
-    display: none;
+    /* Removed display none, handled by index.css */
   }
 
   .evaluation-grid-content {

@@ -1052,7 +1052,7 @@
   }
 
   .history-sidebar {
-    display: none;
+    /* Removed display none, handled by index.css */
   }
 
   .history-title-row {

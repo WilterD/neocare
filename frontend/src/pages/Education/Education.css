@@ -846,7 +846,7 @@
   }
 
   .education-sidebar {
-    display: none;
+    /* Removed display none, handled by index.css */
   }
 
   .education-title-row {

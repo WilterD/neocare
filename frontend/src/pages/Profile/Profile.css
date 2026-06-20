@@ -585,7 +585,7 @@
   }
 
   .profile-sidebar {
-    display: none;
+    /* Removed display none, handled by index.css */
   }
 
   .profile-summary-card {

@@ -780,7 +780,7 @@
   }
 
   .home-sidebar {
-    display: none;
+    /* Removed display none, handled by index.css */
   }
 }
 
