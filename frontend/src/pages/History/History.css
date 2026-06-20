@@ -594,7 +594,7 @@
 }
 
 .history-summary-card.orange .history-summary-icon.image img {
-  width: 116px !important;
+  width: 78px !important;
   height: 116px !important;
   object-fit: contain;
   display: block;
@@ -609,7 +609,7 @@
 }
 
 .history-summary-card.green .history-summary-icon.image img {
-  width: 174px !important;
+  width: 120px !important;
   height: 174px !important;
   object-fit: contain;
   display: block;
