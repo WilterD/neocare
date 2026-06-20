@@ -7,7 +7,6 @@ pm2 delete neocare-frontend || true
 
 echo "Stopping postgres container..."
 docker rm -f neocare-postgres || true
-docker rm -f salud_digital_db || true
 
 echo "Removing old directory..."
 rm -rf /var/www/neocare.enlatribuna.com/private/neocare2
@@ -15,7 +14,7 @@ rm -rf /var/www/neocare.enlatribuna.com/private/neocare
 
 echo "Cloning new repository..."
 cd /var/www/neocare.enlatribuna.com/private
-git clone -b neocare https://github.com/WilterD/neocare.git neocare
+git clone -b master https://github.com/WilterD/neocare.git neocare
 
 cd neocare
 
