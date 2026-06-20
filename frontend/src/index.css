@@ -8,13 +8,7 @@ body,
 
 /* Global Mobile Navigation (Burger Menu Overlay) */
 @media (max-width: 1050px) {
-  .home-sidebar,
-  .education-sidebar,
-  .evaluation-sidebar,
-  .history-sidebar,
-  .profile-sidebar,
-  .bebes-sidebar,
-  .all-evaluations-sidebar {
+  aside[class$='-sidebar'] {
     position: fixed !important;
     top: 65px; /* Adjust according to header height */
     left: -100%;
@@ -31,13 +25,7 @@ body,
   }
 
   /* When the sidebar is toggled open via body class */
-  body.sidebar-open .home-sidebar,
-  body.sidebar-open .education-sidebar,
-  body.sidebar-open .evaluation-sidebar,
-  body.sidebar-open .history-sidebar,
-  body.sidebar-open .profile-sidebar,
-  body.sidebar-open .bebes-sidebar,
-  body.sidebar-open .all-evaluations-sidebar {
+  body.sidebar-open aside[class$='-sidebar'] {
     left: 0;
   }
 
@@ -54,13 +42,7 @@ body,
   }
 
   /* Reset layout constraints added previously for the bottom bar */
-  .home-desktop,
-  .education-desktop,
-  .evaluation-desktop,
-  .history-desktop,
-  .profile-desktop,
-  .bebes-desktop,
-  .all-evaluations-desktop {
+  section[class$='-desktop'] {
     margin-bottom: 0 !important;
   }
 }
