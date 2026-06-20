@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Header2.css";
 
@@ -48,10 +48,35 @@ const Header2 = ({ user }) => {
     navigate("/");
   };
 
+  const toggleSidebarMenu = () => {
+    document.body.classList.toggle("sidebar-open");
+  };
+
+  useEffect(() => {
+    const handleLinkClick = (e) => {
+      // If clicking a link inside any element ending with '-sidebar', or clicking the overlay
+      if (
+        (e.target.closest("a") && e.target.closest("aside[class$='-sidebar'], aside.home-sidebar, aside.education-sidebar, aside.evaluation-sidebar, aside.history-sidebar, aside.profile-sidebar, aside.bebes-sidebar, aside.all-evaluations-sidebar")) ||
+        e.target === document.body // clicking the pseudo-element overlay registers as clicking body
+      ) {
+        document.body.classList.remove("sidebar-open");
+      }
+    };
+    document.addEventListener("click", handleLinkClick);
+    return () => document.removeEventListener("click", handleLinkClick);
+  }, []);
+
   return (
     <header className="header2">
       <div className="header2-container">
         <div className="header2-brand">
+          <button type="button" className="header2-burger-btn" onClick={toggleSidebarMenu} aria-label="Menú">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="burger-icon">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
           <img src={logoImage} alt="NeoCare" className="header2-logo" />
           <span>NeoCare</span>
         </div>

@@ -25,7 +25,22 @@
   transform: translateY(-6px);
 }
 
-/* Logo izquierdo */
+/* Logo izquierdo y burger */
+
+.header2-burger-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  padding: 8px;
+  margin-right: 2px;
+  cursor: pointer;
+  color: #6fa04f;
+}
+
+.burger-icon {
+  width: 32px;
+  height: 32px;
+}
 
 .header2-brand {
   display: flex;
@@ -198,6 +213,12 @@
 @media (max-width: 900px) {
   .header2 {
     height: 60px;
+  }
+
+  .header2-burger-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .header2-container {
