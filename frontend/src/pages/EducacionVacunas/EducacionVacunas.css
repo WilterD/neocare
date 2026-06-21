@@ -500,7 +500,11 @@
   line-height: 1;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1050px) {
+  .edu-vac-desktop {
+    grid-template-columns: 1fr;
+  }
+
   .edu-vac-hero {
     grid-template-columns: 1fr;
   }
@@ -513,5 +517,19 @@
   .edu-vac-medidas-grid,
   .edu-vac-consejos-list {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .edu-vac-desktop {
+    width: 100%;
+    margin-top: 0;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  .edu-vac-main-panel {
+    padding: 26px 18px;
   }
 }
