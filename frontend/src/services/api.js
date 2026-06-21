@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:4000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
 export const crearRegistro = async (datosRegistro) => {
   try {
@@ -90,4 +90,27 @@ export const obtenerSeguimientoBebe = async (id) => {
 
 export const obtenerVacunasControlesBebe = async (id) => {
   return handleFetch(`${API_URL}/bebes/${id}/vacunas-controles`);
+};
+
+export const loginUsuario = async (email, password) => {
+  try {
+    const response = await fetch(`${API_URL}/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.mensaje || "Error al iniciar sesión");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error en loginUsuario:", error.message);
+    throw error;
+  }
 };

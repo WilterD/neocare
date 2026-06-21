@@ -52,7 +52,6 @@ const sidebarItems = [
 ];
 
 const latestEvaluation = {
-  baby: "Mateo",
   babyAge: "12 días",
   lastDate: "20 mayo, 2025",
   riskLabel: "Riesgo medio",
@@ -82,7 +81,7 @@ const Home = () => {
       usuario?.nombre ||
       usuario?.name ||
       usuario?.nombreCompleto?.split(" ")[0] ||
-      "Elimar"
+      "Usuario"
     );
   }, [usuario]);
 
@@ -156,7 +155,7 @@ const Home = () => {
 
                   <div>
                     <h3>Bebé:</h3>
-                    <p>{latestEvaluation.baby}</p>
+                    <p>{usuario?.bebe?.nombre || "Tu bebé"}</p>
                   </div>
                 </article>
 

@@ -87,7 +87,6 @@ const evaluations = [
     createdAt: "2025-05-20T12:30:00",
     date: "20 mayo, 2025",
     time: "12:30 p. m.",
-    baby: "Mateo",
     score: "5 / 10",
     risk: "medio",
     riskLabel: "Riesgo medio",
@@ -99,7 +98,6 @@ const evaluations = [
     createdAt: "2025-05-12T09:15:00",
     date: "12 mayo, 2025",
     time: "9:15 a. m.",
-    baby: "Mateo",
     score: "3 / 10",
     risk: "bajo",
     riskLabel: "Riesgo bajo",
@@ -111,7 +109,6 @@ const evaluations = [
     createdAt: "2025-05-04T08:45:00",
     date: "4 mayo, 2025",
     time: "8:45 a. m.",
-    baby: "Mateo",
     score: "7 / 10",
     risk: "alto",
     riskLabel: "Riesgo alto",
@@ -123,7 +120,6 @@ const evaluations = [
     createdAt: "2025-04-28T19:30:00",
     date: "28 abril, 2025",
     time: "7:30 p. m.",
-    baby: "Mateo",
     score: "4 / 10",
     risk: "medio",
     riskLabel: "Riesgo medio",
@@ -135,7 +131,6 @@ const evaluations = [
     createdAt: "2025-04-20T11:00:00",
     date: "20 abril, 2025",
     time: "11:00 a. m.",
-    baby: "Mateo",
     score: "6 / 10",
     risk: "medio",
     riskLabel: "Riesgo medio",
@@ -147,7 +142,6 @@ const evaluations = [
     createdAt: "2025-04-10T18:30:00",
     date: "10 abril, 2025",
     time: "6:30 p. m.",
-    baby: "Mateo",
     score: "2 / 10",
     risk: "bajo",
     riskLabel: "Riesgo bajo",
@@ -186,7 +180,7 @@ const AllEvaluations = () => {
 
   const [usuario, setUsuario] = useState(location.state?.user || null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedBaby, setSelectedBaby] = useState("Mateo");
+  const [selectedBaby, setSelectedBaby] = useState("");
   const [activeRisk, setActiveRisk] = useState("todos");
   const [selectedPeriod, setSelectedPeriod] = useState("todos");
   const [sortOrder, setSortOrder] = useState("recientes");
@@ -203,14 +197,22 @@ const AllEvaluations = () => {
     }
   }, [usuario]);
 
+  useEffect(() => {
+    if (usuario?.bebe?.nombre && !selectedBaby) {
+      setSelectedBaby(usuario.bebe.nombre);
+    }
+  }, [usuario, selectedBaby]);
+
   const babyOptions = useMemo(() => {
-    const babies = evaluations.map((evaluation) => evaluation.baby);
-    return [...new Set(babies)];
-  }, []);
+    if (usuario?.bebe?.nombre) {
+      return [usuario.bebe.nombre];
+    }
+    return ["Tu bebé"];
+  }, [usuario]);
 
   const selectedBabyEvaluations = useMemo(() => {
-    return evaluations.filter((evaluation) => evaluation.baby === selectedBaby);
-  }, [selectedBaby]);
+    return evaluations;
+  }, []);
 
   const filteredEvaluations = useMemo(() => {
     const normalizedSearch = normalizeText(searchTerm);
@@ -222,7 +224,6 @@ const AllEvaluations = () => {
       const matchesSearch =
         normalizeText(evaluation.date).includes(normalizedSearch) ||
         normalizeText(evaluation.time).includes(normalizedSearch) ||
-        normalizeText(evaluation.baby).includes(normalizedSearch) ||
         normalizeText(evaluation.riskLabel).includes(normalizedSearch) ||
         normalizeText(evaluation.trackingType).includes(normalizedSearch) ||
         normalizeText(evaluation.recommendation).includes(normalizedSearch);

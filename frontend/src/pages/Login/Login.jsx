@@ -4,6 +4,7 @@ import "./Login.css";
 
 import Header from "../../components/Header/Header.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
+import { loginUsuario } from "../../services/api.js";
 
 import googleImage from "../../assets/Google.png";
 import faceImage from "../../assets/Face.png";
@@ -17,6 +18,7 @@ const Login = () => {
   });
 
   const [loginError, setLoginError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -29,46 +31,38 @@ const Login = () => {
     setLoginError("");
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setLoginError("");
+    setIsLoading(true);
 
-    const storedUser = localStorage.getItem("neocareUser");
-    const storedRegisterData = localStorage.getItem("neocareRegisterData");
+    try {
+      const data = await loginUsuario(formData.email, formData.password);
 
-    if (!storedUser) {
+      // Guardar datos del usuario y registro en localStorage
+      const usuario = data.usuario;
+      const registro = data.registro;
+
+      localStorage.setItem("neocareUser", JSON.stringify(usuario));
+      localStorage.setItem("neocareRegisterData", JSON.stringify(registro));
+
+      if (data.token) {
+        localStorage.setItem("neocareToken", data.token);
+      }
+
+      navigate("/educacion", {
+        state: {
+          user: usuario,
+          registro,
+        },
+      });
+    } catch (error) {
       setLoginError(
-        "No se encontró un usuario registrado. Primero debes completar el registro."
+        error.message || "Error al iniciar sesión. Verifica tus credenciales."
       );
-      return;
+    } finally {
+      setIsLoading(false);
     }
-
-    const usuario = JSON.parse(storedUser);
-    const registro = storedRegisterData ? JSON.parse(storedRegisterData) : usuario;
-
-    const correoRegistrado =
-      usuario?.correo ||
-      usuario?.datosPersonales?.correo ||
-      registro?.correo ||
-      registro?.datosPersonales?.correo ||
-      "";
-
-    if (
-      correoRegistrado.trim().toLowerCase() !==
-      formData.email.trim().toLowerCase()
-    ) {
-      setLoginError("El correo ingresado no coincide con un usuario registrado.");
-      return;
-    }
-
-    localStorage.setItem("neocareUser", JSON.stringify(usuario));
-    localStorage.setItem("neocareRegisterData", JSON.stringify(registro));
-
-    navigate("/educacion", {
-      state: {
-        user: usuario,
-        registro,
-      },
-    });
   };
 
   return (

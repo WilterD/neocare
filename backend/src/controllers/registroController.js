@@ -361,7 +361,11 @@ export const loginUsuario = async (req, res) => {
       usuario: {
         id: madre.id,
         nombre: madre.nombre,
-        correo: madre.correo_electronico
+        correo: madre.correo_electronico,
+        bebe: bebe.id ? {
+          id: bebe.id,
+          nombre: bebe.nombre_bebe
+        } : null
       },
       registro: payload
     });

@@ -54,10 +54,10 @@ const Profile = () => {
   const [usuario, setUsuario] = useState(location.state?.user || null);
 
   const [profileData, setProfileData] = useState({
-    fullName: "Elimar García",
-    age: "28",
-    phone: "+58 412 1234567",
-    email: "elimar@email.com",
+    fullName: "",
+    age: "",
+    phone: "",
+    email: "",
     relation: "Madre",
   });
 
@@ -100,7 +100,7 @@ const Profile = () => {
       profileData.fullName ||
       usuario?.nombreCompleto ||
       usuario?.nombre ||
-      "Elimar García"
+      "Usuario"
     );
   }, [profileData.fullName, usuario]);
 
@@ -147,10 +147,10 @@ const Profile = () => {
 
   const handleCancelProfile = () => {
     setProfileData({
-      fullName: usuario?.nombreCompleto || usuario?.nombre || "Elimar García",
-      age: usuario?.edad || "28",
-      phone: usuario?.telefono || "+58 412 1234567",
-      email: usuario?.email || usuario?.correo || "elimar@email.com",
+      fullName: usuario?.nombreCompleto || usuario?.nombre || "",
+      age: usuario?.edad || "",
+      phone: usuario?.telefono || "",
+      email: usuario?.email || usuario?.correo || "",
       relation: usuario?.relacion || "Madre",
     });
 
