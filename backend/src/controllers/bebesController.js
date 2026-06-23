@@ -641,3 +641,278 @@ export const obtenerModuloEducativoCompleto = async (req, res) => {
     });
   }
 };
+
+/**
+ * POST /api/bebes/:id/triaje
+ * Guarda una nueva evaluación de triaje
+ */
+export const guardarTriajeBebe = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { signos } = req.body;
+
+    if (!signos) {
+      return res.status(400).json({ mensaje: "Los signos son obligatorios." });
+    }
+
+    const { rows: bebeRows } = await query(
+      "SELECT id FROM recien_nacidos WHERE id = $1",
+      [id]
+    );
+    if (bebeRows.length === 0) {
+      return res.status(404).json({ mensaje: "Bebé no encontrado." });
+    }
+
+    const resTriaje = calcularTriaje(signos);
+
+    const convulsiones = Boolean(signos.convulsiones);
+    const dificultad_respiratoria = Boolean(signos.dificultadRespiratoria || signos.dificultad_respiratoria);
+    const coloracion_azulada = Boolean(signos.coloracionAzulada || signos.coloracion_azulada);
+    const fiebre_hipotermia = Boolean(signos.fiebreHipotermia || signos.fiebre_hipotermia);
+    const rechazo_alimentacion = Boolean(signos.rechazoAlimentacion || signos.rechazo_alimentacion);
+    const disminucion_conciencia = Boolean(signos.disminucionConciencia || signos.disminucion_conciencia);
+    const vomitos_repetitivos = Boolean(signos.vomitosRepetitivos || signos.vomitos_repetitivos);
+    const ictericia_progresiva = Boolean(signos.ictericiaProgresiva || signos.ictericia_progresiva);
+    const disminucion_actividad = Boolean(signos.disminucionActividad || signos.disminucion_actividad);
+    const llanto_persistente = Boolean(signos.llantoPersistente || signos.llanto_persistente);
+    const alteraciones_sueno = Boolean(signos.alteracionesSueno || signos.alteraciones_sueno);
+    const disminucion_apetito = Boolean(signos.disminucionApetito || signos.disminucion_apetito);
+    const irritabilidad_ocasional = Boolean(signos.irritabilidadOcasional || signos.irritabilidad_ocasional);
+
+    const sql = `
+      INSERT INTO evaluaciones_riesgo_bebe (
+        bebe_id, convulsiones, dificultad_respiratoria, coloracion_azulada, fiebre_hipotermia,
+        rechazo_alimentacion, disminucion_conciencia, vomitos_repetitivos, ictericia_progresiva,
+        disminucion_actividad, llanto_persistente, alteraciones_sueno, disminucion_apetito,
+        irritabilidad_ocasional, puntuacion_total, nivel_riesgo
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+      RETURNING id;
+    `;
+
+    const { rows } = await query(sql, [
+      id, convulsiones, dificultad_respiratoria, coloracion_azulada, fiebre_hipotermia,
+      rechazo_alimentacion, disminucion_conciencia, vomitos_repetitivos, ictericia_progresiva,
+      disminucion_actividad, llanto_persistente, alteraciones_sueno, disminucion_apetito,
+      irritabilidad_ocasional, resTriaje.puntuacion, resTriaje.nivel
+    ]);
+
+    const triajeId = rows[0]?.id || rows[0]?.insertId;
+
+    return res.status(201).json({
+      mensaje: "Evaluación de triaje guardada correctamente.",
+      triajeId,
+      evaluacion: {
+        id: triajeId,
+        puntuacion: resTriaje.puntuacion,
+        nivel: resTriaje.nivel,
+        recomendaciones: resTriaje.recomendaciones,
+        color: resTriaje.color
+      }
+    });
+  } catch (error) {
+    console.error("Error al guardar triaje:", error);
+    return res.status(500).json({
+      mensaje: "Error al guardar la evaluación de triaje.",
+      error: error.message
+    });
+  }
+};
+
+/**
+ * POST /api/bebes/:id/seguimiento
+ * Guarda un registro de seguimiento diario
+ */
+export const guardarSeguimientoBebe = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { evaluacionRiesgoId, diaSeguimiento, registro } = req.body;
+
+    if (!evaluacionRiesgoId || !diaSeguimiento || !registro) {
+      return res.status(400).json({ mensaje: "Faltan parámetros obligatorios en el cuerpo del seguimiento." });
+    }
+
+    const { rows: bebeRows } = await query(
+      "SELECT id FROM recien_nacidos WHERE id = $1",
+      [id]
+    );
+    if (bebeRows.length === 0) {
+      return res.status(404).json({ mensaje: "Bebé no encontrado." });
+    }
+
+    const resultadoDia = clasificarDiaSeguimiento(registro);
+
+    const sql = `
+      INSERT INTO seguimiento_diario_neonato (
+        bebe_id, evaluacion_riesgo_id, dia_seguimiento,
+        alimentacion_normal, alimentacion_rechazo, temperatura_fiebre, temperatura_frio,
+        actividad_normal, actividad_letargo, respiracion_normal, respiracion_dificultad,
+        piel_normal, piel_alteracion, eliminacion_panales, eliminacion_deposiciones,
+        llanto_normal, llanto_alteracion, alarma_convulsiones, alarma_vomito, alarma_empeoramiento,
+        resultado_evolucion
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+      RETURNING id;
+    `;
+
+    const { rows } = await query(sql, [
+      id,
+      evaluacionRiesgoId,
+      diaSeguimiento,
+      registro.alimentacion_normal,
+      registro.alimentacion_rechazo,
+      registro.temperatura_fiebre,
+      registro.temperatura_frio,
+      registro.actividad_normal,
+      registro.actividad_letargo,
+      registro.respiracion_normal,
+      registro.respiracion_dificultad,
+      registro.piel_normal,
+      registro.piel_alteracion,
+      registro.eliminacion_panales,
+      registro.eliminacion_deposiciones,
+      registro.llanto_normal,
+      registro.llanto_alteracion,
+      registro.alarma_convulsiones,
+      registro.alarma_vomito,
+      registro.alarma_empeoramiento,
+      resultadoDia.resultado
+    ]);
+
+    const seguimientoId = rows[0]?.id || rows[0]?.insertId;
+
+    return res.status(201).json({
+      mensaje: "Seguimiento diario registrado correctamente.",
+      seguimientoId,
+      resultado: {
+        resultado: resultadoDia.resultado,
+        color: resultadoDia.color,
+        recomendacion: resultadoDia.recomendacion
+      }
+    });
+  } catch (error) {
+    console.error("Error al guardar seguimiento:", error);
+    return res.status(500).json({
+      mensaje: "Error al registrar el seguimiento diario.",
+      error: error.message
+    });
+  }
+};
+
+/**
+ * POST /api/bebes/:id/controles
+ * Registra un control de niño sano
+ */
+export const guardarControlBebe = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { fechaControl, pesoKg, tallaCm, perimetroCefalicoCm, observaciones, estado } = req.body;
+
+    if (!fechaControl || !pesoKg || !tallaCm || !perimetroCefalicoCm) {
+      return res.status(400).json({ mensaje: "Faltan datos obligatorios del control (fecha, peso, talla, perímetro cefálico)." });
+    }
+
+    const { rows: bebeRows } = await query(
+      "SELECT id FROM recien_nacidos WHERE id = $1",
+      [id]
+    );
+    if (bebeRows.length === 0) {
+      return res.status(404).json({ mensaje: "Bebé no encontrado." });
+    }
+
+    const sql = `
+      INSERT INTO controles_nino_sano (
+        bebe_id, fecha_control, peso_kg, talla_cm, perimetro_cefalico_cm, observaciones, estado
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING id;
+    `;
+
+    const { rows } = await query(sql, [
+      id,
+      fechaControl,
+      pesoKg,
+      tallaCm,
+      perimetroCefalicoCm,
+      observaciones,
+      estado || "Realizado"
+    ]);
+
+    const controlId = rows[0]?.id || rows[0]?.insertId;
+
+    return res.status(201).json({
+      mensaje: "Control de niño sano registrado correctamente.",
+      controlId
+    });
+  } catch (error) {
+    console.error("Error al guardar control:", error);
+    return res.status(500).json({
+      mensaje: "Error al registrar el control de niño sano.",
+      error: error.message
+    });
+  }
+};
+
+/**
+ * POST /api/bebes/:id/vacunas
+ * Actualiza o registra el estado de una vacuna
+ */
+export const actualizarEstadoVacuna = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombreVacuna, dosis, fechaAplicacion, estado } = req.body;
+
+    if (!nombreVacuna || !dosis) {
+      return res.status(400).json({ mensaje: "Nombre de vacuna y dosis son obligatorios." });
+    }
+
+    const { rows: bebeRows } = await query(
+      "SELECT id FROM recien_nacidos WHERE id = $1",
+      [id]
+    );
+    if (bebeRows.length === 0) {
+      return res.status(404).json({ mensaje: "Bebé no encontrado." });
+    }
+
+    // Buscar si ya existe un registro para esta vacuna y dosis
+    const sqlBuscar = `
+      SELECT id FROM vacunacion_neonato
+      WHERE bebe_id = $1 AND nombre_vacuna = $2 AND dosis = $3
+    `;
+    const { rows: vacRows } = await query(sqlBuscar, [id, nombreVacuna, dosis]);
+
+    if (vacRows.length > 0) {
+      const sqlUpdate = `
+        UPDATE vacunacion_neonato
+        SET fecha_aplicacion = $1, estado = $2, actualizado_en = CURRENT_TIMESTAMP
+        WHERE id = $3
+      `;
+      await query(sqlUpdate, [fechaAplicacion, estado || "Aplicada", vacRows[0].id]);
+      
+      return res.json({
+        mensaje: "Estado de vacunación actualizado correctamente.",
+        vacunaId: vacRows[0].id
+      });
+    } else {
+      const fechaProgramada = req.body.fechaProgramada || new Date();
+      const sqlInsert = `
+        INSERT INTO vacunacion_neonato (
+          bebe_id, nombre_vacuna, dosis, fecha_programada, fecha_aplicacion, estado
+        ) VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id;
+      `;
+      const { rows } = await query(sqlInsert, [
+        id, nombreVacuna, dosis, fechaProgramada, fechaAplicacion, estado || "Aplicada"
+      ]);
+      const nuevaVacunaId = rows[0]?.id || rows[0]?.insertId;
+      
+      return res.status(201).json({
+        mensaje: "Vacunación registrada correctamente.",
+        vacunaId: nuevaVacunaId
+      });
+    }
+  } catch (error) {
+    console.error("Error al actualizar vacuna:", error);
+    return res.status(500).json({
+      mensaje: "Error al registrar o actualizar la vacunación.",
+      error: error.message
+    });
+  }
+};

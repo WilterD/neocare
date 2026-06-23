@@ -126,7 +126,8 @@ export const resumirSeguimiento = (dias = []) => {
   let ultimoResultado = "Verde";
 
   dias.forEach((dia) => {
-    const cls = clasificarDiaSeguimiento(dia);
+    const registro = dia.registro || dia;
+    const cls = clasificarDiaSeguimiento(registro);
     distribucion[cls.resultado] += 1;
     // El "último" resultado es el de la fecha de registro más reciente.
     ultimoResultado = cls.resultado;
@@ -136,8 +137,8 @@ export const resumirSeguimiento = (dias = []) => {
   if (totalDias >= 2) {
     const ult = dias[dias.length - 1];
     const pen = dias[dias.length - 2];
-    const rUlt = clasificarDiaSeguimiento(ult).resultado;
-    const rPen = clasificarDiaSeguimiento(pen).resultado;
+    const rUlt = clasificarDiaSeguimiento(ult.registro || ult).resultado;
+    const rPen = clasificarDiaSeguimiento(pen.registro || pen).resultado;
     const orden = { Verde: 0, Amarillo: 1, Rojo: 2 };
     if (orden[rUlt] < orden[rPen]) tendencia = "Mejora";
     else if (orden[rUlt] > orden[rPen]) tendencia = "Empeora";

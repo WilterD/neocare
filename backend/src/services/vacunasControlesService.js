@@ -340,16 +340,44 @@ export const generarPlanControles = (
     : new Date(fechaNacimiento);
   if (Number.isNaN(fn.getTime())) return [];
 
+  // Mapear cada control registrado al control programado más cercano en días
+  const asignaciones = new Map(); // c.id -> { r, minDiff }
+  
+  controlesRegistrados.forEach((r) => {
+    if (r.estado !== "Realizado") return;
+    const fechaCtl = new Date(r.fecha_control);
+    if (Number.isNaN(fechaCtl.getTime())) return;
+    
+    const ageAtControl = calcularEdadEnDias(fn, fechaCtl);
+    if (ageAtControl === null) return;
+    
+    let closestControl = null;
+    let minDiff = Infinity;
+    
+    for (const c of ESQUEMA_CONTROLES) {
+      const diff = Math.abs(c.edadDias - ageAtControl);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closestControl = c;
+      }
+    }
+    
+    if (closestControl) {
+      const actual = asignaciones.get(closestControl.id);
+      if (!actual || minDiff < actual.minDiff) {
+        asignaciones.set(closestControl.id, { r, minDiff });
+      }
+    }
+  });
+
   return ESQUEMA_CONTROLES.map((c) => {
     const fechaProgramada = sumarDias(fn, c.edadDias);
-    const registroExistente = controlesRegistrados.find(
-      (r) => r.estado === "Realizado"
-    );
+    const asignado = asignaciones.get(c.id);
     return {
       ...c,
       fechaProgramada: formatFecha(fechaProgramada),
-      realizado: Boolean(registroExistente),
-      registroId: registroExistente?.id || null,
+      realizado: Boolean(asignado),
+      registroId: asignado ? asignado.r.id : null,
     };
   });
 };

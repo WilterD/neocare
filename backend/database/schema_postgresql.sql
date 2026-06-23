@@ -14,8 +14,8 @@ CREATE TABLE madres_cuidadores (
     
     -- 🔹 Sección A: Datos personales de la madre o cuidador
     nombre VARCHAR(150) NOT NULL CONSTRAINT chk_nombre_madre CHECK (char_length(TRIM(nombre)) >= 2),
-    edad INTEGER NOT NULL CONSTRAINT chk_edad CHECK (edad BETWEEN 12 AND 50),
-    telefono VARCHAR(10) NOT NULL CONSTRAINT chk_telefono CHECK (telefono ~ '^\d{10}$'),
+    edad INTEGER NOT NULL CONSTRAINT chk_edad CHECK (edad BETWEEN 12 AND 60),
+    telefono VARCHAR(15) NOT NULL CONSTRAINT chk_telefono CHECK (telefono ~ '^\d{10,15}$'),
     correo_electronico VARCHAR(255) NOT NULL CONSTRAINT chk_correo CHECK (correo_electronico ~* '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$'),
     contrasena_hash VARCHAR(255) NOT NULL,
     numero_identificacion VARCHAR(30) NOT NULL,

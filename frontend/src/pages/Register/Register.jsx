@@ -375,8 +375,14 @@ const Register = () => {
         return "Debes completar todos los datos personales y de acceso para continuar.";
       }
 
-      if (Number(edad) <= 0) {
-        return "La edad debe ser mayor a 0.";
+      const edadNum = Number(edad);
+      if (edadNum < 12 || edadNum > 60) {
+        return "La edad de la madre debe estar entre 12 y 60 años.";
+      }
+
+      const sanitizedPhone = telefono.replace(/\D/g, "");
+      if (sanitizedPhone.length < 10 || sanitizedPhone.length > 15) {
+        return "El número de teléfono debe tener entre 10 y 15 dígitos.";
       }
 
       if (!correo.includes("@") || !correo.includes(".")) {
@@ -458,12 +464,14 @@ const Register = () => {
         return "La fecha de nacimiento no puede ser futura.";
       }
 
-      if (Number(pesoNacer) <= 0) {
-        return "El peso al nacer debe ser mayor a 0 gramos.";
+      const pesoNum = Number(pesoNacer);
+      if (pesoNum < 500 || pesoNum > 6000) {
+        return "El peso al nacer debe estar entre 500 y 6000 gramos (0.5 a 6.0 kg).";
       }
 
-      if (Number(edadGestacional) <= 0) {
-        return "La edad gestacional debe ser mayor a 0 semanas.";
+      const egNum = Number(edadGestacional);
+      if (egNum < 20 || egNum > 45) {
+        return "La edad gestacional debe estar entre 20 y 45 semanas.";
       }
     }
 

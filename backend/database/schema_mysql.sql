@@ -14,8 +14,8 @@ CREATE TABLE madres_cuidadores (
     
     -- 🔹 Sección A: Datos personales de la madre o cuidador
     nombre VARCHAR(150) NOT NULL CONSTRAINT chk_nombre_madre CHECK (char_length(TRIM(nombre)) >= 2),
-    edad INT NOT NULL CONSTRAINT chk_edad CHECK (edad BETWEEN 12 AND 50),
-    telefono VARCHAR(10) NOT NULL CONSTRAINT chk_telefono CHECK (telefono REGEXP '^[0-9]{10}$'),
+    edad INT NOT NULL CONSTRAINT chk_edad CHECK (edad BETWEEN 12 AND 60),
+    telefono VARCHAR(15) NOT NULL CONSTRAINT chk_telefono CHECK (telefono REGEXP '^[0-9]{10,15}$'),
     correo_electronico VARCHAR(255) NOT NULL CONSTRAINT chk_correo CHECK (correo_electronico REGEXP '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}$'),
     contrasena_hash VARCHAR(255) NOT NULL,
     numero_identificacion VARCHAR(30) NOT NULL,
@@ -65,8 +65,8 @@ CREATE TABLE recien_nacidos (
     -- 🔹 Sección D: Datos del recién nacido
     nombre_bebe VARCHAR(150) NOT NULL CONSTRAINT chk_nombre_bebe CHECK (char_length(TRIM(nombre_bebe)) >= 2),
     fecha_nacimiento DATE NOT NULL, -- La validación de fecha no futura se gestiona mejor a nivel de aplicación o con un CHECK en MySQL 8.0.16+
-    peso_al_nacer DECIMAL(3,2) NOT NULL CONSTRAINT chk_peso CHECK (peso_al_nacer BETWEEN 1.0 AND 5.0),
-    edad_gestacional INT NOT NULL CONSTRAINT chk_edad_gestacional CHECK (edad_gestacional BETWEEN 24 AND 42),
+    peso_al_nacer DECIMAL(3,2) NOT NULL CONSTRAINT chk_peso CHECK (peso_al_nacer BETWEEN 0.5 AND 6.0),
+    edad_gestacional INT NOT NULL CONSTRAINT chk_edad_gestacional CHECK (edad_gestacional BETWEEN 20 AND 45),
     sexo VARCHAR(10) NOT NULL CONSTRAINT chk_sexo CHECK (sexo IN ('Masculino', 'Femenino')),
     
     -- 🔹 Sección E: Datos clínicos neonatales

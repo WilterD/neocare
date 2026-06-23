@@ -31,6 +31,19 @@ if (dbType === "postgres") {
 }
 
 /**
+ * Helper para normalizar consultas de PostgreSQL para MySQL.
+ */
+const prepareMysqlQuery = (text) => {
+  let mysqlText = text;
+  if (/\$\d+/.test(mysqlText)) {
+    mysqlText = mysqlText.replace(/\$\d+/g, "?");
+  }
+  // Elimina la cláusula RETURNING de PostgreSQL para compatibilidad con MySQL
+  mysqlText = mysqlText.replace(/\s+RETURNING\s+\w+\s*;?/gi, "");
+  return mysqlText;
+};
+
+/**
  * Ejecuta una consulta SQL con parámetros de forma agnóstica al motor.
  * @param {string} text - Consulta SQL (usa placeholders estándar como $1, $2 en Postgres y ? en MySQL).
  * @param {Array} params - Parámetros de la consulta.
@@ -42,14 +55,8 @@ export const query = async (text, params = []) => {
     const res = await poolPostgres.query(text, params);
     return { rows: res.rows };
   } else {
-    // MySQL usa '?' como placeholder. 
-    // Convertimos temporalmente placeholders del estilo $1, $2... a '?' para compatibilidad
-    let mysqlText = text;
-    // Si la consulta contiene placeholders de Postgres ($1, $2...) los reemplazamos por '?' en orden
-    if (/\$\d+/.test(text)) {
-      mysqlText = text.replace(/\$\d+/g, "?");
-    }
-    
+    // MySQL usa '?' como placeholder y no soporta RETURNING
+    const mysqlText = prepareMysqlQuery(text);
     const [rows] = await poolMysql.execute(mysqlText, params);
     
     // Devolvemos el mismo formato { rows } para que el controlador sea agnóstico
@@ -81,10 +88,7 @@ export const transaction = async (callback) => {
     try {
       await connection.beginTransaction();
       const executeQuery = async (text, params = []) => {
-        let mysqlText = text;
-        if (/\$\d+/.test(text)) {
-          mysqlText = text.replace(/\$\d+/g, "?");
-        }
+        const mysqlText = prepareMysqlQuery(text);
         const [rows] = await connection.execute(mysqlText, params);
         return { rows: Array.isArray(rows) ? rows : [rows] };
       };
@@ -99,3 +103,4 @@ export const transaction = async (callback) => {
     }
   }
 };
+

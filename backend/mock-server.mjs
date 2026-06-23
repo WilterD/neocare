@@ -23,7 +23,18 @@ const CONTROLES = { 1: [], 2: [], 3: [{ id: 1, bebe_id: 3, fecha_control: new Da
 
 import express from "express";
 import cors from "cors";
-import { listarBebes, obtenerBebeDetalle, obtenerModuloEducativoCompleto, obtenerTriajeBebe, obtenerSeguimientoBebe, obtenerVacunasControlesBebe } from "/opt/lampp/htdocs/neocare/backend/src/controllers/bebesController.js";
+import {
+  listarBebes,
+  obtenerBebeDetalle,
+  obtenerModuloEducativoCompleto,
+  obtenerTriajeBebe,
+  obtenerSeguimientoBebe,
+  obtenerVacunasControlesBebe,
+  guardarTriajeBebe,
+  guardarSeguimientoBebe,
+  guardarControlBebe,
+  actualizarEstadoVacuna
+} from "./src/controllers/bebesController.js";
 
 const app = express();
 app.use(cors({ origin: true, methods: ["GET","POST","PUT","DELETE"], credentials: true }));
@@ -36,9 +47,16 @@ app.get("/api/bebes/:id/seguimiento", obtenerSeguimientoBebe);
 app.get("/api/bebes/:id/vacunas-controles", obtenerVacunasControlesBebe);
 app.get("/api/bebes/:id/modulo-educativo", obtenerModuloEducativoCompleto);
 
+// Rutas POST/PUT para Mock Server
+app.post("/api/bebes/:id/triaje", guardarTriajeBebe);
+app.post("/api/bebes/:id/seguimiento", guardarSeguimientoBebe);
+app.post("/api/bebes/:id/controles", guardarControlBebe);
+app.post("/api/bebes/:id/vacunas", actualizarEstadoVacuna);
+
 // Override query: monkey-patch el módulo controllers importando db primero
 import { readFileSync, writeFileSync } from "node:fs";
-const dbPath = "/opt/lampp/htdocs/neocare/backend/src/db.js";
+import path from "node:path";
+const dbPath = path.resolve("./src/db.js");
 const origDb = readFileSync(dbPath, "utf8");
 if (!origDb.includes("MOCK_OVERRIDE")) {
   const mockExport = `
@@ -78,6 +96,9 @@ function _q(text, params = []) {
   if (s.includes("controles_nino_sano")) {
     const id = Number(params[0]);
     return Promise.resolve({ rows: CTRL_MOCK[id] || [] });
+  }
+  if (s.includes("insert into") || s.includes("update ")) {
+    return Promise.resolve({ rows: [{ id: Math.floor(Math.random() * 1000) + 1, insertId: 999 }] });
   }
   return Promise.resolve({ rows: [] });
 }
