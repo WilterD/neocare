@@ -4,6 +4,7 @@ import "./Home.css";
 
 import Header2 from "../../components/Header2/Header2.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
+import { obtenerTriajeBebe } from "../../services/api.js";
 
 import inicioImage from "../../assets/Inicio.png";
 import evaluacionImage from "../../assets/Evaluacion.png";
@@ -51,39 +52,111 @@ const sidebarItems = [
   },
 ];
 
-const latestEvaluation = {
-  babyAge: "12 días",
-  lastDate: "20 mayo, 2025",
-  riskLabel: "Riesgo medio",
-  recommendation: "Mantener vigilancia y repetir evaluación en 24 horas.",
-};
-
 const Home = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const [usuario, setUsuario] = useState(location.state?.user || null);
+  const [registro, setRegistro] = useState(location.state?.registro || null);
+  const [evaluations, setEvaluations] = useState([]);
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem("neocareUser");
+    const fetchEvaluations = async () => {
+      const idBebe =
+        usuario?.bebe?.id ||
+        registro?.recienNacido?.id ||
+        location.state?.bebe?.id;
 
-      if (storedUser && !usuario) {
-        setUsuario(JSON.parse(storedUser));
+      if (idBebe) {
+        try {
+          const triaje = await obtenerTriajeBebe(idBebe);
+          const lista =
+            triaje && Array.isArray(triaje.evaluaciones)
+              ? triaje.evaluaciones
+              : [];
+
+          setEvaluations(lista);
+
+          if (lista.length > 0) {
+            const sorted = [...lista].sort(
+              (a, b) => new Date(b.fecha) - new Date(a.fecha)
+            );
+            const latest = sorted[0];
+
+            const riskLevel = (latest.nivel || "bajo").toLowerCase();
+
+            // Notification Logic via localStorage
+            const today = new Date().toLocaleDateString("en-CA");
+            const lastNotified = localStorage.getItem("neocareLastNotif");
+
+            if (lastNotified !== today) {
+              if (riskLevel === "alto") {
+                setNotification("¡Atención! Se requiere una evaluación de inmediato o acudir a un centro de salud.");
+              } else if (riskLevel === "medio") {
+                setNotification("Recordatorio: Debes repetir la evaluación clínica en 24 horas.");
+              } else {
+                setNotification("Recuerda continuar con el seguimiento básico y monitorear los signos vitales del bebé.");
+              }
+              localStorage.setItem("neocareLastNotif", today);
+            }
+          }
+        } catch (err) {
+          console.error("Error al obtener evaluaciones:", err);
+        }
       }
-    } catch (error) {
-      console.error("Error al cargar usuario:", error);
-    }
-  }, [usuario]);
+    };
+    fetchEvaluations();
+  }, [usuario, registro, location.state]);
 
   const userName = useMemo(() => {
     return (
       usuario?.nombre ||
       usuario?.name ||
       usuario?.nombreCompleto?.split(" ")[0] ||
+      registro?.datosPersonales?.nombreCompleto?.split(" ")[0] ||
       "Usuario"
     );
-  }, [usuario]);
+  }, [usuario, registro]);
+
+  const recienNacido = registro?.recienNacido || usuario?.recienNacido || {};
+  const nombreBebe = recienNacido?.nombreBebe || usuario?.bebe?.nombre || "Sin registro";
+
+  const calcularDiasDesdeNacimiento = () => {
+    const fn = recienNacido?.fechaNacimiento;
+    if (!fn) return "Sin registro";
+    const partes = fn.split("/");
+    if (partes.length === 3) {
+      const fechaNac = new Date(partes[2], partes[1] - 1, partes[0]);
+      const diffMs = new Date() - fechaNac;
+      const dias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      return `${dias} ${dias === 1 ? "día" : "días"}`;
+    }
+    return fn;
+  };
+
+  const sortedEvals = [...evaluations].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+  const latestEvaluationData = sortedEvals[0] || null;
+
+  const edadBebe = latestEvaluationData?.edad_bebe_evaluacion || recienNacido?.edadActual || calcularDiasDesdeNacimiento();
+  
+  const riskLabel = latestEvaluationData?.nivel
+    ? latestEvaluationData.nivel === "bajo" ? "Riesgo bajo" : latestEvaluationData.nivel === "medio" ? "Riesgo medio" : "Riesgo alto"
+    : "Sin clasificar";
+  
+  const riskClass = latestEvaluationData?.nivel ? latestEvaluationData.nivel.toLowerCase() : "low";
+
+  const nextEvalTime = latestEvaluationData?.nivel === "alto" ? "De inmediato" : latestEvaluationData?.nivel === "medio" ? "En 24 horas" : "Según control";
+  
+  const activeFollowUps = sortedEvals.filter(e => (e.nivel || "").toLowerCase() !== "bajo").length;
+
+  const hasActiveTracking = evaluations.length > 0;
+
+  const handleActivarSeguimiento = () => {
+    navigate("/evaluacion", {
+      state: { user: usuario, registro }
+    });
+  };
 
   return (
     <main className="home-page-wrapper">
@@ -128,6 +201,12 @@ const Home = () => {
                 contenido educativo para el cuidado durante sus primeros 28 días
                 de vida.
               </p>
+
+              {notification && (
+                <div style={{ marginTop: "1rem", padding: "10px", backgroundColor: "#ffeedd", borderRadius: "8px", borderLeft: "4px solid #ff9800", color: "#e65100" }}>
+                  <strong>Notificación del día:</strong> {notification}
+                </div>
+              )}
             </div>
 
             <div className="home-hero-image-box">
@@ -155,7 +234,7 @@ const Home = () => {
 
                   <div>
                     <h3>Bebé:</h3>
-                    <p>{usuario?.bebe?.nombre || "Tu bebé"}</p>
+                    <p>{nombreBebe}</p>
                   </div>
                 </article>
 
@@ -166,7 +245,7 @@ const Home = () => {
 
                   <div>
                     <h3>Edad actual:</h3>
-                    <p>{latestEvaluation.babyAge}</p>
+                    <p>{edadBebe}</p>
                   </div>
                 </article>
 
@@ -177,7 +256,7 @@ const Home = () => {
 
                   <div>
                     <h3>Última evaluación:</h3>
-                    <p>{latestEvaluation.lastDate}</p>
+                    <p>{latestEvaluationData ? latestEvaluationData.fecha : "Sin evaluación previa"}</p>
                   </div>
                 </article>
 
@@ -185,8 +264,8 @@ const Home = () => {
                   <div>
                     <h3>Resultado más reciente:</h3>
 
-                    <span className="home-risk-badge medium">
-                      {latestEvaluation.riskLabel}
+                    <span className={`home-risk-badge ${riskClass}`}>
+                      {riskLabel}
                     </span>
                   </div>
                 </article>
@@ -194,7 +273,7 @@ const Home = () => {
                 <article className="home-current-item recommendation">
                   <div>
                     <h3>Recomendación:</h3>
-                    <p>{latestEvaluation.recommendation}</p>
+                    <p>{latestEvaluationData?.recomendacion || "Aún no hay recomendaciones registradas. Realiza una evaluación."}</p>
                   </div>
                 </article>
               </div>
@@ -214,7 +293,7 @@ const Home = () => {
                 <h3>Próxima evaluación sugerida</h3>
 
                 <p className="home-metric-value">
-                  En <strong>24</strong> horas
+                  <strong>{nextEvalTime}</strong>
                 </p>
               </div>
             </article>
@@ -225,10 +304,10 @@ const Home = () => {
               </span>
 
               <div className="home-metric-text">
-                <h3>Seguimiento activo</h3>
+                <h3>Seguimientos activos</h3>
 
                 <p className="home-metric-value">
-                  <strong>1</strong> seguimiento
+                  <strong>{activeFollowUps}</strong> seguimiento(s)
                 </p>
               </div>
             </article>
@@ -242,7 +321,7 @@ const Home = () => {
                 <h3>Evaluaciones realizadas</h3>
 
                 <p className="home-metric-value">
-                  <strong>6</strong> evaluaciones
+                  <strong>{evaluations.length}</strong> evaluaciones
                 </p>
               </div>
             </article>
@@ -258,22 +337,43 @@ const Home = () => {
                 </div>
 
                 <div className="home-next-text">
-                  <h3>Activa el seguimiento diario</h3>
+                  {hasActiveTracking ? (
+                    <>
+                      <h3>Seguimiento activo</h3>
+                      <p>
+                        Tu seguimiento neonatal ya se encuentra activo. Continúa registrando 
+                        la evolución de tu bebé de forma periódica y revisa el historial 
+                        para estar al tanto.
+                      </p>
+                      <button
+                        type="button"
+                        className="home-orange-button"
+                        style={{ backgroundColor: "#8c52ff" }}
+                        onClick={() => navigate("/historial")}
+                      >
+                        Ver mi historial
+                        <span>›</span>
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <h3>Activa el seguimiento diario</h3>
+                      <p>
+                        Registra la evolución del bebé para observar
+                        alimentación, temperatura, respiración, actividad,
+                        coloración de la piel y otros signos vitales.
+                      </p>
 
-                  <p>
-                    Registra durante 5 días la evolución del bebé para observar
-                    alimentación, temperatura, respiración, actividad,
-                    coloración de la piel, eliminación y signos de alarma.
-                  </p>
-
-                  <button
-                    type="button"
-                    className="home-orange-button"
-                    onClick={() => navigate("/seguimiento")}
-                  >
-                    Activar seguimiento
-                    <span>›</span>
-                  </button>
+                      <button
+                        type="button"
+                        className="home-orange-button"
+                        onClick={handleActivarSeguimiento}
+                      >
+                        Activar seguimiento
+                        <span>›</span>
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </article>
