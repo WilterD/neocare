@@ -4,6 +4,7 @@ import "./Register.css";
 
 import Header from "../../components/Header/Header.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
+import { crearRegistro } from "../../services/api.js";
 
 import dtImage from "../../assets/DT.png";
 
@@ -519,7 +520,7 @@ const Register = () => {
     return "";
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     const error = validarPasoActual();
 
     if (error) {
@@ -537,6 +538,10 @@ const Register = () => {
 
     if (step < 6) {
       setStep(step + 1);
+      return;
+    }
+
+    if (formError === "__submitting__") {
       return;
     }
 
@@ -567,6 +572,46 @@ const Register = () => {
       "neocareRegisterData",
       JSON.stringify(usuarioRegistrado)
     );
+
+    // Persistir en backend (madre + bebe) y enriquecer con IDs reales
+    setFormError("__submitting__");
+    try {
+      const payload = {
+        datosPersonales: usuarioRegistrado.datosPersonales,
+        sociodemografica: usuarioRegistrado.sociodemografica,
+        condicionesCuidado: usuarioRegistrado.condicionesCuidado,
+        recienNacido: usuarioRegistrado.recienNacido,
+        datosClinicos: usuarioRegistrado.datosClinicos,
+        consentimientoAceptado: true,
+      };
+
+      const resp = await crearRegistro(payload);
+
+      if (resp && resp.usuario && resp.usuario.bebe) {
+        usuarioRegistrado.id = resp.usuario.id;
+        usuarioRegistrado.bebe = {
+          id: resp.usuario.bebe.id,
+          nombre: resp.usuario.bebe.nombre,
+        };
+        usuarioRegistrado.token = resp.token;
+        localStorage.setItem("neocareUser", JSON.stringify(usuarioRegistrado));
+        localStorage.setItem(
+          "neocareRegisterData",
+          JSON.stringify(usuarioRegistrado)
+        );
+        if (resp.token) {
+          localStorage.setItem("neocareToken", resp.token);
+        }
+      }
+    } catch (error) {
+      console.error("No se pudo guardar el registro en backend:", error);
+      setFormError(
+        "No pudimos guardar el registro en el servidor. Verifica tu conexion e intentelo de nuevo."
+      );
+      return;
+    } finally {
+      setFormError("");
+    }
 
     navigate("/evaluacion", {
       state: {

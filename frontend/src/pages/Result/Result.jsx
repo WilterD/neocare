@@ -153,27 +153,29 @@ const getTodayLabel = () => {
 const getRiskLabel = (riskLevel) => {
   const labels = {
     bajo: "Bajo",
-    medio: "Medio",
+    medio: "Moderado",
     alto: "Alto",
   };
 
   return labels[riskLevel] || "Bajo";
 };
 
-const getRiskLevelFromSigns = (score, selectedSigns) => {
-  const hasHighRiskSign = selectedSigns.some(
-    (sign) => sign.category === "alto"
-  );
+const getRiskLevelFromScore = (score) => {
+  const numericScore = Number(score) || 0;
 
-  if (hasHighRiskSign || score >= 6) {
+  if (numericScore >= 6) {
     return "alto";
   }
 
-  if (score >= 3) {
+  if (numericScore >= 3) {
     return "medio";
   }
 
   return "bajo";
+};
+
+const getRiskLevelFromSigns = (score) => {
+  return getRiskLevelFromScore(score);
 };
 
 const getValidRiskLevel = (riskLevel) => {
@@ -182,6 +184,23 @@ const getValidRiskLevel = (riskLevel) => {
   }
 
   return "bajo";
+};
+
+const getPointsFromItems = (items = []) => {
+  if (!Array.isArray(items)) return 0;
+
+  return items.reduce((sum, item) => {
+    const points = Number(item?.points ?? item?.puntos ?? item?.score ?? 0);
+    return sum + (Number.isNaN(points) ? 0 : points);
+  }, 0);
+};
+
+const getSignsFromIds = (selectedSignIds = []) => {
+  if (!Array.isArray(selectedSignIds)) return [];
+
+  return selectedSignIds
+    .filter((id) => id !== "sinSignosRegistrados" && riskSignsCatalog[id])
+    .map((id) => riskSignsCatalog[id]);
 };
 
 const riskContent = {
@@ -207,8 +226,8 @@ const riskContent = {
     followButton: "Consultar contenido educativo",
   },
   medio: {
-    title: "RIESGO MEDIO",
-    label: "Medio",
+    title: "RIESGO MODERADO",
+    label: "Moderado",
     className: "medium",
     icon: "!",
     actionTitle: "Atención recomendada",
@@ -234,9 +253,9 @@ const riskContent = {
     icon: "!",
     actionTitle: "Atención inmediata",
     description:
-      "Se identificaron condiciones de alto riesgo. NeoCare no reemplaza la atención médica profesional. Acude de inmediato al centro de salud más cercano o comunícate con el servicio de emergencia correspondiente.",
+      "Se identificaron condiciones de alto riesgo por acumulación de puntaje. NeoCare no reemplaza la atención médica profesional. Acude de inmediato al centro de salud más cercano o comunícate con el servicio de emergencia correspondiente.",
     summary:
-      "El resultado indica alto riesgo. La presencia de condiciones graves o factores acumulados requiere atención médica inmediata. No se recomienda esperar una nueva evaluación ni usar el seguimiento diario como acción principal.",
+      "El resultado indica alto riesgo. La acumulación de signos o condiciones registradas requiere atención médica inmediata. No se recomienda esperar una nueva evaluación ni usar el seguimiento diario como acción principal.",
     steps: [
       "Acude de inmediato al centro de salud más cercano.",
       "No esperes a que los síntomas desaparezcan por sí solos.",
@@ -275,7 +294,7 @@ const buildResultFromLegacySigns = (selectedSignIds = []) => {
 
   const selectedSigns = validSignIds.map((id) => riskSignsCatalog[id]);
   const score = selectedSigns.reduce((sum, sign) => sum + sign.points, 0);
-  const riskLevel = getRiskLevelFromSigns(score, selectedSigns);
+  const riskLevel = getRiskLevelFromSigns(score);
 
   return {
     mode: selectedSigns.length > 0 ? "dangerSigns" : "empty",
@@ -294,41 +313,79 @@ const normalizeEvaluationResult = (locationState) => {
   const evaluationResult = locationState?.evaluationResult || null;
 
   if (evaluationResult) {
-    const riskLevel = getValidRiskLevel(
-      evaluationResult.riskLevel || evaluationResult.finalRisk
-    );
+    const payloadSelectedSignIds = Array.isArray(evaluationResult.selectedSignIds)
+      ? evaluationResult.selectedSignIds.filter(
+          (id) => id !== "sinSignosRegistrados" && riskSignsCatalog[id]
+        )
+      : [];
+
+    const selectedSignsFromIds = getSignsFromIds(payloadSelectedSignIds);
+
+    const payloadSelectedSigns = Array.isArray(evaluationResult.selectedSigns)
+      ? evaluationResult.selectedSigns
+      : [];
+
+    const selectedSigns =
+      payloadSelectedSigns.length > 0
+        ? payloadSelectedSigns
+        : selectedSignsFromIds;
 
     const identifiedFactors =
       Array.isArray(evaluationResult.identifiedFactors) &&
       evaluationResult.identifiedFactors.length > 0
         ? evaluationResult.identifiedFactors
-        : Array.isArray(evaluationResult.selectedSigns)
-        ? evaluationResult.selectedSigns
-        : [];
+        : selectedSigns;
+
+    const hasTotalScore =
+      evaluationResult.totalScore !== undefined &&
+      evaluationResult.totalScore !== null &&
+      String(evaluationResult.totalScore).trim() !== "";
+
+    const calculatedScore = getPointsFromItems(
+      selectedSigns.length > 0 ? selectedSigns : identifiedFactors
+    );
+
+    const totalScore = hasTotalScore
+      ? Number(evaluationResult.totalScore) || 0
+      : calculatedScore;
+
+    const isDangerSignsEvaluation =
+      evaluationResult.mode === "dangerSigns" ||
+      evaluationResult.mode === "triage" ||
+      evaluationResult.mode === "signosAlarma" ||
+      payloadSelectedSignIds.length > 0 ||
+      selectedSigns.length > 0;
+
+    const payloadRiskLevel = getValidRiskLevel(
+      evaluationResult.riskLevel || evaluationResult.finalRisk
+    );
+
+    const riskLevel = isDangerSignsEvaluation
+      ? getRiskLevelFromScore(totalScore)
+      : payloadRiskLevel;
 
     const maternalRisk = getValidRiskLevel(evaluationResult.maternalRisk);
     const neonatalRisk = getValidRiskLevel(evaluationResult.neonatalRisk);
     const combinedRisk = getValidRiskLevel(evaluationResult.combinedRisk);
 
     return {
-      mode: evaluationResult.mode || "initialRegistration",
+      mode:
+        evaluationResult.mode ||
+        (isDangerSignsEvaluation ? "dangerSigns" : "initialRegistration"),
 
       riskLevel,
       finalRisk: riskLevel,
-      finalLabel:
-        evaluationResult.finalLabel ||
-        evaluationResult.label ||
-        getRiskLabel(riskLevel),
+      finalLabel: isDangerSignsEvaluation
+        ? getRiskLabel(riskLevel)
+        : evaluationResult.finalLabel ||
+          evaluationResult.label ||
+          getRiskLabel(riskLevel),
 
-      totalScore: Number(evaluationResult.totalScore) || 0,
+      totalScore,
 
-      selectedSigns: Array.isArray(evaluationResult.selectedSigns)
-        ? evaluationResult.selectedSigns
-        : [],
+      selectedSigns,
 
-      selectedSignIds: Array.isArray(evaluationResult.selectedSignIds)
-        ? evaluationResult.selectedSignIds
-        : [],
+      selectedSignIds: payloadSelectedSignIds,
 
       identifiedFactors,
 
