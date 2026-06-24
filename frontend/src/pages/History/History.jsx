@@ -175,9 +175,9 @@ const History = () => {
             nivel === "alto" ? "Riesgo alto" :
             (e.nivel || "Sin clasificar");
           const trackingType =
-            nivel === "alto" ? "Atencion prioritaria" :
-            nivel === "medio" ? "Seguimiento clinico" :
-            "Seguimiento basico";
+            nivel === "alto" ? "Atención prioritaria" :
+            nivel === "medio" ? "Seguimiento clínico" :
+            "Seguimiento básico";
           const score = e.puntuacion != null ? `${e.puntuacion} / 10` : "0 / 10";
           return {
             id: e.id,
@@ -254,11 +254,6 @@ const History = () => {
     selectedBaby ||
     "Sin registro";
 
-  const edadBebeReal =
-    latestEvaluation?.babyAge ||
-    location.state?.registro?.recienNacido?.edadActual ||
-    calcularDiasDesdeNacimiento();
-
   const sortedEvaluations = useMemo(() => {
     const evaluationsCopy = [...selectedBabyEvaluations];
 
@@ -273,6 +268,11 @@ const History = () => {
 
   const latestEvaluation = sortedEvaluations[0] || null;
   const previousEvaluation = sortedEvaluations[1] || null;
+
+  const edadBebeReal =
+    latestEvaluation?.babyAge ||
+    location.state?.registro?.recienNacido?.edadActual ||
+    calcularDiasDesdeNacimiento();
 
   const changeStatus = useMemo(() => {
     if (!latestEvaluation || !previousEvaluation) {
