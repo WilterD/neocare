@@ -101,85 +101,8 @@ CREATE INDEX idx_recien_nacidos_madre ON recien_nacidos(madre_id);
 
 
 -- ============================================================================
--- 2. TABLAS SUGERIDAS PARA EL COMPONENTE DE LA APP (CONTROL EMOCIONAL Y CUIDADO)
+-- 2. TABLAS REQUERIDAS POR EL COMPONENTE DE LA APP (TRIAJE Y SEGUIMIENTO)
 -- ============================================================================
-
--- Tabla: bitacora_emocional
--- Permite llevar un control diario o periódico del estado de ánimo de la madre.
-CREATE TABLE bitacora_emocional (
-    id SERIAL PRIMARY KEY,
-    madre_id INTEGER NOT NULL,
-    fecha_registro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    
-    -- Escalas de 1 a 5 (ej. 1: Muy bajo/Mal, 5: Excelente/Tranquila)
-    nivel_animo INTEGER NOT NULL CONSTRAINT chk_nivel_animo CHECK (nivel_animo BETWEEN 1 AND 5),
-    nivel_ansiedad INTEGER NOT NULL CONSTRAINT chk_nivel_ansiedad CHECK (nivel_ansiedad BETWEEN 1 AND 5),
-    nivel_cansancio INTEGER NOT NULL CONSTRAINT chk_nivel_cansancio CHECK (nivel_cansancio BETWEEN 1 AND 5),
-    
-    -- Registro cualitativo de pensamientos
-    nota_diaria TEXT,
-    
-    -- Síntomas asociados (almacenados en JSON para flexibilidad, ej: ["llanto_frecuente", "insomnio", "dolor_cabeza"])
-    sintomas_fisicos JSONB,
-    
-    CONSTRAINT fk_madre_bitacora FOREIGN KEY (madre_id) 
-        REFERENCES madres_cuidadores(id) 
-        ON DELETE CASCADE
-);
-
--- Tabla: test_depresion_postparto (Escala de Edimburgo - EPDS)
--- Herramienta clínica recomendada para tamizaje de depresión posparto.
-CREATE TABLE evaluaciones_epds (
-    id SERIAL PRIMARY KEY,
-    madre_id INTEGER NOT NULL,
-    fecha_evaluacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    
-    -- Respuestas a las 10 preguntas de la escala (cada una puntúa de 0 a 3)
-    p1_capaz_reir INTEGER NOT NULL CONSTRAINT chk_p1 CHECK (p1_capaz_reir BETWEEN 0 AND 3),
-    p2_mirar_futuro INTEGER NOT NULL CONSTRAINT chk_p2 CHECK (p2_mirar_futuro BETWEEN 0 AND 3),
-    p3_culparme INTEGER NOT NULL CONSTRAINT chk_p3 CHECK (p3_culparme BETWEEN 0 AND 3),
-    p4_ansiosa INTEGER NOT NULL CONSTRAINT chk_p4 CHECK (p4_ansiosa BETWEEN 0 AND 3),
-    p5_asustada INTEGER NOT NULL CONSTRAINT chk_p5 CHECK (p5_asustada BETWEEN 0 AND 3),
-    p6_abrumada INTEGER NOT NULL CONSTRAINT chk_p6 CHECK (p6_abrumada BETWEEN 0 AND 3),
-    p7_infeliz_sueño INTEGER NOT NULL CONSTRAINT chk_p7 CHECK (p7_infeliz_sueño BETWEEN 0 AND 3),
-    p8_triste INTEGER NOT NULL CONSTRAINT chk_p8 CHECK (p8_triste BETWEEN 0 AND 3),
-    p9_infeliz_llanto INTEGER NOT NULL CONSTRAINT chk_p9 CHECK (p9_infeliz_llanto BETWEEN 0 AND 3),
-    p10_hacerme_daño INTEGER NOT NULL CONSTRAINT chk_p10 CHECK (p10_hacerme_daño BETWEEN 0 AND 3),
-    
-    -- Suma total de las respuestas (0 a 30 puntos)
-    puntuacion_total INTEGER NOT NULL CONSTRAINT chk_total CHECK (puntuacion_total BETWEEN 0 AND 30),
-    
-    CONSTRAINT fk_madre_epds FOREIGN KEY (madre_id) 
-        REFERENCES madres_cuidadores(id) 
-        ON DELETE CASCADE,
-        
-    -- Validación de consistencia: la puntuación total debe ser exactamente la suma de las individuales
-    CONSTRAINT chk_consistencia_total CHECK (
-        puntuacion_total = (p1_capaz_reir + p2_mirar_futuro + p3_culparme + p4_ansiosa + p5_asustada + 
-                            p6_abrumada + p7_infeliz_sueño + p8_triste + p9_infeliz_llanto + p10_hacerme_daño)
-    )
-);
-
--- Tabla: bitacora_cuidado_bebe
--- Permite registrar actividades diarias del recién nacido (Alimentación, Sueño, Pañales, Síntomas).
-CREATE TABLE bitacora_cuidado_bebe (
-    id SERIAL PRIMARY KEY,
-    bebe_id INTEGER NOT NULL,
-    fecha_registro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    
-    -- Categoría de actividad
-    tipo_registro VARCHAR(20) NOT NULL CONSTRAINT chk_tipo_registro CHECK (tipo_registro IN ('Alimentacion', 'Sueno', 'Panal', 'Sintomas', 'Otro')),
-    
-    -- Detalles específicos de cada tipo de registro (ej. mililitros consumidos, horas dormidas, estado del pañal)
-    detalles JSONB NOT NULL,
-    
-    -- Notas adicionales del cuidador
-    observaciones TEXT,
-    
-    CONSTRAINT fk_bebe_bitacora FOREIGN KEY (bebe_id) 
-        REFERENCES recien_nacidos(id) 
-        ON DELETE CASCADE
-);
 
 -- Tabla: evaluaciones_riesgo_bebe
 -- Registro de evaluación de signos de riesgo en el recién nacido.
@@ -242,18 +165,6 @@ CREATE TABLE evaluaciones_riesgo_bebe (
         (puntuacion_total BETWEEN 3 AND 5 AND nivel_riesgo = 'Moderado') OR
         (puntuacion_total >= 6 AND nivel_riesgo = 'Alto')
     )
-);
-
--- Tabla: biblioteca_educativa
--- Almacena el contenido educativo e infografías basadas en las recomendaciones OMS/OPS.
-CREATE TABLE biblioteca_educativa (
-    id SERIAL PRIMARY KEY,
-    titulo VARCHAR(255) NOT NULL CONSTRAINT chk_bib_titulo CHECK (char_length(TRIM(titulo)) >= 2),
-    tema VARCHAR(50) NOT NULL CONSTRAINT chk_bib_tema CHECK (tema IN ('Signos Alarma', 'Cuidados Basicos', 'Lactancia Materna', 'Control Temperatura', 'Ictericia', 'Sepsis', 'Hipotermia', 'Atencion Medica')),
-    url_recurso VARCHAR(500) NOT NULL CONSTRAINT chk_bib_url CHECK (url_recurso ~ '^https?://'),
-    fuente_referencia VARCHAR(50) NOT NULL CONSTRAINT chk_bib_fuente CHECK (fuente_referencia IN ('OMS', 'OPS', 'UNICEF', 'AEP', 'KidsHealth', 'WIC')),
-    descripcion TEXT,
-    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Tabla: seguimiento_diario_neonato
@@ -333,28 +244,9 @@ CREATE TABLE controles_nino_sano (
         ON DELETE CASCADE
 );
 
--- Tabla: notificaciones_alertas
--- Registro de alertas push y recordatorios automáticos del sistema.
-CREATE TABLE notificaciones_alertas (
-    id SERIAL PRIMARY KEY,
-    bebe_id INTEGER NOT NULL,
-    tipo_alerta VARCHAR(30) NOT NULL CONSTRAINT chk_alerta_tipo CHECK (tipo_alerta IN ('Vacunacion', 'Control Nino Sano', 'Reevaluacion Triaje', 'Seguimiento Diario', 'Educativa')),
-    mensaje TEXT NOT NULL CONSTRAINT chk_alerta_mensaje CHECK (char_length(TRIM(mensaje)) >= 5),
-    fecha_envio TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    leido BOOLEAN NOT NULL DEFAULT FALSE,
-    
-    CONSTRAINT fk_bebe_alerta FOREIGN KEY (bebe_id) 
-        REFERENCES recien_nacidos(id) 
-        ON DELETE CASCADE
-);
-
 -- Índices para mejorar rendimiento de los módulos de la aplicación
-CREATE INDEX idx_bitacora_emocional_madre ON bitacora_emocional(madre_id);
-CREATE INDEX idx_evaluaciones_epds_madre ON evaluaciones_epds(madre_id);
-CREATE INDEX idx_bitacora_cuidado_bebe_bebe ON bitacora_cuidado_bebe(bebe_id);
 CREATE INDEX idx_evaluaciones_riesgo_bebe_bebe ON evaluaciones_riesgo_bebe(bebe_id);
 CREATE INDEX idx_seguimiento_diario_bebe ON seguimiento_diario_neonato(bebe_id);
 CREATE INDEX idx_seguimiento_diario_triaje ON seguimiento_diario_neonato(evaluacion_riesgo_id);
 CREATE INDEX idx_vacunacion_neonato_bebe ON vacunacion_neonato(bebe_id);
 CREATE INDEX idx_controles_nino_sano_bebe ON controles_nino_sano(bebe_id);
-CREATE INDEX idx_notificaciones_alertas_bebe ON notificaciones_alertas(bebe_id);
