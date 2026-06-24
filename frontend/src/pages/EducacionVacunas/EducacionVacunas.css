@@ -23,7 +23,7 @@
   border: 1px solid #eee7df;
   border-radius: 8px;
   display: grid;
-  grid-template-columns: 185px 1fr;
+  grid-template-columns: 185px minmax(0, 1fr);
   overflow: hidden;
   box-shadow: 0 16px 48px rgba(146, 116, 78, 0.12);
 }
@@ -95,14 +95,16 @@
 }
 
 .edu-vac-main-panel {
+  min-width: 0;
   padding: 26px 28px 28px;
   background: linear-gradient(180deg, #fffaf2 0%, #fff3e7 100%);
   overflow-y: auto;
 }
 
 .edu-vac-hero {
+  width: 100%;
   display: grid;
-  grid-template-columns: 1fr 150px;
+  grid-template-columns: minmax(0, 1fr) 150px;
   align-items: center;
   gap: 14px;
   background: #ffffff;
@@ -111,6 +113,10 @@
   padding: 16px 22px;
   margin-bottom: 18px;
   box-shadow: 0 8px 22px rgba(146, 116, 78, 0.08);
+}
+
+.edu-vac-hero-text {
+  min-width: 0;
 }
 
 .edu-vac-hero-label {
@@ -127,6 +133,7 @@
   font-size: 24px;
   font-weight: 850;
   letter-spacing: -0.5px;
+  line-height: 1.15;
 }
 
 .edu-vac-hero p {
@@ -252,6 +259,7 @@
   font-weight: 800;
   padding: 2px 10px;
   border-radius: 999px;
+  white-space: nowrap;
 }
 
 .edu-vac-vacuna-momento {
@@ -310,7 +318,7 @@
 .edu-vac-control {
   position: relative;
   display: grid;
-  grid-template-columns: 50px 1fr;
+  grid-template-columns: 50px minmax(0, 1fr);
   gap: 12px;
   align-items: center;
   background: #fffaf2;
@@ -341,6 +349,7 @@
 }
 
 .edu-vac-control-info {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -448,7 +457,7 @@
 
 .edu-vac-recordatorio-card {
   display: grid;
-  grid-template-columns: 80px 1fr;
+  grid-template-columns: 80px minmax(0, 1fr);
   gap: 16px;
   align-items: center;
   background: rgba(111, 160, 79, 0.1);
@@ -500,13 +509,23 @@
   line-height: 1;
 }
 
+/* TABLET */
+
 @media (max-width: 1050px) {
   .edu-vac-desktop {
     grid-template-columns: 1fr;
   }
 
+  .edu-vac-sidebar {
+    display: none;
+  }
+
+  .edu-vac-main-panel {
+    width: 100%;
+  }
+
   .edu-vac-hero {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) 130px;
   }
 
   .edu-vac-hero-image-box img {
@@ -520,16 +539,247 @@
   }
 }
 
+/* MÓVIL */
+
 @media (max-width: 760px) {
+  .edu-vac-page-wrapper {
+    align-items: stretch;
+    background: #fff6ec;
+  }
+
   .edu-vac-desktop {
     width: 100%;
-    margin-top: 0;
+    max-width: none;
+    min-height: auto;
+    margin: 0;
     border-radius: 0;
     border-left: none;
     border-right: none;
+    display: block;
+    overflow: visible;
+    box-shadow: none;
+    background: linear-gradient(180deg, #fffaf2 0%, #fff3e7 100%);
+  }
+
+  .edu-vac-sidebar {
+    display: none !important;
   }
 
   .edu-vac-main-panel {
-    padding: 26px 18px;
+    width: 100%;
+    padding: 18px 14px 24px;
+    overflow: visible;
+    background: transparent;
+  }
+
+  .edu-vac-hero {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 18px 16px;
+    margin-bottom: 16px;
+    border-radius: 16px;
+    text-align: left;
+  }
+
+  .edu-vac-hero h1 {
+    font-size: 22px;
+    line-height: 1.15;
+    margin: 6px 0 8px;
+    letter-spacing: -0.3px;
+  }
+
+  .edu-vac-hero p {
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .edu-vac-hero-tags {
+    gap: 6px;
+  }
+
+  .edu-vac-tag {
+    font-size: 11.5px;
+    padding: 4px 10px;
+  }
+
+  .edu-vac-hero-image-box {
+    justify-content: center;
+    order: -1;
+  }
+
+  .edu-vac-hero-image-box img {
+    width: 96px;
+    height: 96px;
+  }
+
+  .edu-vac-intro-card,
+  .edu-vac-vacunas-card,
+  .edu-vac-controles-card,
+  .edu-vac-crecimiento-card,
+  .edu-vac-consejos-card,
+  .edu-vac-recordatorio-card {
+    width: 100%;
+    padding: 18px 16px;
+    margin-bottom: 16px;
+    border-radius: 16px;
+  }
+
+  .edu-vac-intro-card h3,
+  .edu-vac-vacunas-card h3,
+  .edu-vac-controles-card h3,
+  .edu-vac-crecimiento-card h3,
+  .edu-vac-consejos-card h3 {
+    font-size: 17px;
+    line-height: 1.25;
+  }
+
+  .edu-vac-intro-card p,
+  .edu-vac-subtitle,
+  .edu-vac-crecimiento-nota,
+  .edu-vac-recordatorio-card p {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .edu-vac-vacunas-grid,
+  .edu-vac-medidas-grid,
+  .edu-vac-consejos-list {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .edu-vac-vacuna,
+  .edu-vac-medida,
+  .edu-vac-consejos-list li {
+    padding: 13px 14px;
+  }
+
+  .edu-vac-vacuna-head {
+    align-items: flex-start;
+  }
+
+  .edu-vac-vacuna-head strong {
+    line-height: 1.25;
+  }
+
+  .edu-vac-section-title {
+    align-items: flex-start;
+  }
+
+  .edu-vac-section-title img {
+    width: 28px;
+    height: 28px;
+  }
+
+  .edu-vac-controles-linea::before {
+    left: 18px;
+  }
+
+  .edu-vac-control {
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 10px;
+    padding: 12px 12px;
+    align-items: flex-start;
+  }
+
+  .edu-vac-control-num {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+    border-width: 2.5px;
+  }
+
+  .edu-vac-control-info strong {
+    font-size: 13.5px;
+    line-height: 1.25;
+  }
+
+  .edu-vac-control-info p {
+    font-size: 12.5px;
+    line-height: 1.45;
+  }
+
+  .edu-vac-recordatorio-card {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .edu-vac-recordatorio-card img {
+    width: 56px;
+    height: 56px;
+  }
+
+  .edu-vac-recordatorio-button {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+}
+
+/* TELÉFONOS PEQUEÑOS */
+
+@media (max-width: 430px) {
+  .edu-vac-main-panel {
+    padding: 16px 12px 22px;
+  }
+
+  .edu-vac-hero {
+    padding: 16px 14px;
+  }
+
+  .edu-vac-hero h1 {
+    font-size: 21px;
+  }
+
+  .edu-vac-hero p {
+    font-size: 13px;
+  }
+
+  .edu-vac-hero-image-box img {
+    width: 88px;
+    height: 88px;
+  }
+
+  .edu-vac-tag {
+    font-size: 11px;
+    padding: 4px 9px;
+  }
+
+  .edu-vac-intro-card,
+  .edu-vac-vacunas-card,
+  .edu-vac-controles-card,
+  .edu-vac-crecimiento-card,
+  .edu-vac-consejos-card,
+  .edu-vac-recordatorio-card {
+    padding: 16px 14px;
+  }
+
+  .edu-vac-vacuna-head {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .edu-vac-vacuna-dosis {
+    align-self: flex-start;
+  }
+
+  .edu-vac-consejos-list li {
+    padding: 12px 12px 12px 38px;
+  }
+
+  .edu-vac-recordatorio-card {
+    grid-template-columns: 1fr;
+    text-align: left;
+  }
+
+  .edu-vac-recordatorio-card img {
+    width: 58px;
+    height: 58px;
   }
 }
