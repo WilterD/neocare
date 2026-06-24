@@ -4,6 +4,7 @@ import "./UserHome.css";
 
 import Header2 from "../../components/Header2/Header2.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
+import { obtenerTriajeBebe } from "../../services/api.js";
 
 import inicioImage from "../../assets/Inicio.png";
 import evaluacionImage from "../../assets/Evaluacion.png";
@@ -75,6 +76,76 @@ const UserHome = () => {
 
   const recienNacido = registro?.recienNacido || usuario?.recienNacido || {};
 
+  const [latestEvaluation, setLatestEvaluation] = useState(null);
+  const [notification, setNotification] = useState(null);
+
+  useEffect(() => {
+    const fetchEvaluations = async () => {
+      const idBebe =
+        usuario?.bebe?.id ||
+        registro?.recienNacido?.id ||
+        location.state?.bebe?.id;
+
+      if (idBebe) {
+        try {
+          const triaje = await obtenerTriajeBebe(idBebe);
+          const lista =
+            triaje && Array.isArray(triaje.evaluaciones)
+              ? triaje.evaluaciones
+              : [];
+
+          if (lista.length > 0) {
+            const sorted = lista.sort(
+              (a, b) => new Date(b.fecha) - new Date(a.fecha)
+            );
+            const latest = sorted[0];
+
+            const fechaTxt = latest.fecha || "";
+            const [datePart, timePart] = fechaTxt.includes(" ")
+              ? fechaTxt.split(" ")
+              : [fechaTxt, ""];
+
+            const evalData = {
+              date: datePart,
+              time: timePart,
+              risk: (latest.nivel || "bajo").toLowerCase(),
+              riskLabel:
+                latest.nivel === "bajo"
+                  ? "Riesgo bajo"
+                  : latest.nivel === "medio"
+                  ? "Riesgo medio"
+                  : latest.nivel === "alto"
+                  ? "Riesgo alto"
+                  : "Sin clasificar",
+              recommendation: latest.recomendacion || "Sin recomendación",
+              babyAge: latest.edad_bebe_evaluacion || "Sin registro",
+            };
+
+            setLatestEvaluation(evalData);
+
+            // Notification Logic via localStorage
+            const today = new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD
+            const lastNotified = localStorage.getItem("neocareLastNotif");
+
+            if (lastNotified !== today) {
+              if (evalData.risk === "alto") {
+                setNotification("¡Atención! Se requiere una evaluación de inmediato o acudir a un centro de salud.");
+              } else if (evalData.risk === "medio") {
+                setNotification("Recordatorio: Debes repetir la evaluación clínica en 24 horas.");
+              } else {
+                setNotification("Recuerda continuar con el seguimiento básico y monitorear los signos vitales del bebé.");
+              }
+              localStorage.setItem("neocareLastNotif", today);
+            }
+          }
+        } catch (err) {
+          console.error("Error al obtener evaluaciones:", err);
+        }
+      }
+    };
+    fetchEvaluations();
+  }, [usuario, registro, location.state]);
+
   const nombreCompleto =
     usuario?.nombre ||
     usuario?.nombreCompleto ||
@@ -83,8 +154,24 @@ const UserHome = () => {
 
   const primerNombre = nombreCompleto.trim().split(" ")[0];
 
-  const nombreBebe = recienNacido?.nombreBebe || "No registrado";
-  const edadBebe = recienNacido?.edadActual || "No registrada";
+  const nombreBebe = recienNacido?.nombreBebe || usuario?.bebe?.nombre || "Sin registro";
+  
+  // Si tenemos la evaluación, mostramos la edad que tenía al momento de la evaluación.
+  // Sino, si recién se registró, calculamos los días desde que nació.
+  const calcularDiasDesdeNacimiento = () => {
+    const fn = recienNacido?.fechaNacimiento;
+    if (!fn) return "Sin registro";
+    const partes = fn.split("/");
+    if (partes.length === 3) {
+      const fechaNac = new Date(partes[2], partes[1] - 1, partes[0]);
+      const diffMs = new Date() - fechaNac;
+      const dias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      return `${dias} ${dias === 1 ? "día" : "días"}`;
+    }
+    return fn;
+  };
+  
+  const edadBebe = latestEvaluation?.babyAge || recienNacido?.edadActual || calcularDiasDesdeNacimiento();
 
   const handleContinuarSeguimiento = () => {
     navigate("/evaluacion", {
@@ -141,6 +228,12 @@ const UserHome = () => {
                 organizado y recomendaciones de seguimiento durante sus primeros
                 28 días de vida.
               </p>
+
+              {notification && (
+                <div className="user-home-notification">
+                  <strong>Notificación del día:</strong> {notification}
+                </div>
+              )}
 
               <div className="user-home-hero-actions">
                 <button
@@ -209,7 +302,7 @@ const UserHome = () => {
                 <img src={calendarioImage} alt="Última evaluación" />
                 <div>
                   <span>Última evaluación</span>
-                  <strong>Pendiente</strong>
+                  <strong>{latestEvaluation ? `${latestEvaluation.date} ${latestEvaluation.time}` : "Sin evaluación previa"}</strong>
                 </div>
               </article>
 
@@ -217,8 +310,8 @@ const UserHome = () => {
                 <img src={riesgoImage} alt="Nivel de seguimiento" />
                 <div>
                   <span>Nivel de seguimiento</span>
-                  <strong className="user-home-risk-pill">
-                    Sin clasificar
+                  <strong className={`user-home-risk-pill ${latestEvaluation?.risk || 'low'}`}>
+                    {latestEvaluation?.riskLabel || "Sin clasificar"}
                   </strong>
                 </div>
               </article>
@@ -227,8 +320,7 @@ const UserHome = () => {
             <div className="user-home-current-recommendation">
               <span>⚠</span>
               <p>
-                <strong>Recomendación:</strong> Mantener vigilancia y repetir
-                evaluación en 3 días.
+                <strong>Recomendación:</strong> {latestEvaluation?.recommendation || "Aún no hay recomendaciones registradas. Te invitamos a realizar una evaluación."}
               </p>
             </div>
 

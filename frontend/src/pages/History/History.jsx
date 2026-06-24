@@ -235,6 +235,30 @@ const History = () => {
 
   const selectedBabyEvaluations = evaluations;
 
+  const calcularDiasDesdeNacimiento = () => {
+    const fn = location.state?.registro?.recienNacido?.fechaNacimiento;
+    if (!fn) return "Sin registro";
+    const partes = fn.split("/");
+    if (partes.length === 3) {
+      const fechaNac = new Date(partes[2], partes[1] - 1, partes[0]);
+      const diffMs = new Date() - fechaNac;
+      const dias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      return `${dias} ${dias === 1 ? "día" : "días"}`;
+    }
+    return fn;
+  };
+
+  const nombreBebeReal =
+    usuario?.bebe?.nombre ||
+    location.state?.registro?.recienNacido?.nombreBebe ||
+    selectedBaby ||
+    "Sin registro";
+
+  const edadBebeReal =
+    latestEvaluation?.babyAge ||
+    location.state?.registro?.recienNacido?.edadActual ||
+    calcularDiasDesdeNacimiento();
+
   const sortedEvaluations = useMemo(() => {
     const evaluationsCopy = [...selectedBabyEvaluations];
 
@@ -450,7 +474,7 @@ const History = () => {
 
                   <div>
                     <h3>Bebé:</h3>
-                    <p>{latestEvaluation?.baby || "Sin registro"}</p>
+                    <p>{latestEvaluation?.baby || nombreBebeReal}</p>
                   </div>
                 </article>
 
@@ -461,7 +485,7 @@ const History = () => {
 
                   <div>
                     <h3>Edad actual:</h3>
-                    <p>{latestEvaluation?.babyAge || "Sin registro"}</p>
+                    <p>{latestEvaluation?.babyAge || edadBebeReal}</p>
                   </div>
                 </article>
 
