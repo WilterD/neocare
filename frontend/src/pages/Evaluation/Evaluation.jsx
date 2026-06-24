@@ -4,6 +4,7 @@ import "./Evaluation.css";
 
 import Header2 from "../../components/Header2/Header2.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
+import { guardarTriajeBebe } from "../../services/api.js";
 
 import ctImage from "../../assets/CT.png";
 import qsImage from "../../assets/QS.png";
@@ -903,8 +904,41 @@ const Evaluation = () => {
     navigate("/registro");
   };
 
-  const handleRunEvaluation = () => {
+  const handleRunEvaluation = async () => {
     const evaluationResult = buildEvaluationResult(registro, usuario);
+
+    // Persistir evaluacion en backend si hay bebe registrado y signos reales
+    try {
+      const idBebe =
+        registro?.bebe?.id ||
+        usuario?.bebe?.id ||
+        usuario?.id;
+      const signosReales = (evaluationResult.selectedSignIds || []).filter(
+        (s) => s && s !== "sinSignosRegistrados"
+      );
+      if (idBebe && signosReales.length > 0) {
+        const signosBool = {
+          convulsiones: false,
+          dificultadRespiratoria: false,
+          coloracionAzulada: false,
+          fiebreHipotermia: false,
+          rechazoAlimentacion: false,
+          disminucionConciencia: false,
+          vomitosRepetitivos: false,
+          ictericiaProgresiva: false,
+          disminucionActividad: false,
+          llantoPersistente: false,
+          alteracionesSueno: false,
+          disminucionApetito: false,
+          irritabilidadOcasional: false,
+        };
+        signosReales.forEach((id) => { signosBool[id] = true; });
+        await guardarTriajeBebe(idBebe, { signos: signosBool });
+      }
+    } catch (err) {
+      console.error("No se pudo guardar el triaje en backend:", err);
+    }
+
 
     navigate("/resultado", {
       state: {

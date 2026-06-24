@@ -4,6 +4,7 @@ import "./AllEvaluations.css";
 
 import Header2 from "../../components/Header2/Header2.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
+import { listarBebes, obtenerTriajeBebe } from "../../services/api.js";
 
 import inicioImage from "../../assets/Inicio.png";
 import evaluacionImage from "../../assets/Evaluacion.png";
@@ -81,74 +82,6 @@ const periodFilters = [
   },
 ];
 
-const evaluations = [
-  {
-    id: 1,
-    createdAt: "2025-05-20T12:30:00",
-    date: "20 mayo, 2025",
-    time: "12:30 p. m.",
-    score: "5 / 10",
-    risk: "medio",
-    riskLabel: "Riesgo medio",
-    trackingType: "Seguimiento clínico",
-    recommendation: "Repetir evaluación en 24 horas.",
-  },
-  {
-    id: 2,
-    createdAt: "2025-05-12T09:15:00",
-    date: "12 mayo, 2025",
-    time: "9:15 a. m.",
-    score: "3 / 10",
-    risk: "bajo",
-    riskLabel: "Riesgo bajo",
-    trackingType: "Seguimiento básico",
-    recommendation: "Continuar cuidados generales en casa.",
-  },
-  {
-    id: 3,
-    createdAt: "2025-05-04T08:45:00",
-    date: "4 mayo, 2025",
-    time: "8:45 a. m.",
-    score: "7 / 10",
-    risk: "alto",
-    riskLabel: "Riesgo alto",
-    trackingType: "Atención prioritaria",
-    recommendation: "Acudir al centro de salud más cercano.",
-  },
-  {
-    id: 4,
-    createdAt: "2025-04-28T19:30:00",
-    date: "28 abril, 2025",
-    time: "7:30 p. m.",
-    score: "4 / 10",
-    risk: "medio",
-    riskLabel: "Riesgo medio",
-    trackingType: "Seguimiento clínico",
-    recommendation: "Mantener vigilancia y repetir evaluación.",
-  },
-  {
-    id: 5,
-    createdAt: "2025-04-20T11:00:00",
-    date: "20 abril, 2025",
-    time: "11:00 a. m.",
-    score: "6 / 10",
-    risk: "medio",
-    riskLabel: "Riesgo medio",
-    trackingType: "Seguimiento clínico",
-    recommendation: "Revisar evolución del bebé.",
-  },
-  {
-    id: 6,
-    createdAt: "2025-04-10T18:30:00",
-    date: "10 abril, 2025",
-    time: "6:30 p. m.",
-    score: "2 / 10",
-    risk: "bajo",
-    riskLabel: "Riesgo bajo",
-    trackingType: "Seguimiento básico",
-    recommendation: "Mantener cuidados generales.",
-  },
-];
 
 const normalizeText = (value) => {
   return String(value || "")
@@ -184,6 +117,76 @@ const AllEvaluations = () => {
   const [activeRisk, setActiveRisk] = useState("todos");
   const [selectedPeriod, setSelectedPeriod] = useState("todos");
   const [sortOrder, setSortOrder] = useState("recientes");
+  const [evaluations, setEvaluations] = useState([]);
+  const [loadingEvaluations, setLoadingEvaluations] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+
+  // Cargar evaluaciones reales desde el backend
+  useEffect(() => {
+    let cancelado = false;
+    const cargar = async () => {
+      try {
+        setLoadingEvaluations(true);
+        setLoadError(null);
+        let idBebe =
+          location.state?.registro?.bebe?.id ||
+          location.state?.user?.bebe?.id ||
+          location.state?.bebe?.id ||
+          usuario?.bebe?.id;
+        if (!idBebe) {
+          const lista = await listarBebes();
+          if (cancelado) return;
+          if (lista && Array.isArray(lista.bebes) && lista.bebes.length > 0) {
+            idBebe = lista.bebes[0].id;
+          }
+        }
+        if (!idBebe) {
+          if (!cancelado) setEvaluations([]);
+          return;
+        }
+        const triaje = await obtenerTriajeBebe(idBebe);
+        if (cancelado) return;
+        const lista = (triaje && Array.isArray(triaje.evaluaciones)) ? triaje.evaluaciones : [];
+        const normalizadas = lista.map((e) => {
+          const fechaTxt = e.fecha || "";
+          const [datePart, timePart] = fechaTxt.includes(" ")
+            ? fechaTxt.split(" ")
+            : [fechaTxt, ""];
+          const nivel = (e.nivel || "").toLowerCase();
+          const riskLabel =
+            nivel === "bajo" ? "Riesgo bajo" :
+            nivel === "medio" ? "Riesgo medio" :
+            nivel === "alto" ? "Riesgo alto" :
+            (e.nivel || "Sin clasificar");
+          const trackingType =
+            nivel === "alto" ? "Atencion prioritaria" :
+            nivel === "medio" ? "Seguimiento clinico" :
+            "Seguimiento basico";
+          const score = e.puntuacion != null ? `${e.puntuacion} / 10` : "0 / 10";
+          return {
+            id: e.id,
+            createdAt: fechaTxt || new Date().toISOString(),
+            date: datePart,
+            time: timePart || "",
+            score,
+            risk: nivel || "bajo",
+            riskLabel,
+            trackingType,
+            recommendation: e.recomendacion || "",
+          };
+        });
+        if (!cancelado) setEvaluations(normalizadas);
+      } catch (err) {
+        console.error("Error al cargar evaluaciones:", err);
+        if (!cancelado) setLoadError(err.message || "Error desconocido");
+      } finally {
+        if (!cancelado) setLoadingEvaluations(false);
+      }
+    };
+    cargar();
+    return () => { cancelado = true; };
+  }, [usuario, location.state]);
+
 
   useEffect(() => {
     try {
@@ -210,9 +213,7 @@ const AllEvaluations = () => {
     return ["Tu bebé"];
   }, [usuario]);
 
-  const selectedBabyEvaluations = useMemo(() => {
-    return evaluations;
-  }, []);
+  const selectedBabyEvaluations = evaluations;
 
   const filteredEvaluations = useMemo(() => {
     const normalizedSearch = normalizeText(searchTerm);

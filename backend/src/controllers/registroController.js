@@ -188,7 +188,7 @@ export const crearRegistro = async (req, res) => {
         situacionEconomica: situacionEconomica
       },
       bebe: {
-        edadGestacional: edadGestacional,
+        edadGestacional: result.edadGestacional,
         pesoNacer: result.pesoAlNacer
       },
       datosClinicos: {

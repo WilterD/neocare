@@ -1,0 +1,6 @@
+# Archivos generados localmente
+repomix-output.xml
+
+# Deploy / server-specific (se generan en deploy.sh localmente, no son parte del codigo fuente)
+/docker-compose.yml
+/ecosystem.config.js

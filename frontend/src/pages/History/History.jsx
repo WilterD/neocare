@@ -4,6 +4,7 @@ import "./History.css";
 
 import Header2 from "../../components/Header2/Header2.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
+import { listarBebes, obtenerTriajeBebe } from "../../services/api.js";
 
 import inicioImage from "../../assets/Inicio.png";
 import evaluacionImage from "../../assets/Evaluacion.png";
@@ -71,80 +72,6 @@ const riskFilters = [
   },
 ];
 
-const evaluations = [
-  {
-    id: 1,
-    createdAt: "2025-05-20T12:30:00",
-    date: "20 mayo, 2025",
-    time: "12:30 p. m.",
-    babyAge: "12 días",
-    score: "5 / 10",
-    risk: "medio",
-    riskLabel: "Riesgo medio",
-    trackingType: "Seguimiento clínico",
-    recommendation: "Repetir evaluación en 24 horas.",
-  },
-  {
-    id: 2,
-    createdAt: "2025-05-12T09:15:00",
-    date: "12 mayo, 2025",
-    time: "9:15 a. m.",
-    babyAge: "4 días",
-    score: "3 / 10",
-    risk: "bajo",
-    riskLabel: "Riesgo bajo",
-    trackingType: "Seguimiento básico",
-    recommendation: "Continuar cuidados generales en casa.",
-  },
-  {
-    id: 3,
-    createdAt: "2025-05-04T08:45:00",
-    date: "4 mayo, 2025",
-    time: "8:45 a. m.",
-    babyAge: "1 día",
-    score: "7 / 10",
-    risk: "alto",
-    riskLabel: "Riesgo alto",
-    trackingType: "Atención prioritaria",
-    recommendation: "Acudir al centro de salud más cercano.",
-  },
-  {
-    id: 4,
-    createdAt: "2025-05-02T10:10:00",
-    date: "2 mayo, 2025",
-    time: "10:10 a. m.",
-    babyAge: "1 día",
-    score: "6 / 10",
-    risk: "medio",
-    riskLabel: "Riesgo medio",
-    trackingType: "Seguimiento clínico",
-    recommendation: "Mantener vigilancia y repetir evaluación en 24 horas.",
-  },
-  {
-    id: 5,
-    createdAt: "2025-04-30T16:20:00",
-    date: "30 abril, 2025",
-    time: "4:20 p. m.",
-    babyAge: "Recién nacido",
-    score: "2 / 10",
-    risk: "bajo",
-    riskLabel: "Riesgo bajo",
-    trackingType: "Seguimiento básico",
-    recommendation: "Continuar cuidados generales en casa.",
-  },
-  {
-    id: 6,
-    createdAt: "2025-04-28T11:40:00",
-    date: "28 abril, 2025",
-    time: "11:40 a. m.",
-    babyAge: "Recién nacido",
-    score: "4 / 10",
-    risk: "medio",
-    riskLabel: "Riesgo medio",
-    trackingType: "Seguimiento clínico",
-    recommendation: "Repetir evaluación en 24 horas.",
-  },
-];
 
 const normalizeText = (value) => {
   return String(value || "")
@@ -187,6 +114,99 @@ const History = () => {
   const [activeRisk, setActiveRisk] = useState("todos");
   const [selectedBaby, setSelectedBaby] = useState("");
   const [sortOrder, setSortOrder] = useState("recientes");
+  const [evaluations, setEvaluations] = useState([]);
+  const [loadingEvaluations, setLoadingEvaluations] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+  const [bebeIdActivo, setBebeIdActivo] = useState(null);
+
+  // Cargar evaluaciones reales desde el backend
+  useEffect(() => {
+    let cancelado = false;
+
+    const cargarEvaluaciones = async () => {
+      try {
+        setLoadingEvaluations(true);
+        setLoadError(null);
+
+        let idBebe = null;
+
+        // 1) Prioridad: location.state?.registro?.bebe?.id o usuario.bebe.id
+        const bebeFromState =
+          location.state?.registro?.bebe?.id ||
+          location.state?.user?.bebe?.id ||
+          location.state?.bebe?.id;
+        const bebeFromUsuario = usuario?.bebe?.id;
+        idBebe = bebeFromState || bebeFromUsuario;
+
+        // 2) Fallback: si no hay id en state ni usuario, tomar el primer bebe de /api/bebes
+        if (!idBebe) {
+          const lista = await listarBebes();
+          if (cancelado) return;
+          if (lista && Array.isArray(lista.bebes) && lista.bebes.length > 0) {
+            idBebe = lista.bebes[0].id;
+          }
+        }
+
+        if (!idBebe) {
+          // No hay bebes registrados
+          if (!cancelado) {
+            setEvaluations([]);
+            setBebeIdActivo(null);
+          }
+          return;
+        }
+
+        if (!cancelado) setBebeIdActivo(idBebe);
+
+        const triaje = await obtenerTriajeBebe(idBebe);
+        if (cancelado) return;
+
+        const lista = (triaje && Array.isArray(triaje.evaluaciones)) ? triaje.evaluaciones : [];
+        // Mapear campos de la API -> formato de la UI
+        const normalizadas = lista.map((e) => {
+          const fechaTxt = e.fecha || "";
+          const [datePart, timePart] = fechaTxt.includes(" ")
+            ? fechaTxt.split(" ")
+            : [fechaTxt, ""];
+          const nivel = (e.nivel || "").toLowerCase();
+          const riskLabel =
+            nivel === "bajo" ? "Riesgo bajo" :
+            nivel === "medio" ? "Riesgo medio" :
+            nivel === "alto" ? "Riesgo alto" :
+            (e.nivel || "Sin clasificar");
+          const trackingType =
+            nivel === "alto" ? "Atencion prioritaria" :
+            nivel === "medio" ? "Seguimiento clinico" :
+            "Seguimiento basico";
+          const score = e.puntuacion != null ? `${e.puntuacion} / 10` : "0 / 10";
+          return {
+            id: e.id,
+            createdAt: fechaTxt || new Date().toISOString(),
+            date: datePart,
+            time: timePart || "",
+            babyAge: "",
+            score,
+            risk: nivel || "bajo",
+            riskLabel,
+            trackingType,
+            recommendation: e.recomendacion || "",
+          };
+        });
+
+        if (!cancelado) setEvaluations(normalizadas);
+      } catch (err) {
+        console.error("Error al cargar historial:", err);
+        if (!cancelado) setLoadError(err.message || "Error desconocido");
+      } finally {
+        if (!cancelado) setLoadingEvaluations(false);
+      }
+    };
+
+    cargarEvaluaciones();
+    return () => { cancelado = true; };
+  }, [usuario, location.state]);
+
+  // Compatibilidad: si selectedBabyEvaluations = evaluations ya estaba referenciado
 
   useEffect(() => {
     try {
@@ -213,9 +233,7 @@ const History = () => {
     return ["Tu bebé"];
   }, [usuario]);
 
-  const selectedBabyEvaluations = useMemo(() => {
-    return evaluations;
-  }, []);
+  const selectedBabyEvaluations = evaluations;
 
   const sortedEvaluations = useMemo(() => {
     const evaluationsCopy = [...selectedBabyEvaluations];

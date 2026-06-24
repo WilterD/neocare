@@ -114,3 +114,35 @@ export const loginUsuario = async (email, password) => {
     throw error;
   }
 };
+
+export const guardarTriajeBebe = async (id, payload) => {
+  return handleFetch(`${API_URL}/bebes/${id}/triaje`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+};
+
+export const guardarSeguimientoBebe = async (id, payload) => {
+  return handleFetch(`${API_URL}/bebes/${id}/seguimiento`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+};
+
+export const guardarControlBebe = async (id, payload) => {
+  return handleFetch(`${API_URL}/bebes/${id}/controles`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+};
+
+export const actualizarEstadoVacuna = async (id, payload) => {
+  return handleFetch(`${API_URL}/bebes/${id}/vacunas`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+};
