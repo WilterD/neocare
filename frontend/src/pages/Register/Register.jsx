@@ -61,6 +61,7 @@ const Register = () => {
   const [consentimientoAceptado, setConsentimientoAceptado] = useState(false);
   const [consentimientoError, setConsentimientoError] = useState("");
   const [formError, setFormError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const handlePersonalInputChange = (event) => {
     const { name, value } = event.target;
@@ -521,6 +522,10 @@ const Register = () => {
   };
 
   const handleNext = async () => {
+    if (submitting) {
+      return;
+    }
+
     const error = validarPasoActual();
 
     if (error) {
@@ -538,10 +543,6 @@ const Register = () => {
 
     if (step < 6) {
       setStep(step + 1);
-      return;
-    }
-
-    if (formError === "__submitting__") {
       return;
     }
 
@@ -567,14 +568,8 @@ const Register = () => {
       consentimientoAceptado,
     };
 
-    localStorage.setItem("neocareUser", JSON.stringify(usuarioRegistrado));
-    localStorage.setItem(
-      "neocareRegisterData",
-      JSON.stringify(usuarioRegistrado)
-    );
+    setSubmitting(true);
 
-    // Persistir en backend (madre + bebe) y enriquecer con IDs reales
-    setFormError("__submitting__");
     try {
       const payload = {
         datosPersonales: usuarioRegistrado.datosPersonales,
@@ -594,34 +589,40 @@ const Register = () => {
           nombre: resp.usuario.bebe.nombre,
         };
         usuarioRegistrado.token = resp.token;
-        localStorage.setItem("neocareUser", JSON.stringify(usuarioRegistrado));
-        localStorage.setItem(
-          "neocareRegisterData",
-          JSON.stringify(usuarioRegistrado)
-        );
+
         if (resp.token) {
           localStorage.setItem("neocareToken", resp.token);
         }
       }
+
+      localStorage.setItem("neocareUser", JSON.stringify(usuarioRegistrado));
+      localStorage.setItem(
+        "neocareRegisterData",
+        JSON.stringify(usuarioRegistrado)
+      );
+
+      navigate("/evaluacion", {
+        state: {
+          user: usuarioRegistrado,
+          registro: usuarioRegistrado,
+        },
+      });
     } catch (error) {
       console.error("No se pudo guardar el registro en backend:", error);
-      setFormError(
-        "No pudimos guardar el registro en el servidor. Verifica tu conexion e intentelo de nuevo."
-      );
-      return;
-    } finally {
-      setFormError("");
-    }
 
-    navigate("/evaluacion", {
-      state: {
-        user: usuarioRegistrado,
-        registro: usuarioRegistrado,
-      },
-    });
+      setFormError(
+        "No se pudo completar el registro. Verifica la conexión con el servidor e inténtalo nuevamente."
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handlePrevious = () => {
+    if (submitting) {
+      return;
+    }
+
     if (step > 1) {
       setStep(step - 1);
       setFormError("");
@@ -1469,6 +1470,7 @@ const Register = () => {
               type="button"
               className="btn-secondary"
               onClick={handlePrevious}
+              disabled={submitting}
             >
               ← Anterior
             </button>
@@ -1477,13 +1479,14 @@ const Register = () => {
           <button
             type="button"
             className={
-              step === 6 && !consentimientoAceptado
+              (step === 6 && !consentimientoAceptado) || submitting
                 ? "btn-primary btn-disabled"
                 : "btn-primary"
             }
             onClick={handleNext}
+            disabled={submitting}
           >
-            {step === 6 ? "Finalizar" : "Siguiente →"}
+            {submitting ? "Guardando..." : step === 6 ? "Finalizar" : "Siguiente →"}
           </button>
         </footer>
       </section>
