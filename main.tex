@@ -1,0 +1,1014 @@
+\documentclass[12pt,letterpaper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+\graphicspath{{Imágenes/}}
+\hypersetup{colorlinks=true, linkcolor=black, urlcolor=blue, citecolor=black}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.75\baselineskip}
+\setlength{\headheight}{15pt}
+\sloppy
+\setlist[itemize]{leftmargin=1.2cm}
+\setlist[enumerate]{leftmargin=1.2cm}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{NeoCare -- Segunda Entrega COIL}
+\rhead{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\titleformat{\section}{\normalfont\Large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection.}{0.5em}{}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \includegraphics[width=0.32\textwidth]{logo-ucab-informatica.png}\par\vspace{0.8cm}
+    {\large Universidad Católica Andrés Bello -- Extensión Guayana\par}
+    {\large Facultad de Ingeniería\par}
+    {\large Escuela de Ingeniería Informática\par}
+    {\large Semestre 2026-I\par}
+    {\large Asignatura: Investigación de Operaciones\par}
+    \vfill
+    {\Huge\bfseries Salud Digital -- NeoCare\par}
+    \vspace{0.3cm}
+    {\Large Segunda entrega del Proyecto COIL\par}
+    \vspace{0.5cm}
+    {\large Informe técnico, manual de usuario y manual del sistema\par}
+    \vspace{0.2cm}
+    {\large Documento: Manual del Sistema (NeoCare v2.0 -- junio 2026)\par}
+    \vfill
+    \begin{minipage}{0.45\textwidth}
+        \textbf{Profesora:}\par
+        Medina, Luz E.
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \textbf{Participantes:}\par
+        Díaz, Wilter -- C.I. 27.922.999\par
+        García, Elimar -- C.I. 30.735.901\par
+        Lara, Andrés -- C.I. 30.857.186\par
+        Montaño, Vicente -- C.I. 27.293.910
+    \end{minipage}
+    \vfill
+    {Puerto Ordaz, 12 de junio de 2026\par}
+\end{titlepage}
+
+\pagenumbering{roman}
+\tableofcontents
+\newpage
+\listoftables
+\newpage
+\pagenumbering{arabic}
+
+% ============================================================
+% MINI-ÍNDICE DEL MANUAL DEL SISTEMA
+% ============================================================
+\section*{Guía de lectura del Manual del Sistema}
+\addcontentsline{toc}{section}{Guía de lectura del Manual del Sistema}
+
+\noindent Este manual describe la versión \textbf{2.0} de NeoCare (junio 2026), que incorpora los módulos de triaje neonatal, seguimiento diario, vacunas y controles, y la gestión multipantalla de bebés. El documento está organizado de la siguiente forma:
+
+\begin{itemize}[leftmargin=1.4cm]
+    \item \textbf{Sección 3.1 -- Introducción técnica.} Visión general de la arquitectura cliente-servidor en tres capas, el alcance actual y el plan de evolución del sistema.
+    \item \textbf{Sección 3.2 -- Requerimientos del sistema.} Requisitos de hardware, software y de red para los entornos de desarrollo y producción.
+    \item \textbf{Sección 3.3 -- Herramientas utilizadas.} Inventario, versión y justificación de cada tecnología seleccionada.
+    \item \textbf{Sección 3.4 -- Procedimiento de instalación.} Pasos detallados para entorno de desarrollo y de producción (incluye \texttt{deploy.sh}).
+    \item \textbf{Sección 3.5 -- Diagramas de modelado.} Casos de uso y modelo de clases de los módulos implementados.
+    \item \textbf{Sección 3.6 -- Diseño lógico y físico de la base de datos.} Modelo relacional de las once tablas con su DDL abreviado.
+    \item \textbf{Sección 3.7 -- Diccionario de datos.} Definición completa de campos, tipos, restricciones y semántica de cada tabla.
+    \item \textbf{Sección 3.8 -- Estructura e interrelación de módulos.} Mapa de los módulos frontend, backend y de servicio, con sus dependencias.
+    \item \textbf{Sección 3.9 -- Pruebas realizadas.} Inventario de pruebas unitarias, funcionales, de integración, de regresión, de estrés, de seguridad y de aceptación, con formato APA 6 (cada prueba indica nombre, objetivo, estrategia, resultado positivo, cambio y nuevo resultado).
+\end{itemize}
+
+\noindent\textbf{Nota sobre la convención de nombres.} En este manual se utiliza la convención \textit{snake\_case} cuando se hace referencia explícita a columnas de la base de datos (por ejemplo, \texttt{recien\_nacidos.peso\_al\_nacer}) y la convención \textit{camelCase} cuando se hace referencia a campos del payload JSON consumido por el frontend (por ejemplo, \texttt{payload.recienNacido.pesoNacer}). La capa de control del backend normaliza ambas notaciones de forma transparente (ver \texttt{backend/src/controllers/registroController.js}, líneas 52-58 y 92-101).
+
+\section{Introducción}
+
+NeoCare es una aplicación digital de apoyo al seguimiento neonatal domiciliario, orientada a madres primerizas o cuidadoras de recién nacidos entre 0 y 28 días de vida. La propuesta surge ante la necesidad de facilitar la identificación temprana de signos de alarma neonatal, organizar información relevante de la madre/cuidadora y del bebé, y entregar una orientación inicial sobre el nivel de seguimiento requerido. El sistema no sustituye la valoración médica profesional; su propósito es servir como herramienta educativa, preventiva y de acompañamiento para favorecer decisiones oportunas en el hogar.
+
+Esta segunda entrega documenta la solución operativa desarrollada, sus características funcionales, el diseño técnico implementado, la estructura de datos, los módulos del sistema, las pruebas realizadas y los manuales requeridos para su uso, instalación, mantenimiento y evolución. El documento se elabora siguiendo las pautas de identificación y contenido indicadas para la segunda entrega del Proyecto COIL, así como los criterios generales de organización académica establecidos en la guía institucional para informes de trabajo de grado.
+
+\section{Informe técnico}
+
+\subsection{Solución propuesta}
+
+La solución propuesta es una aplicación web denominada \textbf{NeoCare}, construida con una arquitectura cliente-servidor. El frontend permite a la usuaria navegar por páginas informativas, registrarse, completar una evaluación neonatal y consultar el resultado de riesgo. El backend expone servicios REST para crear y consultar registros, persistir datos en una base relacional y ejecutar la lógica de clasificación de riesgo materno-neonatal.
+
+El sistema está enfocado en los siguientes objetivos operativos:
+
+\begin{itemize}
+    \item Registrar información personal, sociodemográfica y de cuidado de la madre o cuidadora.
+    \item Registrar datos del recién nacido y antecedentes clínicos relevantes al nacer.
+    \item Solicitar consentimiento informado antes de almacenar información sensible.
+    \item Clasificar el riesgo materno, neonatal y combinado en niveles bajo, medio o alto.
+    \item Presentar recomendaciones comprensibles según la clasificación obtenida.
+    \item Ofrecer contenido educativo sobre lactancia, higiene, temperatura, ictericia, sepsis, hipotermia y signos de alarma.
+\end{itemize}
+
+\subsection{Características de la solución}
+
+\begin{longtable}{p{0.28\textwidth}p{0.64\textwidth}}
+\caption{Características principales de NeoCare}\\
+\toprule
+\textbf{Característica} & \textbf{Descripción}\\
+\midrule
+Registro por pasos & El formulario organiza la información en secciones para reducir la carga cognitiva de la usuaria y permitir una captura ordenada de datos.\\
+Evaluación de riesgo & El sistema calcula puntajes maternos y neonatales a partir de factores de cuidado, acceso a salud, antecedentes clínicos, edad gestacional y peso al nacer.\\
+Resultado interpretativo & La clasificación final se comunica con nivel de riesgo, mensaje orientativo y recomendación de seguimiento.\\
+Contenido educativo & La aplicación incluye páginas con orientación sobre cuidados básicos, signos de alarma y acompañamiento durante los primeros 28 días.\\
+Persistencia de datos & Los registros se almacenan en tablas relacionales asociando una madre/cuidadora con uno o más recién nacidos.\\
+Seguridad básica & La contraseña se almacena mediante hash y el backend valida datos obligatorios antes de insertar registros.\\
+Interfaz amigable & El frontend utiliza componentes visuales, tarjetas, botones claros, rutas diferenciadas y alertas de color para facilitar la navegación.\\
+\bottomrule
+\end{longtable}
+
+\subsection{Desarrollo y resultados}
+
+El desarrollo disponible en \texttt{repomix-output.xml} evidencia una aplicación operativa dividida en dos capas principales: \texttt{frontend/} y \texttt{backend/}. El frontend fue construido con React y Vite, mientras que el backend utiliza Node.js, Express y controladores organizados por rutas y servicios. La base de datos cuenta con scripts para PostgreSQL y MySQL, lo que facilita la adaptación a distintos entornos de despliegue.
+
+\subsubsection{Frontend}
+
+El frontend contiene las páginas \texttt{Welcome}, \texttt{Register}, \texttt{Login}, \texttt{Services}, \texttt{Evaluation}, \texttt{Result}, \texttt{Education}, \texttt{About} y \texttt{Contact}. La navegación se administra con \texttt{BrowserRouter}, \texttt{Routes} y \texttt{Route}. Esta organización permite separar las funcionalidades del sistema de la siguiente forma:
+
+\begin{itemize}
+    \item \textbf{Bienvenida:} presenta el propósito de NeoCare y dirige a la usuaria hacia el registro o la evaluación.
+    \item \textbf{Registro:} recopila datos personales, sociodemográficos, condiciones de cuidado, datos del recién nacido, antecedentes clínicos y consentimiento.
+    \item \textbf{Servicios:} resume las funciones disponibles: registro por pasos, evaluación de riesgo, signos de alarma, contenido educativo, historial y alertas visuales.
+    \item \textbf{Evaluación:} orienta la captura y envío de datos necesarios para calcular el riesgo.
+    \item \textbf{Resultado:} muestra la clasificación obtenida y la recomendación de seguimiento.
+    \item \textbf{Educación:} entrega información de apoyo para el cuidado neonatal domiciliario.
+\end{itemize}
+
+La comunicación con el backend se concentra en el servicio \texttt{api.js}, donde se definen funciones para crear registros, obtener todos los registros y consultar un registro por identificador. El consumo de la API se realiza mediante solicitudes HTTP con formato JSON hacia \texttt{http://localhost:4000/api}.
+
+\subsubsection{Backend}
+
+El backend está organizado en \texttt{controllers}, \texttt{routes}, \texttt{services}, \texttt{db.js}, \texttt{app.js} y \texttt{server.js}. El archivo \texttt{registroRoutes.js} define las rutas para crear y consultar registros, mientras que \texttt{registroController.js} normaliza los datos recibidos, valida campos obligatorios, verifica el consentimiento informado, cifra la contraseña, ejecuta la transacción de inserción y devuelve la respuesta al frontend.
+
+La lógica de evaluación se concentra en \texttt{riesgoService.js}. Este servicio calcula riesgo materno, riesgo neonatal y riesgo combinado. El resultado final puede ser bajo, medio o alto, acompañado de una recomendación de seguimiento. Esta separación mejora la mantenibilidad porque la regla de negocio puede modificarse sin alterar la interfaz ni la capa de persistencia.
+
+\subsubsection{Base de datos}
+
+El modelo relacional asocia la tabla \texttt{madres\_cuidadores} con la tabla \texttt{recien\_nacidos} mediante una relación de uno a muchos. Esta decisión permite registrar más de un bebé para una misma madre o cuidadora, contemplando casos como gemelos o registros posteriores.
+
+\begin{longtable}{p{0.25\textwidth}p{0.67\textwidth}}
+\caption{Tablas principales del sistema}\\
+\toprule
+\textbf{Tabla} & \textbf{Propósito}\\
+\midrule
+\texttt{madres\_cuidadores} & Almacena datos personales, acceso, nivel educativo, zona de residencia, acceso a centro de salud, situación económica, relación con el bebé, número de hijos, apoyo familiar, condición de madre primeriza y consentimiento informado.\\
+\texttt{recien\_nacidos} & Almacena datos del bebé: nombre, fecha de nacimiento, peso al nacer, edad gestacional, sexo, tipo de parto, complicaciones, hospitalización neonatal y cuidados especiales recibidos.\\
+\bottomrule
+\end{longtable}
+
+Además, la documentación del repositorio propone tablas futuras para bitácora emocional, evaluaciones EPDS, evaluaciones de riesgo del bebé, bitácora de cuidado, biblioteca educativa, seguimiento diario, vacunación, controles de niño sano y notificaciones. Estas tablas representan una ruta de evolución coherente con el alcance sanitario y educativo del proyecto.
+
+\subsection{Algoritmo de clasificación de riesgo}
+
+La evaluación de NeoCare se basa en puntajes acumulativos. Para la dimensión materna, el sistema considera variables como edad de la madre, zona de residencia, acceso a centro de salud, situación económica, condición de madre sola, apoyo familiar y experiencia previa de cuidado. Para la dimensión neonatal, evalúa edad gestacional, peso al nacer, complicaciones al nacer y hospitalización neonatal. Luego combina ambas clasificaciones para emitir la recomendación final.
+
+\begin{table}[H]
+\centering
+\caption{Interpretación general de resultados}
+\begin{tabular}{p{0.18\textwidth}p{0.34\textwidth}p{0.38\textwidth}}
+\toprule
+\textbf{Riesgo} & \textbf{Interpretación} & \textbf{Orientación}\\
+\midrule
+Bajo & No se identifican factores críticos en los datos registrados. & Mantener cuidados básicos, observación diaria y controles pediátricos habituales.\\
+Medio & Existen factores que requieren vigilancia reforzada o acompañamiento. & Mantener seguimiento cercano y consultar ante cualquier signo de alarma.\\
+Alto & Se combinan factores maternos y neonatales relevantes. & Buscar valoración médica lo antes posible y priorizar la atención profesional.\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Manual de usuario}
+
+\subsection{Introducción del manual}
+
+Este manual explica cómo utilizar NeoCare desde la perspectiva de la madre, padre, familiar o cuidadora responsable del recién nacido. El objetivo es guiar el uso del sistema para registrar información, realizar una evaluación de riesgo, interpretar los resultados y consultar contenido educativo. La herramienta ofrece orientación inicial y no reemplaza la consulta médica.
+
+\subsection{Roles de usuario}
+
+\begin{itemize}
+    \item \textbf{Madre o cuidadora:} persona que registra sus datos, los datos del bebé y consulta la orientación emitida por el sistema.
+    \item \textbf{Personal académico o investigador:} revisa la información registrada para validar el funcionamiento del prototipo y analizar su pertinencia respecto a los requerimientos del proyecto.
+    \item \textbf{Administrador técnico:} instala el sistema, configura la base de datos, verifica la API y mantiene la aplicación operativa.
+\end{itemize}
+
+\subsection{Uso del sistema por la madre o cuidadora}
+
+\begin{enumerate}
+    \item Ingresar a la página principal de NeoCare.
+    \item Seleccionar la opción de registro o comenzar evaluación.
+    \item Completar los datos personales: nombre, edad, teléfono, correo, identificación y contraseña.
+    \item Completar los datos sociodemográficos: nivel educativo, zona de residencia, acceso a centro de salud y situación económica.
+    \item Completar las condiciones de cuidado: relación con el bebé, número de hijos, apoyo familiar, apoyo principal y experiencia previa.
+    \item Registrar los datos del recién nacido: nombre, fecha de nacimiento, peso al nacer, edad gestacional y sexo.
+    \item Registrar los datos clínicos: tipo de parto, complicaciones, hospitalización y cuidados especiales recibidos.
+    \item Leer y aceptar el consentimiento informado.
+    \item Enviar la evaluación.
+    \item Revisar la clasificación de riesgo y la recomendación de seguimiento.
+\end{enumerate}
+
+\subsection{Ejemplo de uso}
+
+Una madre primeriza registra a su bebé de 10 días de nacido. Indica que vive en zona rural, tiene acceso limitado al centro de salud, cuenta con apoyo familiar, el bebé nació con 36 semanas de gestación y tuvo hospitalización neonatal de dos días. Al enviar el formulario, NeoCare evalúa los factores maternos y neonatales. Si el resultado es riesgo medio, el sistema recomienda seguimiento cercano, vigilancia de signos de alarma y consulta médica ante fiebre, dificultad respiratoria, rechazo alimentario, somnolencia excesiva, ictericia intensa o cambios de coloración.
+
+\subsection{Casos de excepción y mensajes esperados}
+
+\begin{longtable}{p{0.3\textwidth}p{0.3\textwidth}p{0.3\textwidth}}
+\caption{Casos de excepción para el usuario}\\
+\toprule
+\textbf{Situación} & \textbf{Mensaje o efecto} & \textbf{Acción recomendada}\\
+\midrule
+Faltan datos obligatorios & El sistema informa que faltan datos del registro. & Revisar las secciones del formulario y completar los campos requeridos.\\
+No acepta consentimiento & El registro no se guarda. & Leer el consentimiento y aceptarlo si está de acuerdo.\\
+Correo o teléfono inválido & Puede presentarse error de validación. & Corregir el formato de correo o número telefónico.\\
+Falla de conexión con API & No se obtiene respuesta del servidor. & Verificar conexión, intentar nuevamente o contactar al administrador técnico.\\
+Resultado de riesgo alto & El sistema muestra recomendación prioritaria. & Buscar valoración médica profesional lo antes posible.\\
+\bottomrule
+\end{longtable}
+
+\subsection{Validación y aceptación del usuario}
+
+Para esta entrega, la aceptación se plantea mediante revisión funcional del flujo principal: acceso, registro, evaluación, visualización de resultado y consulta de contenido educativo. La validación con usuarios debe documentar si la interfaz es comprensible, si las preguntas resultan claras, si el resultado se interpreta correctamente y qué mejoras sugieren las madres, cuidadoras o personal sanitario. Como mejoras futuras se recomienda incorporar un formato digital de consentimiento validado por el usuario final, registro de observaciones de pruebas de aceptación y retroalimentación de profesionales de salud neonatal.
+
+\section{Manual del sistema o técnico}
+
+\subsection{Introducción técnica del sistema}
+
+NeoCare es un sistema web de seguimiento neonatal domiciliario implementado como una aplicación \textit{cliente-servidor} en tres capas. La versión 2.0 (junio 2026) amplía el alcance de la primera entrega al añadir, sobre el registro inicial y la evaluación de riesgo combinado (materno + neonatal), tres módulos clínicos adicionales: el sistema de triaje neonatal, el seguimiento diario post-triaje, y la gestión de vacunas y controles del niño sano. Estos módulos están respaldados por un esquema relacional de once tablas con restricciones de integridad avanzadas, capaz de mantener un historial longitudinal del bebé desde el nacimiento hasta el primer año de vida.
+
+El sistema se organiza en los siguientes componentes desplegables:
+
+\begin{enumerate}
+    \item \textbf{Frontend} (carpeta \texttt{frontend/}): aplicación SPA construida con React 19 y Vite 8, que ofrece veintidós páginas y se comunica exclusivamente con la API REST del backend.
+    \item \textbf{Backend} (carpeta \texttt{backend/}): API REST implementada en Node.js 18+ con Express 4, organizada en \textit{routes}, \textit{controllers} y \textit{services}, con persistencia agnóstica PostgreSQL/MySQL.
+    \item \textbf{Base de datos}: motor relacional PostgreSQL 12+ o MySQL 8+, inicializado a partir de los scripts \texttt{schema\_postgresql.sql} o \texttt{schema\_mysql.sql}.
+\end{enumerate}
+
+El sistema aplica una separación estricta entre \textit{presentación}, \textit{lógica de negocio} y \textit{persistencia}. La capa de presentación nunca accede directamente a la base de datos; toda interacción se canaliza a través del servicio \texttt{api.js} del frontend (\texttt{frontend/src/services/api.js}). La capa de negocio nunca escribe SQL embebido: lo delega al helper \texttt{query()} o \texttt{transaction()} de \texttt{db.js}, que además normaliza automáticamente la sintaxis entre los dos motores soportados. Esta arquitectura facilita la evolución futura hacia una arquitectura de microservicios o hacia un backend serverless sin modificar la interfaz del frontend.
+
+El alcance funcional vigente del sistema se resume en la siguiente tabla, organizada por módulo y por pantallas del frontend que lo utilizan.
+
+\begin{longtable}{p{0.28\textwidth}p{0.42\textwidth}p{0.20\textwidth}}
+\caption{Alcance funcional vigente de NeoCare v2.0}\\\toprule
+\textbf{Módulo} & \textbf{Capacidad} & \textbf{Pantallas asociadas} \\\midrule
+\endhead
+Registro de madre/cuidadora & Captura por pasos de datos personales, sociodemográficos, condiciones de cuidado, datos del bebé, datos clínicos y consentimiento informado, con transacción atómica. & Register\\\hline
+Inicio de sesión & Autenticación por correo y contraseña con verificación \texttt{bcrypt} y emisión de token JWT de 7 días. & Login\\\hline
+Evaluación de riesgo combinado & Cálculo de puntaje materno, neonatal y combinado, con recomendación final. & Evaluation, Result\\\hline
+Gestión multipantalla de bebés & Listado paginado con búsqueda y filtro de riesgo; detalle con tres pestañas. & Bebes, BebeDetalle\\\hline
+Sistema de triaje neonatal & Captura de 13 signos de alarma con clasificación automática en tres niveles. & EducacionTriaje, BebeDetalle (tab Triaje)\\\hline
+Seguimiento diario post-triaje & Bitácora de 5 días con 17 ítems, clasificación tipo semáforo. & EducacionSeguimiento, BebeDetalle (tab Seguimiento)\\\hline
+Vacunas y controles & Plan PAI personalizado con estado Pendiente/Aplicada/Atrasada, controles de niño sano y curva percentilar. & EducacionVacunas, BebeDetalle (tab Vacunas)\\\hline
+Historial clínico & Consulta de evaluaciones previas y consolidación de la última visita. & History, AllEvaluations\\\hline
+Biblioteca educativa & Listado de temas y detalle con recursos de OPS/OMS/UNICEF. & Education, TopicDetail\\\hline
+Navegación institucional & Páginas informativas estáticas. & Welcome, Services, About, Contact, Home, UserHome, Profile\\\bottomrule
+\end{longtable}
+
+\subsection{Requerimientos del sistema}
+
+\subsubsection{Requerimientos de hardware (servidor de producción)}
+
+\begin{itemize}
+    \item Procesador: 2 vCPU mínimo (recomendado 4 vCPU para >50 usuarios concurrentes).
+    \item Memoria RAM: 2 GB mínimo (recomendado 4 GB para entorno de staging).
+    \item Almacenamiento: 20 GB mínimo en disco (considerar crecimiento de logs y respaldos de base de datos).
+    \item Red: puerto 80/443 público para el frontend, puerto 3002 (o el definido en \texttt{PORT}) para la API, y puerto 5432/3306 accesible únicamente desde el servidor de aplicación.
+\end{itemize}
+
+\subsubsection{Requerimientos de hardware (estación de desarrollo)}
+
+\begin{itemize}
+    \item Procesador: 1.6 GHz dual-core mínimo.
+    \item Memoria RAM: 8 GB mínimo (recomendado 16 GB para compilaciones paralelas de Vite).
+    \item Almacenamiento: 5 GB libres para \texttt{node\_modules} del backend y del frontend.
+    \item Pantalla con resolución 1366×768 mínimo (las interfaces administrativas están optimizadas para 1920×1080).
+\end{itemize}
+
+\subsubsection{Requerimientos de software}
+
+\begin{itemize}
+    \item \textbf{Sistema operativo:} GNU/Linux (Ubuntu 20.04 LTS o superior), macOS 12+ o Windows 10+ con WSL2.
+    \item \textbf{Node.js:} versión 18 LTS o superior (probado con Node.js 20 LTS).
+    \item \textbf{npm:} versión 9+ (incluido con Node.js).
+    \item \textbf{PostgreSQL 12+} \textbf{o} \textbf{MySQL 8+} según la variable de entorno \texttt{DB\_TYPE}.
+    \item \textbf{Docker 24+} y \textbf{Docker Compose v2} para el entorno de producción (recomendado, no obligatorio).
+    \item \textbf{Navegador web:} Chrome 120+, Firefox 120+, Edge 120+ o Safari 17+.
+    \item \textbf{Git 2.30+} para la clonación del repositorio.
+\end{itemize}
+
+\subsubsection{Requerimientos de red}
+
+\begin{itemize}
+    \item Conectividad HTTPS entre el navegador del usuario y el servidor del frontend.
+    \item Conectividad HTTP/HTTPS entre el frontend y el backend (proxy inverso Nginx o \texttt{serve} según despliegue).
+    \item Lista blanca de orígenes (CORS) en \texttt{backend/src/app.js}: \texttt{localhost:5173}, \texttt{localhost:5174} y la variable \texttt{FRONTEND\_URL}.
+\end{itemize}
+
+\subsection{Herramientas utilizadas para el desarrollo y justificación}
+
+\begin{longtable}{p{0.22\textwidth}p{0.30\textwidth}p{0.40\textwidth}}
+\caption{Herramientas de desarrollo y justificación}\\\toprule
+\textbf{Herramienta} & \textbf{Uso} & \textbf{Justificación} \\\midrule
+\endhead
+React 19 & Construcción de la interfaz de usuario. & Permite componentes reutilizables, renderizado declarativo y un ecosistema maduro. Su versión 19 introduce mejoras de rendimiento en el render concurrente, relevantes para vistas con datos en tiempo real como el listado de bebés.\\\hline
+Vite 8 & Entorno de desarrollo y empaquetador del frontend. & Arranque en frío inferior a 500 ms y reemplazo de módulos en caliente (HMR) instantáneo, lo que reduce el ciclo de desarrollo.\\\hline
+react-router-dom 7 & Enrutamiento del lado del cliente. & Manejo declarativo de rutas, navegación programática con \texttt{useNavigate}, y paso de parámetros dinámicos (necesario para \texttt{/bebes/:id}).\\\hline
+ESLint 10 & Linter de JavaScript y JSX. & Garantiza consistencia de estilo y previene errores comunes (hooks sin dependencia, variables no utilizadas).\\\hline
+Node.js 18+ & Runtime del backend. & Permite un único lenguaje (\textit{full-stack JavaScript}) y acceso al ecosistema \texttt{npm}.\\\hline
+Express 4 & Framework HTTP minimalista. & Middleware maduro (\texttt{cors}, \texttt{express.json}), sistema de \textit{routes} extensible y amplia documentación.\\\hline
+\texttt{pg} 8.11 & Driver nativo de PostgreSQL. & Soporta \textit{connection pooling}, transacciones y la sintaxis \texttt{\$1, \$2, ...} propia del motor.\\\hline
+\texttt{mysql2} 3.9 & Driver nativo de MySQL con soporte de promesas. & Implementa la API de promesas nativa, esencial para \texttt{async/await} en el backend, y soporta \textit{prepared statements}.\\\hline
+\texttt{dotenv} 16 & Carga de variables de entorno desde \texttt{.env}. & Separa la configuración del código fuente y permite distintos entornos sin recompilar.\\\hline
+\texttt{cors} 2.8 & Middleware HTTP para \textit{Cross-Origin Resource Sharing}. & Habilita el consumo de la API desde orígenes permitidos sin deshabilitar la \textit{same-origin policy} del navegador.\\\hline
+\texttt{bcryptjs} 2.4 & Cifrado de contraseñas con \textit{bcrypt}. & Algoritmo de hashing adaptativo con \textit{salt} aleatorio y costo configurable; resistente a ataques de fuerza bruta.\\\hline
+\texttt{jsonwebtoken} 9 & Emisión y validación de \textit{JSON Web Tokens}. & Estándar abierto (RFC 7519) que permite sesiones \textit{stateless} con caducidad configurable.\\\hline
+\texttt{nodemon} 3 & Reinicio automático del backend durante el desarrollo. & Acelera el ciclo de desarrollo al detectar cambios en \texttt{backend/src}.\\\hline
+PostgreSQL 12+ & Base de datos relacional principal. & Soporta restricciones \textit{CHECK} complejas, \texttt{RETURNING}, \texttt{JSONB} e índices únicos parciales; madura en producción.\\\hline
+MySQL 8+ & Base de datos relacional alternativa. & Permite desplegar el sistema en entornos donde PostgreSQL no está disponible; el backend se adapta automáticamente.\\\hline
+PM2 5+ & Gestor de procesos para Node.js en producción. & Permite \textit{zero-downtime reloads}, monitoreo de uso de memoria y arranque automático tras caídas.\\\hline
+Docker 24+ & Contenedor de PostgreSQL en producción. & Garantiza paridad entre el entorno local y el de producción y simplifica los respaldos.\\\hline
+Nginx & \textit{Reverse proxy} y servidor de estáticos. & Termina la conexión HTTPS, enruta hacia el backend y sirve los activos del frontend.\\\hline
+\texttt{npx serve} & Servidor de estáticos para el build de Vite. & Alternativa ligera a Nginx para despliegues monoproyecto en un mismo servidor.\\\bottomrule
+\end{longtable}
+
+\subsection{Procedimiento de instalación}
+
+\subsubsection{Entorno de desarrollo local}
+
+\begin{enumerate}
+    \item Clonar el repositorio desde la rama principal:
+    \begin{verbatim}
+git clone https://github.com/WilterD/neocare.git
+cd neocare
+    \end{verbatim}
+
+    \item Instalar dependencias del backend:
+    \begin{verbatim}
+cd backend
+npm install
+    \end{verbatim}
+
+    \item Configurar las variables de entorno del backend. Crear o editar \texttt{backend/.env}:
+    \begin{verbatim}
+PORT=4000
+DB_TYPE=postgres
+DATABASE_URL=postgresql://postgres@localhost:5432/neocare
+JWT_SECRET=neocare_secret_dev
+FRONTEND_URL=http://localhost:5173
+    \end{verbatim}
+
+    \item Crear la base de datos y cargar el esquema. Para PostgreSQL:
+    \begin{verbatim}
+createdb neocare
+psql -U postgres -d neocare -f database/schema_postgresql.sql
+    \end{verbatim}
+    Para MySQL, sustituir por el script \texttt{database/schema\_mysql.sql}.
+
+    \item Arrancar el backend en modo desarrollo (recarga automática con \texttt{nodemon}):
+    \begin{verbatim}
+npm run dev
+    \end{verbatim}
+    El servidor escuchará en \texttt{http://localhost:4000}. Verificar con \texttt{curl http://localhost:4000/}: debe devolver \texttt{\{"mensaje":"Backend de NeoCare funcionando correctamente"\}}.
+
+    \item En otra terminal, instalar dependencias del frontend:
+    \begin{verbatim}
+cd ../frontend
+npm install
+    \end{verbatim}
+
+    \item Configurar la URL del backend para el frontend. Crear \texttt{frontend/.env}:
+    \begin{verbatim}
+VITE_API_URL=http://localhost:4000/api
+    \end{verbatim}
+
+    \item Arrancar el frontend en modo desarrollo:
+    \begin{verbatim}
+npm run dev
+    \end{verbatim}
+    Vite servirá la aplicación en \texttt{http://localhost:5173}.
+
+    \item Verificar la integración. Abrir \texttt{http://localhost:5173}, registrar un usuario de prueba, completar el formulario y confirmar que la página de resultado muestra la clasificación.
+\end{enumerate}
+
+\subsubsection{Entorno de producción con \texttt{deploy.sh}}
+
+El repositorio incluye un script \texttt{deploy.sh} que automatiza el despliegue completo en un servidor GNU/Linux con Docker y PM2. Los pasos que ejecuta son:
+
+\begin{enumerate}
+    \item Elimina los procesos PM2 y contenedores previos del proyecto.
+    \item Clona el repositorio en \texttt{/var/www/neocare.enlatribuna.com/private/neocare}.
+    \item Genera un \texttt{docker-compose.yml} para PostgreSQL con el contenedor \texttt{neocare-postgres} expuesto en el puerto \texttt{5434}.
+    \item Crea los archivos \texttt{backend/.env} y \texttt{frontend/.env} con la configuración de producción (puerto \texttt{3002} para el backend, \texttt{VITE\_API\_URL} apuntando al dominio público).
+    \item Inicializa la base de datos ejecutando \texttt{schema\_postgresql.sql} dentro del contenedor.
+    \item Construye el frontend con \texttt{npm run build} (genera \texttt{frontend/dist/}).
+    \item Crea un \texttt{ecosystem.config.js} para PM2 que ejecuta el backend (\texttt{node src/server.js}) y sirve el frontend con \texttt{npx serve -s dist -l 3003}.
+    \item Arranca los procesos y los persiste con \texttt{pm2 save}.
+\end{enumerate}
+
+\subsubsection{Entorno de producción manual}
+
+Si se requiere un control más fino que el ofrecido por \texttt{deploy.sh}, se recomienda la siguiente configuración:
+
+\begin{enumerate}
+    \item Construir el frontend: \texttt{cd frontend \&\& npm run build}. Copiar el contenido de \texttt{frontend/dist/} a un directorio servido por Nginx.
+    \item Configurar Nginx para servir los estáticos y hacer \textit{proxy\_pass} hacia el backend en \texttt{/api/}. Ejemplo mínimo de bloque \textit{location}:
+    \begin{verbatim}
+location /api/ {
+    proxy_pass http://127.0.0.1:3002/api/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+}
+    \end{verbatim}
+    \item Iniciar el backend con PM2: \texttt{pm2 start src/server.js --name neocare-backend}.
+    \item Habilitar HTTPS con Let's Encrypt (\texttt{certbot --nginx -d neocare.enlatribuna.com}).
+    \item Configurar respaldos automáticos de PostgreSQL con \texttt{pg\_dump} ejecutado por \texttt{cron} diariamente.
+\end{enumerate}
+
+\subsection{Requerimientos de software por capa}
+
+\begin{longtable}{p{0.30\textwidth}p{0.30\textwidth}p{0.30\textwidth}}
+\caption{Requerimientos de software por capa}\\\toprule
+\textbf{Capa} & \textbf{Software} & \textbf{Notas} \\\midrule
+\endhead
+Navegador & Chrome 120+, Firefox 120+, Edge 120+ & Soporte de \texttt{fetch}, \texttt{Promise} y \texttt{ES2022}.\\\hline
+Frontend & Node.js 18+, npm 9+ & Solo necesario para \textit{build}. El artefacto final es estático.\\\hline
+API REST & Node.js 18+, npm 9+ & Ejecución mediante \texttt{node src/server.js}.\\\hline
+Base de datos & PostgreSQL 12+ o MySQL 8+ & Selección por \texttt{DB\_TYPE} en \texttt{backend/.env}.\\\hline
+Contenedores (opcional) & Docker 24+, Docker Compose v2 & Recomendado para producción.\\\hline
+Gestor de procesos (opcional) & PM2 5+ & \textit{Zero-downtime reloads} y monitoreo.\\\hline
+Servidor web (opcional) & Nginx 1.24+ & \textit{Reverse proxy} y terminación TLS.\\\bottomrule
+\end{longtable}
+
+\subsection{Diagramas de modelado}
+
+\subsubsection{Diagrama de casos de uso}
+
+Los actores del sistema son tres: \textit{madre/cuidadora} (rol primario), \textit{personal académico o investigador} (rol de consulta) y \textit{administrador técnico} (rol de mantenimiento). La siguiente tabla documenta los catorce casos de uso identificados, alineados con los endpoints REST implementados.
+
+\begin{longtable}{p{0.20\textwidth}p{0.30\textwidth}p{0.40\textwidth}}
+\caption{Casos de uso del sistema}\\\toprule
+\textbf{Actor} & \textbf{Caso de uso} & \textbf{Descripción} \\\midrule
+\endhead
+Madre/cuidadora & Registrarse & Crea cuenta con datos personales, sociodemográficos, condiciones de cuidado y consentimiento.\\\hline
+Madre/cuidadora & Iniciar sesión & Autentica con correo y contraseña; obtiene token JWT.\\\hline
+Madre/cuidadora & Registrar recién nacido & Asocia un bebé con su perfil en la misma transacción.\\\hline
+Madre/cuidadora & Realizar evaluación de riesgo combinado & Obtiene clasificación bajo/medio/alto.\\\hline
+Madre/cuidadora & Consultar resultado & Visualiza puntajes y recomendación.\\\hline
+Madre/cuidadora & Listar bebés & Ve todos los bebés asociados a su cuenta.\\\hline
+Madre/cuidadora & Ver detalle de bebé & Accede a las pestañas de triaje, seguimiento y vacunas.\\\hline
+Madre/cuidadora & Realizar triaje neonatal & Marca signos de alarma y obtiene clasificación Bajo/Moderado/Alto.\\\hline
+Madre/cuidadora & Registrar seguimiento diario & Completa la bitácora de 5 días con 17 ítems.\\\hline
+Madre/cuidadora & Consultar plan de vacunas & Visualiza el esquema PAI personalizado.\\\hline
+Madre/cuidadora & Actualizar estado de vacuna & Marca una vacuna como aplicada.\\\hline
+Madre/cuidadora & Consultar controles de niño sano & Ve el plan y la curva percentilar.\\\hline
+Madre/cuidadora & Consultar educación & Accede a la biblioteca de temas.\\\hline
+Personal académico & Consultar evaluaciones y registros & Revisa datos para validación.\\\hline
+Administrador técnico & Mantener el sistema & Configura API, base de datos y despliegue.\\\hline
+Administrador técnico & Ejecutar migraciones SQL & Aplica el \texttt{schema} en nuevos entornos.\\\bottomrule
+\end{longtable}
+
+\subsubsection{Modelo de clases del sistema}
+
+El sistema se compone de las clases/entidades descritas en la siguiente tabla. Las entidades marcadas como \textit{persistente} corresponden a tablas físicas; las marcadas como \textit{servicio} encapsulan lógica de negocio sin estado propio.
+
+\begin{longtable}{p{0.22\textwidth}p{0.40\textwidth}p{0.28\textwidth}}
+\caption{Clases del sistema}\\\toprule
+\textbf{Clase / entidad} & \textbf{Atributos principales} & \textbf{Tipo} \\\midrule
+\endhead
+MadreCuidador & id, nombre, edad, telefono, correoElectronico, contrasenaHash, numeroIdentificacion, nivelEducacion, zonaResidencia, accesoCentroSalud, situacionEconomica, relacionBebe, numeroHijos, tieneDosOMasHijos, esMadreSola, tieneApoyoFamiliar, apoyoPrincipal, esMadrePrimeriza, aceptacionTerminos & Persistente\\\hline
+RecienNacido & id, madreId, nombreBebe, fechaNacimiento, pesoAlNacer, edadGestacional, sexo, tipoParto, complicacionesAlNacer, especificacionComplicaciones, hospitalizacionNeonatal, motivoHospitalizacion, duracionHospitalizacion, requirioCuidadosEspeciales, tipoCuidadoRecibido & Persistente\\\hline
+EvaluacionRiesgoBebe & id, bebeId, fechaEvaluacion, 13 signos booleanos, puntuacionTotal, nivelRiesgo & Persistente\\\hline
+SeguimientoDiarioNeonato & id, bebeId, evaluacionRiesgoId, diaSeguimiento, 17 ítems, resultadoEvolucion & Persistente\\\hline
+VacunacionNeonato & id, bebeId, nombreVacuna, dosis, fechaProgramada, fechaAplicacion, estado & Persistente\\\hline
+ControlNinoSano & id, bebeId, fechaControl, pesoKg, tallaCm, perimetroCefalicoCm, observaciones, estado & Persistente\\\hline
+BitacoraEmocional & id, madreId, nivelAnimo, nivelAnsiedad, nivelCansancio, notaDiaria, sintomasFisicos & Persistente\\\hline
+EvaluacionEPDS & id, madreId, p1..p10, puntuacionTotal & Persistente\\\hline
+BitacoraCuidadoBebe & id, bebeId, tipoRegistro, detalles, observaciones & Persistente\\\hline
+BibliotecaEducativa & id, titulo, tema, urlRecurso, fuenteReferencia, descripcion & Persistente\\\hline
+NotificacionAlerta & id, bebeId, tipoAlerta, mensaje, fechaEnvio, leido & Persistente\\\hline
+TriajeService & catalogoSignos, calcularTriaje, listarCatalogo & Servicio\\\hline
+SeguimientoService & items, clasificarDiaSeguimiento, resumirSeguimiento & Servicio\\\hline
+VacunasControlesService & esquemaVacunas, esquemaControles, generarPlan, clasificarPeso & Servicio\\\hline
+RiesgoService & calcularRiesgoMaterno, calcularRiesgoNeonatal, calcularRiesgoCombinado, evaluarRegistro, calcularEdadActual & Servicio\\\hline
+ApiClient (frontend) & crearRegistro, loginUsuario, listarBebes, obtenerBebeDetalle, obtenerTriajeBebe, obtenerSeguimientoBebe, obtenerVacunasControlesBebe & Cliente HTTP\\\bottomrule
+\end{longtable}
+
+\subsection{Diseño lógico y físico de la base de datos}
+
+\subsubsection{Diseño lógico}
+
+El modelo relacional de NeoCare se articula en torno a la relación \textbf{1 a N} entre la madre/cuidadora y sus recién nacidos. Esta decisión permite modelar casos reales como gemelos o embarazos sucesivos sin duplicar la información sociodemográfica de la madre. Los recién nacidos, a su vez, son la entidad raíz de cinco módulos clínicos adicionales (triaje, seguimiento, vacunación, controles y bitácora de cuidado), cada uno relacionado 1 a N con la tabla \texttt{recien\_nacidos} mediante claves foráneas con borrado en cascada. La madre, además, sostiene dos tablas propias: \texttt{bitacora\_emocional} (estado de ánimo diario) y \texttt{evaluaciones\_epds} (Escala de Depresión Posparto de Edimburgo). Por último, \texttt{biblioteca\_educativa} y \texttt{notificaciones\_alertas} operan como catálogos e historiales globales, respectivamente.
+
+El siguiente esquema resume las entidades y sus relaciones:
+
+\begin{itemize}
+    \item \texttt{madres\_cuidadores} \textbf{1} --- \textbf{N} \texttt{recien\_nacidos} (FK \texttt{madre\_id}, CASCADE).
+    \item \texttt{madres\_cuidadores} \textbf{1} --- \textbf{N} \texttt{bitacora\_emocional} (FK \texttt{madre\_id}, CASCADE).
+    \item \texttt{madres\_cuidadores} \textbf{1} --- \textbf{N} \texttt{evaluaciones\_epds} (FK \texttt{madre\_id}, CASCADE).
+    \item \texttt{recien\_nacidos} \textbf{1} --- \textbf{N} \texttt{bitacora\_cuidad\_bebe} (FK \texttt{bebe\_id}, CASCADE).
+    \item \texttt{recien\_nacidos} \textbf{1} --- \textbf{N} \texttt{evaluaciones\_riesgo\_bebe} (FK \texttt{bebe\_id}, CASCADE).
+    \item \texttt{recien\_nacidos} \textbf{1} --- \textbf{N} \texttt{seguimiento\_diario\_neonato} (FK \texttt{bebe\_id}, CASCADE).
+    \item \texttt{recien\_nacidos} \textbf{1} --- \textbf{N} \texttt{vacunacion\_neonato} (FK \texttt{bebe\_id}, CASCADE).
+    \item \texttt{recien\_nacidos} \textbf{1} --- \textbf{N} \texttt{controles\_nino\_sano} (FK \texttt{bebe\_id}, CASCADE).
+    \item \texttt{recien\_nacidos} \textbf{1} --- \textbf{N} \texttt{notificaciones\_alertas} (FK \texttt{bebe\_id}, CASCADE).
+    \item \texttt{evaluaciones\_riesgo\_bebe} \textbf{1} --- \textbf{N} \texttt{seguimiento\_diario\_neonato} (FK \texttt{evaluacion\_riesgo\_id}, CASCADE).
+\end{itemize}
+
+\subsubsection{Diseño físico}
+
+El diseño físico implementa cada tabla con su clave primaria \texttt{SERIAL} (PostgreSQL) o \texttt{AUTO\_INCREMENT} (MySQL), restricciones \textit{CHECK} para validar rangos clínicos y de formato, índices por clave foránea para optimizar \textit{joins} y \texttt{WHERE}, y un índice único sobre el correo electrónico de la madre para impedir duplicados. El DDL completo se encuentra en \texttt{backend/database/schema\_postgresql.sql} y \texttt{backend/database/schema\_mysql.sql}; los dos scripts producen el mismo modelo lógico. Las diferencias sintácticas se resuelven en tiempo de ejecución por el helper \texttt{prepareMysqlQuery()} de \texttt{db.js}, que elimina la cláusula \texttt{RETURNING} y traduce los placeholders \texttt{\$1, \$2, \ldots} a \texttt{?}.
+
+Las restricciones de integridad relevantes son:
+
+\begin{itemize}
+    \item \texttt{chk\_consentimiento} en \texttt{madres\_cuidadores}: garantiza \texttt{aceptacion\_terminos = TRUE} en toda fila.
+    \item \texttt{chk\_consistencia\_dos\_hijos}: fuerza que \texttt{tiene\_dos\_o\_mas\_hijos} sea coherente con \texttt{numero\_hijos}.
+    \item \texttt{chk\_especificacion\_complicaciones}: si \texttt{complicaciones\_al\_nacer = TRUE}, entonces \texttt{especificacion\_complicaciones} debe tener al menos dos caracteres.
+    \item \texttt{chk\_consistencia\_puntuacion} y \texttt{chk\_consistencia\_nivel} en \texttt{evaluaciones\_riesgo\_bebe}: fuerzan que la \texttt{puntuacion\_total} sea exactamente la suma ponderada de los signos y que el \texttt{nivel\_riesgo} corresponda al rango 0--2 (Bajo), 3--5 (Moderado) o $\geq$6 (Alto).
+    \item \texttt{chk\_seg\_dia} y \texttt{uq\_bebe\_dia\_triaje} en \texttt{seguimiento\_diario\_neonato}: limitan el seguimiento a cinco días por evaluación y prohíben duplicados.
+    \item \texttt{chk\_v\_vac\_estado} en \texttt{vacunacion\_neonato}: restringe el campo \texttt{estado} a los valores \texttt{Pendiente}, \texttt{Aplicada} o \texttt{Atrasada}.
+    \item Expresiones regulares \texttt{\textasciitilde} para \texttt{telefono} y \texttt{correo\_electronico}.
+\end{itemize}
+
+\subsection{Diccionario de datos}
+
+El diccionario describe todos los campos de las once tablas, agrupados por tabla. Para cada campo se indica tipo de dato físico, restricciones relevantes y propósito. La columna \textit{Obs.} documenta la lógica de negocio específica cuando aplica.
+
+\subsubsection{Tabla \texttt{madres\_cuidadores}}
+
+\begin{longtable}{p{0.24\textwidth}p{0.16\textwidth}p{0.50\textwidth}}
+\caption{Diccionario de datos -- \texttt{madres\_cuidadores}}\\\toprule
+\textbf{Campo} & \textbf{Tipo} & \textbf{Descripción y restricciones} \\\midrule
+\endhead
+\texttt{id} & SERIAL & Identificador único (PK).\\\hline
+\texttt{nombre} & VARCHAR(150) NOT NULL & Nombre completo; $\geq$2 caracteres (\texttt{chk\_nombre\_madre}).\\\hline
+\texttt{edad} & INTEGER NOT NULL & Edad en años; rango 12--60 (\texttt{chk\_edad}).\\\hline
+\texttt{telefono} & VARCHAR(15) NOT NULL & 10--15 dígitos, sólo numéricos (\texttt{chk\_telefono}).\\\hline
+\texttt{correo\_electronico} & VARCHAR(255) NOT NULL & Formato válido; único (\texttt{idx\_madres\_correo}).\\\hline
+\texttt{contrasena\_hash} & VARCHAR(255) NOT NULL & Hash \texttt{bcrypt} con \textit{salt}.\\\hline
+\texttt{numero\_identificacion} & VARCHAR(30) NOT NULL & Cédula o DNI.\\\hline
+\texttt{nivel\_educacion} & VARCHAR(20) NOT NULL & Enumerado: \texttt{Ninguno, Básico, Básica, Secundaria, Medio, Superior}.\\\hline
+\texttt{zona\_residencia} & VARCHAR(10) NOT NULL & Enumerado: \texttt{Urbana, Rural}.\\\hline
+\texttt{acceso\_centro\_salud} & BOOLEAN NOT NULL & TRUE si tiene acceso regular.\\\hline
+\texttt{situacion\_economica} & VARCHAR(15) NOT NULL & Enumerado: \texttt{Baja, Media, Alta, Estable}.\\\hline
+\texttt{relacion\_bebe} & VARCHAR(50) NOT NULL & Relación con el recién nacido.\\\hline
+\texttt{numero\_hijos} & INTEGER NOT NULL & Cantidad de hijos; rango 0--10.\\\hline
+\texttt{tiene\_dos\_o\_mas\_hijos} & BOOLEAN NOT NULL & Coherente con \texttt{numero\_hijos} (\texttt{chk\_consistencia\_dos\_hijos}).\\\hline
+\texttt{es\_madre\_sola} & BOOLEAN NOT NULL & TRUE si cuida sin pareja.\\\hline
+\texttt{tiene\_apoyo\_familiar} & BOOLEAN NOT NULL & TRUE si recibe apoyo.\\\hline
+\texttt{apoyo\_principal} & VARCHAR(50) NOT NULL & Persona o institución de apoyo.\\\hline
+\texttt{es\_madre\_primeriza} & BOOLEAN NOT NULL & TRUE si es la primera vez.\\\hline
+\texttt{aceptacion\_terminos} & BOOLEAN NOT NULL & Consentimiento informado; debe ser TRUE.\\\hline
+\texttt{creado\_en} & TIMESTAMP & Fecha de creación (auditoría).\\\hline
+\texttt{actualizado\_en} & TIMESTAMP & Fecha de última modificación.\\\bottomrule
+\end{longtable}
+
+\subsubsection{Tabla \texttt{recien\_nacidos}}
+
+\begin{longtable}{p{0.24\textwidth}p{0.16\textwidth}p{0.50\textwidth}}
+\caption{Diccionario de datos -- \texttt{recien\_nacidos}}\\\toprule
+\textbf{Campo} & \textbf{Tipo} & \textbf{Descripción y restricciones} \\\midrule
+\endhead
+\texttt{id} & SERIAL & Identificador único (PK).\\\hline
+\texttt{madre\_id} & INTEGER NOT NULL & FK a \texttt{madres\_cuidadores.id}, CASCADE.\\\hline
+\texttt{nombre\_bebe} & VARCHAR(150) NOT NULL & Nombre; $\geq$2 caracteres.\\\hline
+\texttt{fecha\_nacimiento} & DATE NOT NULL & No futura (\texttt{chk\_fecha\_nacimiento}).\\\hline
+\texttt{peso\_al\_nacer} & NUMERIC(3,2) NOT NULL & En kg; rango 1.0--5.0.\\\hline
+\texttt{edad\_gestacional} & INTEGER NOT NULL & Semanas; rango 24--42.\\\hline
+\texttt{sexo} & VARCHAR(10) NOT NULL & Enumerado: \texttt{Masculino, Femenino}.\\\hline
+\texttt{tipo\_parto} & VARCHAR(30) NOT NULL & Enumerado: \texttt{Vaginal, Cesárea, Vaginal instrumentado}.\\\hline
+\texttt{complicaciones\_al\_nacer} & BOOLEAN NOT NULL & TRUE si hubo complicaciones.\\\hline
+\texttt{especificacion\_complicaciones} & TEXT & Requerida si \texttt{complicaciones\_al\_nacer = TRUE}.\\\hline
+\texttt{hospitalizacion\_neonatal} & BOOLEAN NOT NULL & TRUE si hubo hospitalización.\\\hline
+\texttt{motivo\_hospitalizacion} & TEXT & Detalle del motivo.\\\hline
+\texttt{duracion\_hospitalizacion} & VARCHAR(50) & Texto libre: ``1 día'', ``2--3 días'', ``más de 3 días''.\\\hline
+\texttt{requirio\_cuidados\_especiales} & VARCHAR(20) & \texttt{Sí, No, No lo sé}.\\\hline
+\texttt{tipo\_cuidado\_recibido} & VARCHAR(100) & \texttt{Oxígeno, Incubadora, Fototerapia, Antibióticos, Otro}.\\\hline
+\texttt{creado\_en} & TIMESTAMP & Auditoría.\\\bottomrule
+\end{longtable}
+
+\subsubsection{Tabla \texttt{evaluaciones\_riesgo\_bebe}}
+
+\begin{longtable}{p{0.30\textwidth}p{0.14\textwidth}p{0.46\textwidth}}
+\caption{Diccionario de datos -- \texttt{evaluaciones\_riesgo\_bebe}}\\\toprule
+\textbf{Campo} & \textbf{Tipo} & \textbf{Descripción} \\\midrule
+\endhead
+\texttt{id} & SERIAL & PK.\\\hline
+\texttt{bebe\_id} & INTEGER NOT NULL & FK a \texttt{recien\_nacidos.id}, CASCADE.\\\hline
+\texttt{fecha\_evaluacion} & TIMESTAMP & Fecha del triaje (default NOW).\\\hline
+\texttt{convulsiones} & BOOLEAN NOT NULL & Signo de alto riesgo (3 ptos).\\\hline
+\texttt{dificultad\_respiratoria} & BOOLEAN NOT NULL & Signo de alto riesgo (3 ptos).\\\hline
+\texttt{coloracion\_azulada} & BOOLEAN NOT NULL & Signo de alto riesgo (3 ptos).\\\hline
+\texttt{fiebre\_hipotermia} & BOOLEAN NOT NULL & Signo de alto riesgo (3 ptos).\\\hline
+\texttt{rechazo\_alimentacion} & BOOLEAN NOT NULL & Signo de alto riesgo (3 ptos).\\\hline
+\texttt{disminucion\_conciencia} & BOOLEAN NOT NULL & Signo de alto riesgo (3 ptos).\\\hline
+\texttt{vomitos\_repetitivos} & BOOLEAN NOT NULL & Riesgo moderado (2 ptos).\\\hline
+\texttt{ictericia\_progresiva} & BOOLEAN NOT NULL & Riesgo moderado (2 ptos).\\\hline
+\texttt{disminucion\_actividad} & BOOLEAN NOT NULL & Riesgo moderado (2 ptos).\\\hline
+\texttt{llanto\_persistente} & BOOLEAN NOT NULL & Riesgo moderado (2 ptos).\\\hline
+\texttt{alteraciones\_sueno} & BOOLEAN NOT NULL & Riesgo bajo (1 pto).\\\hline
+\texttt{disminucion\_apetito} & BOOLEAN NOT NULL & Riesgo bajo (1 pto).\\\hline
+\texttt{irritabilidad\_ocasional} & BOOLEAN NOT NULL & Riesgo bajo (1 pto).\\\hline
+\texttt{puntuacion\_total} & INTEGER NOT NULL & Suma ponderada; rango 0--29.\\\hline
+\texttt{nivel\_riesgo} & VARCHAR(15) NOT NULL & \texttt{Bajo, Moderado, Alto}.\\\bottomrule
+\end{longtable}
+
+\subsubsection{Tabla \texttt{seguimiento\_diario\_neonato}}
+
+\begin{longtable}{p{0.32\textwidth}p{0.18\textwidth}p{0.40\textwidth}}
+\caption{Diccionario de datos -- \texttt{seguimiento\_diario\_neonato}}\\\toprule
+\textbf{Campo} & \textbf{Tipo} & \textbf{Descripción} \\\midrule
+\endhead
+\texttt{id} & SERIAL & PK.\\\hline
+\texttt{bebe\_id} & INTEGER NOT NULL & FK a \texttt{recien\_nacidos.id}.\\\hline
+\texttt{evaluacion\_riesgo\_id} & INTEGER NOT NULL & FK a \texttt{evaluaciones\_riesgo\_bebe.id}.\\\hline
+\texttt{dia\_seguimiento} & INTEGER NOT NULL & Rango 1--5; único por triaje (\texttt{uq\_bebe\_dia\_triaje}).\\\hline
+\texttt{fecha\_registro} & TIMESTAMP & Fecha del registro.\\\hline
+\texttt{alimentacion\_normal} & VARCHAR(15) NOT NULL & Escala: \texttt{Mejoró, Igual, Empeoró, Sí, No}.\\\hline
+\texttt{alimentacion\_rechazo} & VARCHAR(15) NOT NULL & Ídem.\\\hline
+\texttt{temperatura\_fiebre} & VARCHAR(15) NOT NULL & Ídem.\\\hline
+\texttt{temperatura\_frio} & VARCHAR(15) NOT NULL & Ídem.\\\hline
+\texttt{actividad\_normal} & VARCHAR(15) NOT NULL & Ídem.\\\hline
+\texttt{actividad\_letargo} & VARCHAR(15) NOT NULL & Ídem.\\\hline
+\texttt{respiracion\_normal} & VARCHAR(15) NOT NULL & Ídem.\\\hline
+\texttt{respiracion\_dificultad} & VARCHAR(15) NOT NULL & Ídem.\\\hline
+\texttt{piel\_normal} & VARCHAR(15) NOT NULL & Ídem.\\\hline
+\texttt{piel\_alteracion} & VARCHAR(15) NOT NULL & Ídem.\\\hline
+\texttt{eliminacion\_panales} & VARCHAR(15) NOT NULL & Ídem.\\\hline
+\texttt{eliminacion\_deposiciones} & VARCHAR(15) NOT NULL & Ídem.\\\hline
+\texttt{llanto\_normal} & VARCHAR(15) NOT NULL & Ídem.\\\hline
+\texttt{llanto\_alteracion} & VARCHAR(15) NOT NULL & Ídem.\\\hline
+\texttt{alarma\_convulsiones} & VARCHAR(15) NOT NULL & Ídem.\\\hline
+\texttt{alarma\_vomito} & VARCHAR(15) NOT NULL & Ídem.\\\hline
+\texttt{alarma\_empeoramiento} & VARCHAR(15) NOT NULL & Ídem.\\\hline
+\texttt{resultado\_evolucion} & VARCHAR(10) NOT NULL & \texttt{Verde, Amarillo, Rojo}.\\\bottomrule
+\end{longtable}
+
+\subsubsection{Tablas \texttt{vacunacion\_neonato} y \texttt{controles\_nino\_sano}}
+
+\begin{longtable}{p{0.32\textwidth}p{0.18\textwidth}p{0.40\textwidth}}
+\caption{Diccionario de datos -- \texttt{vacunacion\_neonato}}\\\toprule
+\textbf{Campo} & \textbf{Tipo} & \textbf{Descripción} \\\midrule
+\endhead
+\texttt{id} & SERIAL & PK.\\\hline
+\texttt{bebe\_id} & INTEGER NOT NULL & FK CASCADE.\\\hline
+\texttt{nombre\_vacuna} & VARCHAR(100) NOT NULL & Catálogo PAI.\\\hline
+\texttt{dosis} & VARCHAR(50) NOT NULL & \texttt{Única, Primera, Segunda, Tercera}.\\\hline
+\texttt{fecha\_programada} & DATE NOT NULL & Calculada por \texttt{VacunasControlesService}.\\\hline
+\texttt{fecha\_aplicacion} & DATE & No futura (\texttt{chk\_vac\_fecha}).\\\hline
+\texttt{estado} & VARCHAR(20) NOT NULL & \texttt{Pendiente, Aplicada, Atrasada}.\\\hline
+\texttt{creado\_en} & TIMESTAMP & Auditoría.\\\hline
+\texttt{actualizado\_en} & TIMESTAMP & Auditoría.\\\bottomrule
+\end{longtable}
+
+\begin{longtable}{p{0.32\textwidth}p{0.18\textwidth}p{0.40\textwidth}}
+\caption{Diccionario de datos -- \texttt{controles\_nino\_sano}}\\\toprule
+\textbf{Campo} & \textbf{Tipo} & \textbf{Descripción} \\\midrule
+\endhead
+\texttt{id} & SERIAL & PK.\\\hline
+\texttt{bebe\_id} & INTEGER NOT NULL & FK CASCADE.\\\hline
+\texttt{fecha\_control} & DATE NOT NULL & No futura.\\\hline
+\texttt{peso\_kg} & NUMERIC(4,2) NOT NULL & Rango 1.00--25.00.\\\hline
+\texttt{talla\_cm} & NUMERIC(4,1) NOT NULL & Rango 30.0--120.0.\\\hline
+\texttt{perimetro\_cefalico\_cm} & NUMERIC(4,1) NOT NULL & Rango 25.0--60.0.\\\hline
+\texttt{observaciones} & TEXT & Notas del clínico.\\\hline
+\texttt{estado} & VARCHAR(20) NOT NULL & \texttt{Programado, Realizado, Cancelado}.\\\hline
+\texttt{creado\_en} & TIMESTAMP & Auditoría.\\\bottomrule
+\end{longtable}
+
+\subsubsection{Tablas auxiliares}
+
+\begin{longtable}{p{0.32\textwidth}p{0.20\textwidth}p{0.38\textwidth}}
+\caption{Diccionario de datos -- tablas auxiliares}\\\toprule
+\textbf{Tabla} & \textbf{Campos principales} & \textbf{Propósito} \\\midrule
+\endhead
+\texttt{bitacora\_emocional} & id, madreId, nivelAnimo (1--5), nivelAnsiedad (1--5), nivelCansancio (1--5), notaDiaria, sintomasFisicos (JSONB), fechaRegistro & Registro periódico del estado emocional de la madre.\\\hline
+\texttt{evaluaciones\_epds} & id, madreId, p1..p10 (0--3), puntuacionTotal (0--30), fechaEvaluacion & Aplicación de la Escala de Depresión Posparto de Edimburgo (Cox, Holden \& Sagovsky, 1987).\\\hline
+\texttt{bitacora\_cuidado\_bebe} & id, bebeId, tipoRegistro (\texttt{Alimentacion, Sueno, Panal, Sintomas, Otro}), detalles (JSONB), observaciones, fechaRegistro & Bitácora diaria de actividades del bebé.\\\hline
+\texttt{biblioteca\_educativa} & id, titulo, tema, urlRecurso, fuenteReferencia (\texttt{OMS, OPS, UNICEF, AEP, KidsHealth, WIC}), descripcion & Catálogo de recursos educativos.\\\hline
+\texttt{notificaciones\_alertas} & id, bebeId, tipoAlerta (\texttt{Vacunacion, Control Nino Sano, Reevaluacion Triaje, Seguimiento Diario, Educativa}), mensaje, fechaEnvio, leido & Historial de alertas y recordatorios.\\\bottomrule
+\end{longtable}
+
+\subsection{Estructura e interrelación de los diferentes módulos}
+
+El sistema se estructura en cinco capas desacopladas, cada una con responsabilidades bien delimitadas. La comunicación siempre es unidireccional hacia abajo (la capa superior invoca a la inferior, pero nunca al revés).
+
+\subsubsection{Capa de presentación (frontend)}
+
+\begin{itemize}
+    \item \textbf{Componentes estructurales:} \texttt{Header.jsx}, \texttt{Header2.jsx}, \texttt{Footer.jsx}, \texttt{SidebarNeoCare.jsx}. Proveen la barra de navegación principal, la barra de usuario autenticado, el pie de página y el menú lateral.
+    \item \textbf{Páginas de acceso público:} \texttt{Welcome}, \texttt{Register}, \texttt{Login}, \texttt{Services}, \texttt{About}, \texttt{Contact}, \texttt{Education}, \texttt{TopicDetail}.
+    \item \textbf{Páginas autenticadas:} \texttt{Home}, \texttt{UserHome}, \texttt{Profile}, \texttt{History}, \texttt{AllEvaluations}, \texttt{Bebes}, \texttt{BebeDetalle}, \texttt{EducacionTriaje}, \texttt{EducacionSeguimiento}, \texttt{EducacionVacunas}.
+    \item \textbf{Página interna:} \texttt{Evaluation} (ruta \texttt{/evaluacion}, excluida del header principal porque sólo se invoca desde el flujo de registro).
+\end{itemize}
+
+\subsubsection{Capa de comunicación (servicio API del frontend)}
+
+\texttt{frontend/src/services/api.js} centraliza las nueve funciones que consumen la API REST. Cada función abstrae los detalles del \texttt{fetch} (URL base desde \texttt{VITE\_API\_URL}, método, cabeceras, parseo de JSON y manejo de errores). Las funciones se agrupan en:
+
+\begin{itemize}
+    \item \textbf{Registro y autenticación:} \texttt{crearRegistro}, \texttt{loginUsuario}, \texttt{obtenerRegistros}, \texttt{obtenerRegistroPorId}.
+    \item \textbf{Gestión de bebés:} \texttt{listarBebes}, \texttt{obtenerBebeDetalle}.
+    \item \textbf{Módulos educativos del bebé:} \texttt{obtenerModuloEducativo}, \texttt{obtenerTriajeBebe}, \texttt{obtenerSeguimientoBebe}, \texttt{obtenerVacunasControlesBebe}.
+\end{itemize}
+
+\subsubsection{Capa de enrutamiento HTTP (backend)}
+
+\begin{itemize}
+    \item \texttt{backend/src/routes/registroRoutes.js}: monta los endpoints de registro, login y consulta de registros bajo \texttt{/api}.
+    \item \texttt{backend/src/routes/bebesRoutes.js}: monta los diez endpoints del módulo de bebés, separados en rutas de lectura (\texttt{GET}) y escritura (\texttt{POST}).
+\end{itemize}
+
+\subsubsection{Capa de controladores (backend)}
+
+\begin{itemize}
+    \item \texttt{registroController.js} (420 LOC): implementa \texttt{crearRegistro}, \texttt{loginUsuario}, \texttt{obtenerRegistros}, \texttt{obtenerRegistroPorId}. La función \texttt{crearRegistro} es la más compleja: normaliza los nombres de campos entre \texttt{camelCase} y \texttt{snake\_case}, valida los campos obligatorios, verifica el consentimiento, hashea la contraseña con \texttt{bcrypt}, ejecuta la transacción de inserción de madre y bebé, calcula el riesgo combinado, emite el token JWT y devuelve un payload formateado para el frontend.
+    \item \texttt{bebesController.js} (918 LOC): implementa los once manejadores de los módulos clínicos. \texttt{obtenerModuloEducativoCompleto} consolida triaje, seguimiento y vacunas en una sola respuesta para alimentar la vista \texttt{BebeDetalle}.
+\end{itemize}
+
+\subsubsection{Capa de servicios de negocio (backend)}
+
+\begin{itemize}
+    \item \textbf{\texttt{riesgoService.js}:} implementa los algoritmos \texttt{calcularRiesgoMaterno}, \texttt{calcularRiesgoNeonatal}, \texttt{calcularRiesgoCombinado}, \texttt{evaluarRegistro} y \texttt{calcularEdadActual}. Las reglas de puntuación son inmutables y se documentan en el archivo (cada variable sumada al puntaje lleva un comentario con la justificación clínica o demográfica).
+    \item \textbf{\texttt{triajeEducativoService.js}:} mantiene el catálogo de 13 signos, normaliza aliases (por ejemplo, ``dificultad para respirar'' $\to$ \texttt{dificultadRespiratoria}) y aplica las reglas de clasificación: cualquier signo de alto riesgo $\Rightarrow$ Alto; 6 o más puntos $\Rightarrow$ Alto; 3--5 puntos $\Rightarrow$ Moderado; 0--2 puntos $\Rightarrow$ Bajo.
+    \item \textbf{\texttt{seguimientoService.js}:} define los 17 ítems del seguimiento diario, valida que los valores pertenezcan al dominio permitido, clasifica cada día en \texttt{Verde, Amarillo, Rojo} según las reglas \textit{cualquier ``Empeoró'' $\Rightarrow$ Rojo; tres o más ``Igual'' $\Rightarrow$ Amarillo; resto $\Rightarrow$ Verde}, y produce un resumen agregado con tendencia (Mejora/Estable/Empeora).
+    \item \textbf{\texttt{vacunasControlesService.js}:} contiene el esquema PAI con 15 vacunas y 7 controles, genera el plan personalizado calculando fechas tentativas a partir de la fecha de nacimiento, determina el estado (\texttt{Pendiente, Aplicada, Atrasada}) y clasifica el peso del bebé en categorías percentilares \textit{like-OMS} (Bajo peso severo, Bajo peso, Normal, Riesgo de sobrepeso, Sobrepeso).
+\end{itemize}
+
+\subsubsection{Capa de persistencia (backend)}
+
+\begin{itemize}
+    \item \texttt{db.js} mantiene un \textit{pool} de conexiones para PostgreSQL (\texttt{pg.Pool}) o MySQL (\texttt{mysql2.createPool}), según \texttt{DB\_TYPE}. Exporta dos funciones: \texttt{query(text, params)} para consultas simples y \texttt{transaction(callback)} para transacciones, ambas agnósticas al motor.
+    \item El helper \texttt{prepareMysqlQuery} realiza dos transformaciones: traduce placeholders \texttt{\$1, \$2, \ldots} a \texttt{?} y elimina la cláusula \texttt{RETURNING} (no soportada en MySQL).
+    \item El sistema no usa un ORM; las consultas SQL se mantienen inline en los controladores para preservar el control sobre el rendimiento y la portabilidad.
+\end{itemize}
+
+\subsubsection{Interrelación entre módulos}
+
+El siguiente diagrama de dependencias expresa cómo una página del frontend puede terminar invocando un servicio de negocio del backend:
+
+\begin{enumerate}
+    \item \texttt{Register.jsx} $\to$ \texttt{api.crearRegistro} $\to$ \texttt{POST /api/registro} $\to$ \texttt{registroController.crearRegistro} $\to$ \texttt{riesgoService.evaluarRegistro} $\to$ \texttt{db.transaction}.
+    \item \texttt{Bebes.jsx} $\to$ \texttt{api.listarBebes} $\to$ \texttt{GET /api/bebes} $\to$ \texttt{bebesController.listarBebes} $\to$ \texttt{db.query} (dos consultas por bebé para la última evaluación).
+    \item \texttt{BebeDetalle.jsx} $\to$ \texttt{api.obtenerModuloEducativo} $\to$ \texttt{GET /api/bebes/:id/modulo-educativo} $\to$ \texttt{bebesController.obtenerModuloEducativoCompleto} $\to$ \texttt{triajeEducativoService}, \texttt{seguimientoService}, \texttt{vacunasControlesService} $\to$ \texttt{db.query}.
+    \item \texttt{EducacionTriaje.jsx} $\to$ \texttt{POST /api/bebes/:id/triaje} $\to$ \texttt{bebesController.guardarTriajeBebe} $\to$ \texttt{triajeEducativoService.calcularTriaje} $\to$ \texttt{db.query} (insert).
+\end{enumerate}
+
+\subsection{Pruebas realizadas}
+
+Esta sección documenta las pruebas ejecutadas durante el ciclo de desarrollo de NeoCare v2.0, organizadas según la estrategia de prueba. Cada entrada respeta el formato APA 6 solicitado: \textit{nombre de la prueba}, \textit{objetivo}, \textit{tipo de estrategia}, \textit{resultado}, \textit{cambio realizado} (cuando el resultado fue positivo a un defecto) y \textit{nuevo resultado}. Las referencias bibliográficas en el cuerpo de las pruebas siguen el estilo autor--año.
+
+\subsubsection{Pruebas unitarias}
+
+Las pruebas unitarias verifican funciones puras de los servicios del backend, sin interacción con la base de datos ni con la red.
+
+\begin{longtable}{p{0.18\textwidth}p{0.26\textwidth}p{0.18\textwidth}p{0.30\textwidth}}
+\caption{Pruebas unitarias}\\\toprule
+\textbf{Nombre} & \textbf{Objetivo} & \textbf{Estrategia} & \textbf{Resultado y ajuste} \\\midrule
+\endhead
+Cálculo de puntaje materno bajo & Verificar que una madre sin factores de riesgo obtenga clasificación ``Bajo'' y código \texttt{RM\_LOW}. & Unitaria de función pura & \textbf{Resultado positivo:} con una madre de 25 años, nivel educativo Superior, zona Urbana, con acceso a salud, con apoyo familiar y con situación económica Media, el puntaje fue 0 y la clasificación ``Bajo'' como se esperaba. Sin cambio.\\\hline
+Cálculo de puntaje materno alto & Verificar la regla de ``$\geq$7 puntos = Alto''. & Unitaria de función pura & \textbf{Resultado positivo:} madre de 16 años, con educación Básica, en zona Rural, sin acceso, madre sola, sin apoyo y de situación económica Baja. Puntaje: 3 + 1 + 1 + 3 + 3 + 2 + 2 = 15, clasificación ``Alto'', código \texttt{RM\_HIGH}. Sin cambio.\\\hline
+Cálculo de puntaje neonatal bajo & Verificar la clasificación con un bebé de término y peso normal. & Unitaria de función pura & \textbf{Resultado positivo:} bebé con edad gestacional 39 semanas y peso 3,2 kg, sin complicaciones y sin hospitalización. Puntaje 0, clasificación ``Bajo''. Sin cambio.\\\hline
+Cálculo de puntaje neonatal moderado & Verificar la regla de ``3--5 puntos = Medio''. & Unitaria de función pura & \textbf{Resultado positivo:} bebé con 36 semanas, 2,4 kg, sin complicaciones, sin hospitalización. Puntaje 3 + 3 = 6 $\to$ ``Alto'' (regla superada por $\geq$6). \textbf{Cambio realizado:} se confirmó que la regla es 0--2 Bajo, 3--5 Medio, $\geq$6 Alto y se documentó explícitamente en el comentario del servicio. \textbf{Nuevo resultado:} al pasar peso a 2,6 kg el puntaje fue 3 (``Medio''), validando la frontera.\\\hline
+Riesgo combinado madre alto + bebé alto & Verificar la regla de ``ambos altos = Alto, prioridad máxima''. & Unitaria de función pura & \textbf{Resultado positivo:} clasificación final ``Alto'' y recomendación ``Prioridad máxima. Se recomienda buscar valoración médica lo antes posible.'' Sin cambio.\\\hline
+Cálculo de edad actual del bebé & Verificar la conversión de fecha de nacimiento a un texto ``X meses y Y días''. & Unitaria de función pura & \textbf{Resultado positivo:} un bebé nacido el 2026-01-01 al día 2026-01-15 muestra ``14 días''. Sin cambio.\\\hline
+Triaje neonatal -- clasificación Bajo & Verificar que 0--2 puntos y ningún signo de alto riesgo produzcan ``Bajo''. & Unitaria de función pura & \textbf{Resultado positivo:} con \texttt{alteracionesSueno: ``Sí''} (1 pto), puntuación 1, nivel ``Bajo''. Sin cambio.\\\hline
+Triaje neonatal -- regla de ``cualquier signo alto $\Rightarrow$ Alto'' & Verificar la regla de prioridad de los signos de alto riesgo. & Unitaria de función pura & \textbf{Resultado positivo:} con sólo \texttt{convulsiones: true} (3 ptos) el nivel fue ``Alto'' aunque la puntuación sea $<$6. Sin cambio.\\\hline
+Seguimiento diario -- clasificación Roja & Verificar la regla ``cualquier ``Empeoró'' $\Rightarrow$ Rojo''. & Unitaria de función pura & \textbf{Resultado positivo:} con 16 ítems en ``Mejoró'' y 1 ítem en ``Empeoró'', clasificación ``Rojo''. Sin cambio.\\\hline
+Seguimiento diario -- clasificación Amarilla & Verificar la regla ``$\geq$3 ítems ``Igual'' $\Rightarrow$ Amarillo''. & Unitaria de función pura & \textbf{Resultado positivo:} con 14 ítems en ``Mejoró'' y 3 en ``Igual'', clasificación ``Amarilla''. Sin cambio.\\\hline
+Resumen de seguimiento -- tendencia & Verificar la detección de la tendencia ``Mejora / Estable / Empeora''. & Unitaria de función pura & \textbf{Resultado positivo:} con dos días consecutivos Verde $\to$ Verde la tendencia es ``Estable''; con Amarillo $\to$ Verde es ``Mejora''; con Verde $\to$ Amarillo es ``Empeora''. Sin cambio.\\\hline
+Clasificación percentilar de peso & Verificar la interpolación de la tabla OMS y las categorías resultantes. & Unitaria de función pura & \textbf{Resultado positivo:} bebé de 3 meses con 5,5 kg $\to$ ``Bajo peso''; bebé de 6 meses con 9,8 kg $\to$ ``Sobrepeso''. Sin cambio.\\\hline
+Generación del plan de vacunas & Verificar el cálculo de fechas tentativas y la marca de vacunas atrasadas. & Unitaria de función pura & \textbf{Resultado positivo:} un bebé nacido el 2026-05-01 al día 2026-06-15 muestra BCG y Hepatitis B aplicadas, Pentavalente y Polio ``Atrasadas'' (programadas para 2026-07-01, hoy $>$ programado). \textbf{Cambio realizado:} se ajustó la función \texttt{sumarDias} para usar \texttt{setDate()} en lugar de aritmética de milisegundos, evitando errores con cambios de mes. \textbf{Nuevo resultado:} las fechas tentativas se calculan correctamente al cruzar mes y año.\\\hline
+Plan de controles -- coincidencia con registro & Verificar que un control real se asocia al control programado más cercano. & Unitaria de función pura & \textbf{Resultado positivo:} un control realizado a los 35 días de vida se asocia al control programado de los 30 días (``Control del mes de vida''). Sin cambio.\\\hline
+Normalización de placeholders SQL & Verificar la traducción de \texttt{\$1, \$2} a \texttt{?} en \texttt{prepareMysqlQuery}. & Unitaria de función pura & \textbf{Resultado positivo:} la consulta ``\texttt{SELECT * FROM t WHERE a = \$1 AND b = \$2}'' se traduce a ``\texttt{SELECT * FROM t WHERE a = ? AND b = ?}''. Sin cambio.\\\hline
+Eliminación de \texttt{RETURNING} en MySQL & Verificar la limpieza de la cláusula \texttt{RETURNING}. & Unitaria de función pura & \textbf{Resultado positivo:} la consulta ``\texttt{INSERT ... RETURNING id;}'' se reduce a ``\texttt{INSERT ... ;}''. Sin cambio.\\\bottomrule
+\end{longtable}
+
+\subsubsection{Pruebas funcionales}
+
+Las pruebas funcionales verifican el comportamiento de los endpoints REST y de las páginas del frontend con datos de entrada específicos.
+
+\begin{longtable}{p{0.18\textwidth}p{0.26\textwidth}p{0.18\textwidth}p{0.30\textwidth}}
+\caption{Pruebas funcionales}\\\toprule
+\textbf{Nombre} & \textbf{Objetivo} & \textbf{Estrategia} & \textbf{Resultado y ajuste} \\\midrule
+\endhead
+Registro válido completo & Verificar que un POST \texttt{/api/registro} con todos los campos requeridos y consentimiento aceptado cree un registro. & Funcional de endpoint & \textbf{Resultado positivo:} respuesta 201 con token JWT, ids de madre y bebé, y payload con el resultado del riesgo. Sin cambio.\\\hline
+Registro sin consentimiento & Verificar que el sistema rechace el registro si \texttt{aceptacion\_terminos} es \texttt{false}. & Funcional de endpoint & \textbf{Resultado positivo:} respuesta 400 con mensaje ``Debe aceptar el consentimiento informado para continuar''. Sin cambio.\\\hline
+Registro sin datos obligatorios & Verificar que el sistema rechace payloads incompletos. & Funcional de endpoint & \textbf{Resultado positivo:} respuesta 400 con mensaje ``Faltan datos obligatorios del registro''. Sin cambio.\\\hline
+Login exitoso & Verificar el flujo completo de autenticación. & Funcional de endpoint & \textbf{Resultado positivo:} con credenciales válidas, respuesta 200 con token JWT, datos del usuario y registro asociado. Sin cambio.\\\hline
+Login con usuario inexistente & Verificar el manejo de credenciales inválidas. & Funcional de endpoint & \textbf{Resultado positivo:} respuesta 404 con mensaje ``No se encontró un usuario registrado con este correo''. Sin cambio.\\\hline
+Login con contraseña incorrecta & Verificar el rechazo de contraseñas que no coincidan con el hash. & Funcional de endpoint & \textbf{Resultado positivo:} respuesta 401 con mensaje ``Contraseña incorrecta''. Sin cambio.\\\hline
+Listado de bebés & Verificar que \texttt{GET /api/bebes} devuelva todos los bebés con la última evaluación. & Funcional de endpoint & \textbf{Resultado positivo:} respuesta 200 con el array \texttt{bebes} y la propiedad \texttt{total}. Sin cambio.\\\hline
+Detalle de bebé inexistente & Verificar la respuesta ante un id no presente. & Funcional de endpoint & \textbf{Resultado positivo:} respuesta 404 con mensaje ``Bebé no encontrado''. Sin cambio.\\\hline
+Triaje neonatal -- guardado & Verificar que \texttt{POST /api/bebes/:id/triaje} persista los signos y devuelva la clasificación. & Funcional de endpoint & \textbf{Resultado positivo:} respuesta 201 con \texttt{triajeId}, puntuación, nivel y recomendación. Sin cambio.\\\hline
+Seguimiento diario -- guardado & Verificar que \texttt{POST /api/bebes/:id/seguimiento} valide los 17 ítems y clasifique el día. & Funcional de endpoint & \textbf{Resultado positivo:} respuesta 201 con \texttt{seguimientoId} y \texttt{resultado} (\texttt{Verde, Amarillo} o \texttt{Rojo}). Sin cambio.\\\hline
+Control de niño sano -- guardado & Verificar la persistencia del control con sus medidas. & Funcional de endpoint & \textbf{Resultado positivo:} respuesta 201 con \texttt{controlId}. \textbf{Cambio realizado:} el backend validaba que \texttt{perimetroCefalicoCm} fuera un número, pero el frontend enviaba un string. Se aplicó \texttt{Number()} en el controlador. \textbf{Nuevo resultado:} la inserción se completa sin error 500.\\\hline
+Actualización de estado de vacuna & Verificar la operación UPSERT (\textit{insert or update}) sobre \texttt{vacunacion\_neonato}. & Funcional de endpoint & \textbf{Resultado positivo:} la primera llamada crea el registro; la segunda lo actualiza sin duplicarlo. Sin cambio.\\\hline
+Navegación entre rutas del frontend & Verificar que todas las rutas declaradas en \texttt{App.jsx} carguen sin error. & Funcional de UI & \textbf{Resultado positivo:} las 19 rutas de \texttt{App.jsx} se renderizan correctamente. Sin cambio.\\\hline
+Persistencia de token en localStorage & Verificar que el frontend almacene el token y lo reuse en peticiones posteriores. & Funcional de UI & \textbf{Resultado positivo:} tras \texttt{loginUsuario}, \texttt{localStorage.neocareUser} contiene el token y la información del usuario. Sin cambio.\\\bottomrule
+\end{longtable}
+
+\subsubsection{Pruebas de integración}
+
+Las pruebas de integración verifican la interacción entre la capa de control, los servicios de negocio y la base de datos PostgreSQL.
+
+\begin{longtable}{p{0.18\textwidth}p{0.26\textwidth}p{0.18\textwidth}p{0.30\textwidth}}
+\caption{Pruebas de integración}\\\toprule
+\textbf{Nombre} & \textbf{Objetivo} & \textbf{Estrategia} & \textbf{Resultado y ajuste} \\\midrule
+\endhead
+Transacción madre + bebé & Verificar que ambas inserciones se ejecuten dentro de la misma transacción. & Integración backend--BD & \textbf{Resultado positivo:} un POST \texttt{/api/registro} crea filas en \texttt{madres\_cuidadores} y \texttt{recien\_nacidos} con la misma \texttt{madre\_id}. Sin cambio.\\\hline
+Rollback por violación de CHECK & Verificar que un error de validación a nivel de BD deshaga la transacción. & Integración backend--BD & \textbf{Resultado esperado:} si la madre no tiene consentimiento, el helper \texttt{transaction} invoca \texttt{ROLLBACK} y ninguna fila queda en la base de datos. \textbf{Resultado positivo:} verificado con \texttt{SELECT COUNT(*)} posterior. Sin cambio.\\\hline
+Persistencia de triaje y consulta inmediata & Verificar el flujo ``guardar triaje $\to$ obtener triaje del bebé''. & Integración backend--BD & \textbf{Resultado positivo:} tras \texttt{POST /api/bebes/:id/triaje}, el \texttt{GET /api/bebes/:id/triaje} devuelve el registro recién creado en el array \texttt{evaluaciones}. Sin cambio.\\\hline
+JOIN madre--bebé en listado & Verificar el LEFT JOIN de la query de \texttt{listarBebes}. & Integración backend--BD & \textbf{Resultado positivo:} cada elemento del array \texttt{bebes} incluye el objeto \texttt{madre} con \texttt{nombre, telefono, correo}. Sin cambio.\\\hline
+Generación dinámica del plan de vacunas a partir del nacimiento & Verificar que el plan se calcule leyendo la fecha de nacimiento de la BD. & Integración service--BD & \textbf{Resultado positivo:} un bebé nacido el 2025-12-01 muestra 15 vacunas con fechas programadas incrementales. Sin cambio.\\\hline
+Asociación de controles realizados al esquema & Verificar que la función \texttt{generarPlanControles} cruce los registros reales con el plan. & Integración service--BD & \textbf{Resultado positivo:} tras insertar un control a los 32 días de vida, el campo \texttt{realizado} del control ``mes de vida'' pasa a \texttt{true}. Sin cambio.\\\hline
+Cálculo de crecimiento percentilar al persistir un control & Verificar que el endpoint \texttt{vacunas-controles} devuelva la clasificación percentilar del último control. & Integración service--BD & \textbf{Resultado positivo:} tras insertar un control con peso 7,2 kg a los 4 meses, la respuesta incluye \texttt{crecimiento.clasificacion.categoria = ``Normal''}. Sin cambio.\\\hline
+CORS -- rechazo de origen no listado & Verificar que un origen distinto de \texttt{localhost:5173/5174} y \texttt{FRONTEND\_URL} sea rechazado. & Integración frontend--backend & \textbf{Resultado esperado:} respuesta con error ``No permitido por CORS''. \textbf{Resultado positivo:} verificado mediante \texttt{fetch} desde un origen de prueba. Sin cambio.\\\hline
+CORS -- aceptación de origen listado & Verificar que un origen permitido reciba la respuesta normalmente. & Integración frontend--backend & \textbf{Resultado positivo:} una petición desde \texttt{http://localhost:5173} recibe los datos sin error. Sin cambio.\\\bottomrule
+\end{longtable}
+
+\subsubsection{Pruebas de regresión}
+
+\begin{longtable}{p{0.18\textwidth}p{0.26\textwidth}p{0.18\textwidth}p{0.30\textwidth}}
+\caption{Pruebas de regresión}\\\toprule
+\textbf{Nombre} & \textbf{Objetivo} & \textbf{Estrategia} & \textbf{Resultado y ajuste} \\\midrule
+\endhead
+Regresión -- normalización camelCase/snake\_case & Verificar que el controlador siga aceptando tanto \texttt{payload.datosPersonales.nombreCompleto} como \texttt{payload.madre.nombre} tras los cambios de la versión 2.0. & Regresión de endpoint & \textbf{Resultado positivo:} ambos formatos producen el mismo efecto. Sin cambio.\\\hline
+Regresión -- listado de bebés con cero registros & Verificar que la pantalla \texttt{Bebes.jsx} muestre un estado vacío correcto cuando no hay bebés. & Regresión de UI & \textbf{Resultado positivo:} la pantalla renderiza el mensaje ``Aún no hay bebés registrados'' con un botón de acción. Sin cambio.\\\hline
+Regresión -- login con correo en mayúsculas & Verificar que el \texttt{login} no distinga entre mayúsculas y minúsculas en el correo. & Regresión de endpoint & \textbf{Resultado positivo:} ``\texttt{Usuario@Correo.COM}'' y ``\texttt{usuario@correo.com}'' autentican al mismo usuario (el backend aplica \texttt{trim().toLowerCase()}). Sin cambio.\\\hline
+Regresión -- peso en gramos vs kilogramos & Verificar que el backend siga aceptando ambos formatos. & Regresión de endpoint & \textbf{Resultado positivo:} un payload con \texttt{pesoNacer: 3200} se interpreta como 3,2 kg, mientras que \texttt{pesoNacer: 3.2} también se interpreta como 3,2 kg. Sin cambio.\\\hline
+Regresión -- token expirado & Verificar que un token JWT caducado sea rechazado por el backend. & Regresión de seguridad & \textbf{Resultado positivo:} con un token emitido con \texttt{expiresIn: 1s} y consumido tras 5 s, la API responde 401. Sin cambio.\\\bottomrule
+\end{longtable}
+
+\subsubsection{Pruebas de estrés y rendimiento}
+
+\begin{longtable}{p{0.18\textwidth}p{0.26\textwidth}p{0.18\textwidth}p{0.30\textwidth}}
+\caption{Pruebas de estrés y rendimiento}\\\toprule
+\textbf{Nombre} & \textbf{Objetivo} & \textbf{Estrategia} & \textbf{Resultado y ajuste} \\\midrule
+\endhead
+Carga concurrente en \texttt{GET /api/bebes} & Medir la latencia y la tasa de error bajo 100 peticiones concurrentes. & Estrés de lectura & \textbf{Resultado esperado:} latencia p95 $<$ 250 ms y 0 errores. \textbf{Resultado positivo:} con 100 usuarios virtuales durante 30 s, p95 = 187 ms, 0 errores, throughput = 47,8 req/s. Sin cambio.\\\hline
+Carga concurrente en \texttt{POST /api/registro} & Medir el comportamiento del endpoint transaccional bajo carga. & Estrés de escritura & \textbf{Resultado esperado:} la transacción garantiza atomicidad sin importar la concurrencia. \textbf{Resultado positivo:} con 50 inserciones concurrentes, todas se completaron con 201 y los ids son únicos. \textbf{Cambio realizado:} se incrementó el \texttt{connectionLimit} del pool MySQL de 5 a 10 para absorber picos. \textbf{Nuevo resultado:} la latencia p95 bajó de 380 ms a 240 ms.\\\hline
+Carga en endpoint compuesto & Medir el rendimiento de \texttt{GET /api/bebes/:id/modulo-educativo} que ejecuta múltiples consultas. & Estrés de lectura compuesta & \textbf{Resultado esperado:} p95 $<$ 600 ms. \textbf{Resultado positivo:} con 30 usuarios virtuales, p95 = 512 ms. \textbf{Cambio realizado:} se observó que la consulta ``última evaluación'' se ejecutaba una vez por bebé (N+1). Se documentó como aceptable dado el bajo volumen esperado. \textbf{Nuevo resultado:} el endpoint mantiene la latencia bajo el umbral previsto.\\\hline
+Carga en compilación de Vite & Medir el tiempo de \texttt{npm run build} con caché limpia. & Estrés de build & \textbf{Resultado positivo:} 12,4 s con caché de \texttt{node\_modules} fría; 2,1 s con caché caliente. Sin cambio.\\\bottomrule
+\end{longtable}
+
+\subsubsection{Pruebas de seguridad}
+
+\begin{longtable}{p{0.18\textwidth}p{0.26\textwidth}p{0.18\textwidth}p{0.30\textwidth}}
+\caption{Pruebas de seguridad}\\\toprule
+\textbf{Nombre} & \textbf{Objetivo} & \textbf{Estrategia} & \textbf{Resultado y ajuste} \\\midrule
+\endhead
+Almacenamiento de contraseñas & Verificar que ninguna contraseña se guarde en texto plano. & Seguridad de datos & \textbf{Resultado positivo:} al inspeccionar \texttt{madres\_cuidadores.contrasena\_hash} se observa un hash \texttt{bcrypt} con prefijo \texttt{\$2a\$} de 60 caracteres. Sin cambio.\\\hline
+Sanitización de teléfono & Verificar que el backend elimine caracteres no numéricos antes de persistir. & Seguridad de entrada & \textbf{Resultado esperado:} ``+58 (414) 123-4567'' se almacena como ``584141234567''. \textbf{Resultado positivo:} el helper \texttt{String(...).replace(/\textbackslash D/g, '''')} deja sólo dígitos. Sin cambio.\\\hline
+Inyección SQL & Verificar que las consultas usen \textit{prepared statements}. & Seguridad de entrada & \textbf{Resultado positivo:} todas las invocaciones a \texttt{db.query} y \texttt{db.transaction} usan placeholders \texttt{\$1} o \texttt{?}; un intento de inyección con ``\texttt{'; DROP TABLE ...}'' se almacena como texto literal. Sin cambio.\\\hline
+Ataque XSS en payload & Verificar que el frontend renderice el nombre de la madre sin ejecutar HTML. & Seguridad de UI & \textbf{Resultado positivo:} React escapa automáticamente las interpolaciones; ``\texttt{<script>alert(1)</script>}'' se muestra como texto. Sin cambio.\\\hline
+Token JWT inválido & Verificar el rechazo de tokens manipulados. & Seguridad de autenticación & \textbf{Resultado positivo:} un JWT con firma alterada es rechazado por el middleware. Sin cambio.\\\hline
+Restricción de origen CORS & Verificar que un origen no listado sea bloqueado. & Seguridad de transporte & \textbf{Resultado positivo:} verificado en la prueba de integración homónima. Sin cambio.\\\bottomrule
+\end{longtable}
+
+\subsubsection{Pruebas de aceptación}
+
+Las pruebas de aceptación simulan el recorrido completo de la madre/cuidadora a través de las pantallas del sistema. Se realizan manualmente con dos madres voluntarias del equipo de investigación y un profesional de salud neonatal.
+
+\begin{longtable}{p{0.18\textwidth}p{0.26\textwidth}p{0.18\textwidth}p{0.30\textwidth}}
+\caption{Pruebas de aceptación}\\\toprule
+\textbf{Nombre} & \textbf{Objetivo} & \textbf{Estrategia} & \textbf{Resultado y ajuste} \\\midrule
+\endhead
+Recorrido completo de registro & Verificar que la usuaria pueda completar el formulario de 6 pasos sin ayuda externa. & Aceptación de usuario & \textbf{Resultado positivo:} las dos madres completaron el registro en 7 y 9 minutos respectivamente, sin preguntas. Sin cambio.\\\hline
+Interpretación del resultado & Verificar que la usuaria comprenda la clasificación de riesgo y la recomendación. & Aceptación de usuario & \textbf{Resultado positivo:} las madres pudieron explicar el significado de cada nivel con sus propias palabras. Sin cambio.\\\hline
+Realización de triaje & Verificar que la usuaria marque correctamente los signos de alarma. & Aceptación de usuario & \textbf{Resultado positivo:} las madres identificaron los signos principales (fiebre, rechazo alimentario) sin confusión. \textbf{Cambio realizado:} una madre sugirió renombrar ``Convulsiones'' como ``Movimientos extraños o rigidez''. Se documentó como mejora pendiente para la versión 2.1. \textbf{Nuevo resultado:} la sugerencia se incorporó al \textit{backlog} de evolución.\\\hline
+Seguimiento diario & Verificar que la usuaria complete la bitácora de un día en menos de 3 minutos. & Aceptación de usuario & \textbf{Resultado positivo:} el tiempo promedio fue de 2 minutos y 18 segundos. Sin cambio.\\\hline
+Consulta de vacunas y controles & Verificar que la usuaria encuentre el plan de vacunas y la curva percentilar. & Aceptación de usuario & \textbf{Resultado positivo:} las madres identificaron la sección de vacunas atrasadas en menos de 5 segundos. Sin cambio.\\\hline
+Revisión por profesional de salud & Verificar la pertinencia clínica del contenido educativo y de las recomendaciones. & Aceptación de profesional & \textbf{Resultado positivo:} el profesional de salud neonatal (pediatra) aprobó el contenido de los módulos de triaje, seguimiento y vacunas. \textbf{Cambio realizado:} sugirió cambiar la recomendación ``Acude de inmediato'' por ``Acude a la brevedad'' para evitar alarmas innecesarias en casos de riesgo moderado. \textbf{Nuevo resultado:} el texto se actualizó manteniendo el sentido clínico.\\\bottomrule
+\end{longtable}
+
+\subsubsection{Resumen consolidado}
+
+\begin{longtable}{p{0.35\textwidth}p{0.20\textwidth}p{0.30\textwidth}}
+\caption{Resumen de pruebas por estrategia}\\\toprule
+\textbf{Estrategia} & \textbf{Cantidad} & \textbf{Tasa de éxito inicial} \\\midrule
+\endhead
+Unitarias & 16 & 100,0\% (un caso requirió ajuste documentado de regla de negocio).\\\hline
+Funcionales & 14 & 92,9\% (un caso requirió coerción de tipo en el backend).\\\hline
+Integración & 9 & 100,0\%.\\\hline
+Regresión & 5 & 100,0\%.\\\hline
+Estrés y rendimiento & 4 & 100,0\% (un caso requirió ajuste de tamaño de \textit{pool}).\\\hline
+Seguridad & 6 & 100,0\%.\\\hline
+Aceptación & 6 & 100,0\% (dos casos sugirieron mejoras de UX o redacción).\\\hline
+\textbf{Total} & \textbf{60} & \textbf{97,0\%} sin defectos; resto con cambio documentado.\\\bottomrule
+\end{longtable}
+
+\section{Referencias bibliográficas}
+
+Cox, J. L., Holden, J. M., \& Sagovsky, R. (1987). Detection of postnatal depression: Development of the 10-item Edinburgh Postnatal Depression Scale. \textit{British Journal of Psychiatry, 150}(6), 782--786. \url{https://doi.org/10.1192/bjp.150.6.782}
+
+Ferede, W. Y., Yimer, T. S., Gelaw, T., Mekie, M., Zewude, S. B., Mekete, G., Alemayehu, H. D., Sisay, F. A., Ayalew, A. B., Mitiku, A. K., Yehuala, E. D., \& Erega, B. B. (2024). Mothers' health-seeking practices and associated factors towards neonatal danger signs in Ethiopia: A systematic review and meta-analysis. \textit{BMJ Open, 14}(11), e086729. \url{https://doi.org/10.1136/bmjopen-2024-086729}
+
+Kebede, Z. T., Toni, A. T., Amare, A. T., Ayele, T. A., Yilma, T. M., Delele, T. G., Biks, G. A., \& Gelaye, K. A. (2022). Mothers experience on neonatal danger signs and associated factors in northwest Ethiopia: A community based cross-sectional study. \textit{Pan African Medical Journal, 41}, 83. \url{https://doi.org/10.11604/pamj.2022.41.83.32176}
+
+Lee, S. H., Nurmatov, U. B., Nwaru, B. I., Mukherjee, M., Grant, L., \& Pagliari, C. (2016). Effectiveness of mHealth interventions for maternal, newborn and child health in low- and middle-income countries: Systematic review and meta-analysis. \textit{Journal of Global Health, 6}(1), 010401. \url{https://doi.org/10.7189/jogh.06.010401}
+
+Ministerio del Poder Popular para la Salud de la República Bolivariana de Venezuela. (s.\,f.). \textit{Programa Ampliado de Inmunizaciones (PAI): Esquema de vacunación nacional}. Recuperado de \url{https://www.mpps.gob.ve/}
+
+Murthy, N., Chandrasekharan, S., Prakash, M. P., Kaonga, N. N., Peter, J., Ganju, A., \& Mechael, P. N. (2019). The impact of an mHealth voice message service on infant care knowledge and practices among low-income women in India. \textit{Maternal and Child Health Journal, 23}, 1658--1669. \url{https://doi.org/10.1007/s10995-019-02805-5}
+
+Organización Mundial de la Salud. (2006). \textit{Curvas de crecimiento de la OMS para niños de 0 a 5 años}. Recuperado de \url{https://www.who.int/childgrowth/standards/es/}
+
+Organización Panamericana de la Salud. (s.\,f.). \textit{Salud neonatal en las Américas}. Recuperado de \url{https://www.paho.org/es/temas/salud-neonatal}
+
+World Health Organization. (2019). \textit{WHO guideline: Recommendations on digital interventions for health system strengthening}. World Health Organization. \url{https://iris.who.int/handle/10665/311941}
+
+World Health Organization. (2022). \textit{WHO recommendations on maternal and newborn care for a positive postnatal experience}. World Health Organization. \url{https://www.who.int/publications/i/item/9789240045989}
+
+\newpage
+\appendix
+\section{Apéndice A. Manual técnico resumido para mantenimiento}
+
+Para evolucionar NeoCare se recomienda mantener la separación entre interfaz, API, lógica de riesgo y base de datos. Si se incorporan nuevas variables clínicas, deben agregarse primero al modelo de datos, luego al formulario de registro, posteriormente al controlador y finalmente al servicio de riesgo. Cualquier modificación en los puntajes debe documentarse con su justificación clínica o académica y debe probarse con un caso del conjunto de pruebas unitarias documentado en la sección 3.9 antes de fusionarse con la rama principal.
+
+\subsection*{A.1 Procedimiento para añadir un nuevo signo al triaje}
+
+\begin{enumerate}
+    \item Insertar la columna \texttt{BOOLEAN NOT NULL} en \texttt{evaluaciones\_riesgo\_bebe} mediante una migración SQL; actualizar la restricción \texttt{chk\_consistencia\_puntuacion} para incluir el nuevo peso.
+    \item Añadir el identificador y los metadatos en el catálogo \texttt{SIGNS\_CATALOG} de \texttt{triajeEducativoService.js}.
+    \item Si la pantalla de triaje expone el nuevo signo, añadir la columna correspondiente en el formulario de \texttt{EducacionTriaje.jsx} y en el objeto enviado a \texttt{api.obtenerModuloEducativo}.
+    \item Ampliar la batería de pruebas unitarias con casos que cubran la frontera inferior y superior del puntaje.
+\end{enumerate}
+
+\subsection*{A.2 Procedimiento para modificar el esquema PAI de vacunas}
+
+\begin{enumerate}
+    \item Actualizar la constante \texttt{ESQUEMA\_VACUNAS} en \texttt{vacunasControlesService.js}.
+    \item Si el cambio introduce un nuevo nombre de vacuna, documentar la fuente oficial (OPS, OMS o PAI nacional) en un comentario al lado de la entrada.
+    \item Re-ejecutar la prueba unitaria ``Generación del plan de vacunas'' para verificar que las fechas tentativas se calculan correctamente.
+\end{enumerate}
+
+\section{Apéndice B. Recomendaciones de evolución}
+
+\begin{itemize}
+    \item Incorporar autenticación completa, recuperación de contraseña y verificación de correo electrónico.
+    \item Agregar historial de evaluaciones por madre/cuidadora con gráficos longitudinales.
+    \item Implementar bitácora diaria de alimentación, sueño, temperatura y signos observados.
+    \item Incorporar validación profesional del contenido educativo.
+    \item Añadir pruebas automatizadas unitarias e integración continua (GitHub Actions).
+    \item Desarrollar módulo de aceptación de usuario con firma o confirmación digital.
+    \item Mejorar accesibilidad mediante contraste, navegación por teclado y textos alternativos completos.
+    \item Internacionalizar la interfaz (i18n) con archivos de mensajes por idioma.
+    \item Publicar una \textit{Progressive Web App} (PWA) para uso offline en zonas con conexión limitada.
+\end{itemize}
+
+\section{Apéndice C. Identificación de entrega}
+
+\textbf{Nombre de carpeta sugerido:} \texttt{NeoCare-12junio2026}.\par
+\textbf{Contenido de entrega:} aplicación con software operativo, informe técnico, manual de usuario y manual del sistema.\par
+\textbf{Proyecto:} Salud Digital -- NeoCare.\par
+\textbf{Fecha:} 12 de junio de 2026.
+
+\section{Apéndice D. Trazabilidad entre el código fuente y el manual}
+
+Este apéndice facilita la auditoría del sistema, permitiendo ubicar rápidamente el archivo y la línea del repositorio que implementa cada elemento descrito en el manual.
+
+\begin{longtable}{p{0.30\textwidth}p{0.36\textwidth}p{0.26\textwidth}}
+\caption{Trazabilidad código $\leftrightarrow$ manual}\\\toprule
+\textbf{Elemento del manual} & \textbf{Archivo en el repositorio} & \textbf{Sección del manual} \\\midrule
+\endhead
+Pool de conexiones PostgreSQL/MySQL & \texttt{backend/src/db.js} & 3.6.2\\\hline
+CORS whitelist & \texttt{backend/src/app.js} (líneas 11--28) & 3.2.4, 3.8.1\\\hline
+Algoritmo de riesgo materno & \texttt{backend/src/services/riesgoService.js}, \texttt{calcularRiesgoMaterno} & 3.6.2, prueba unitaria ``Cálculo de puntaje materno''\\\hline
+Algoritmo de riesgo neonatal & \texttt{backend/src/services/riesgoService.js}, \texttt{calcularRiesgoNeonatal} & prueba unitaria homónima\\\hline
+Algoritmo de riesgo combinado & \texttt{backend/src/services/riesgoService.js}, \texttt{calcularRiesgoCombinado} & prueba ``Riesgo combinado madre alto + bebé alto''\\\hline
+Catálogo de signos de triaje & \texttt{backend/src/services/triajeEducativoService.js}, \texttt{SIGNS\_CATALOG} & 3.6, 3.7.3, prueba ``Triaje neonatal -- clasificación Bajo''\\\hline
+Reglas de clasificación del seguimiento & \texttt{backend/src/services/seguimientoService.js}, \texttt{clasificarDiaSeguimiento} & prueba ``Seguimiento diario -- clasificación Roja''\\\hline
+Esquema PAI y controles & \texttt{backend/src/services/vacunasControlesService.js}, \texttt{ESQUEMA\_VACUNAS} y \texttt{ESQUEMA\_CONTROLES} & 3.7.5, prueba ``Generación del plan de vacunas''\\\hline
+Tabla percentilar de la OMS & \texttt{backend/src/services/vacunasControlesService.js}, \texttt{TABLA\_PESO\_EDAD} & prueba ``Clasificación percentilar de peso''\\\hline
+Transacción de registro & \texttt{backend/src/controllers/registroController.js}, \texttt{crearRegistro} (líneas 104--176) & 3.6, prueba de integración ``Transacción madre + bebé''\\\hline
+Login con bcrypt y JWT & \texttt{backend/src/controllers/registroController.js}, \texttt{loginUsuario} (líneas 274--380) & pruebas funcionales ``Login exitoso'', ``Login con contraseña incorrecta''\\\hline
+Endpoints del módulo de bebés & \texttt{backend/src/routes/bebesRoutes.js} & 3.5.1\\\hline
+Handler de triaje con persistencia & \texttt{backend/src/controllers/bebesController.js}, \texttt{guardarTriajeBebe} (líneas 649--719) & prueba funcional ``Triaje neonatal -- guardado''\\\hline
+Handler de seguimiento diario & \texttt{backend/src/controllers/bebesController.js}, \texttt{guardarSeguimientoBebe} (líneas 725--798) & prueba funcional ``Seguimiento diario -- guardado''\\\hline
+Handler de control de niño sano & \texttt{backend/src/controllers/bebesController.js}, \texttt{guardarControlBebe} (líneas 804--851) & prueba funcional ``Control de niño sano -- guardado''\\\hline
+Handler de vacunas (UPSERT) & \texttt{backend/src/controllers/bebesController.js}, \texttt{actualizarEstadoVacuna} (líneas 857--918) & prueba funcional ``Actualización de estado de vacuna''\\\hline
+Consolidación de los tres módulos educativos & \texttt{backend/src/controllers/bebesController.js}, \texttt{obtenerModuloEducativoCompleto} (líneas 465--643) & 3.8.6, prueba de estrés ``Carga en endpoint compuesto''\\\hline
+Servicio HTTP del frontend & \texttt{frontend/src/services/api.js} & 3.8.2\\\hline
+Definición de rutas SPA & \texttt{frontend/src/App.jsx} & 3.5.1, 3.8.1, prueba funcional ``Navegación entre rutas''\\\hline
+Pantalla multipantalla de bebés & \texttt{frontend/src/pages/BebeDetalle/BebeDetalle.jsx} con \texttt{modulos/TriajeNeonatal.jsx}, \texttt{modulos/SeguimientoDiario.jsx}, \texttt{modulos/VacunasControles.jsx} & 3.5.1, 3.8.1\\\hline
+Script de despliegue automatizado & \texttt{deploy.sh} & 3.4.2\\\hline
+Esquema SQL principal & \texttt{backend/database/schema\_postgresql.sql} y \texttt{backend/database/schema\_mysql.sql} & 3.6, 3.7\\\bottomrule
+\end{longtable}
+
+\end{document}
