@@ -34,6 +34,44 @@ const formatFechaEs = (fecha) => {
   return fechaStr;
 };
 
+const normalizarSiNo = (valor) => {
+  const s = String(valor ?? "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  return s === "si" || s === "true" || s === "1" || s === "yes";
+};
+
+const mapearErrorRegistro = (error) => {
+  const msg = String(error?.message || "");
+  if (msg.includes("UNIQUE constraint failed: madres_cuidadores.correo_electronico")) {
+    return {
+      status: 409,
+      mensaje:
+        "Este correo electrónico ya está registrado. Inicia sesión o usa otro correo.",
+    };
+  }
+  if (msg.includes("UNIQUE constraint failed")) {
+    return {
+      status: 409,
+      mensaje: "Ya existe un registro con esos datos. Verifica correo o identificación.",
+    };
+  }
+  if (msg.includes("CHECK constraint failed")) {
+    return {
+      status: 400,
+      mensaje: "Algunos datos no cumplen las validaciones clínicas. Revisa peso, edad gestacional y fechas.",
+      error: msg,
+    };
+  }
+  return {
+    status: 500,
+    mensaje: "Error interno al crear el registro en la base de datos.",
+    error: msg,
+  };
+};
+
 export const crearRegistro = async (req, res) => {
   try {
     const { 
@@ -84,21 +122,45 @@ export const crearRegistro = async (req, res) => {
     const nombreMadre = datosM.nombreCompleto || datosM.nombre;
     const edadMadre = Number(datosM.edad);
     const telefonoMadre = String(datosM.telefono || "").replace(/\D/g, ""); // Sanitizar teléfono (eliminar no dígitos)
-    const correoMadre = datosM.correo || datosM.correo_electronico || datosM.correoElectronico;
+    const correoMadre = String(
+      datosM.correo || datosM.correo_electronico || datosM.correoElectronico || ""
+    )
+      .trim()
+      .toLowerCase();
     const numeroIdentificacion = datosM.numeroIdentificacion || datosM.numero_identificacion;
+
+    if (!correoMadre) {
+      return res.status(400).json({ mensaje: "El correo electrónico es obligatorio." });
+    }
+
+    const { rows: correoExistente } = await query(
+      "SELECT id FROM madres_cuidadores WHERE LOWER(correo_electronico) = $1",
+      [correoMadre]
+    );
+    if (correoExistente.length > 0) {
+      return res.status(409).json({
+        mensaje:
+          "Este correo electrónico ya está registrado. Inicia sesión o usa otro correo.",
+      });
+    }
     
     const nivelEducacion = socioM.nivelEducativo || socioM.nivel_educacion;
     const zonaResidencia = socioM.zonaResidencia || socioM.zona_residencia;
-    const accesoCentroSalud = socioM.accesoCentroSalud === "Sí" || socioM.acceso_centro_salud === true || socioM.accesoCentroSalud === true;
+    const accesoCentroSalud =
+      normalizarSiNo(socioM.accesoCentroSalud) ||
+      socioM.acceso_centro_salud === true;
     const situacionEconomica = socioM.situacionEconomica || socioM.situacion_economica;
 
     const relacionBebe = cuidadoM.relacionRecienNacido || cuidadoM.relacion_bebe || cuidadoM.relacionBebe;
     const numeroHijos = Number(cuidadoM.numeroNinosCuidado || cuidadoM.numero_hijos || cuidadoM.numeroHijos || 0);
     const tieneDosOMasHijos = numeroHijos >= 2;
-    const esMadreSola = cuidadoM.cuidaSinApoyo === "Sí" || cuidadoM.es_madre_sola === true || cuidadoM.esMadreSola === true;
-    const tieneApoyoFamiliar = cuidadoM.apoyoFamiliar === "Sí" || cuidadoM.tiene_apoyo_familiar === true || cuidadoM.tieneApoyoFamiliar === true;
+    const esMadreSola =
+      normalizarSiNo(cuidadoM.cuidaSinApoyo) || cuidadoM.es_madre_sola === true;
+    const tieneApoyoFamiliar =
+      normalizarSiNo(cuidadoM.apoyoFamiliar) || cuidadoM.tiene_apoyo_familiar === true;
     const apoyoPrincipal = cuidadoM.apoyoPrincipal;
-    const esMadrePrimeriza = cuidadoM.primeraVezCuidando === "Sí" || cuidadoM.es_madre_primeriza === true || cuidadoM.esMadrePrimeriza === true;
+    const esMadrePrimeriza =
+      normalizarSiNo(cuidadoM.primeraVezCuidando) || cuidadoM.es_madre_primeriza === true;
 
     // Ejecutar transacción para insertar madre y recién nacido
     const result = await transaction(async (executeQuery) => {
@@ -131,9 +193,13 @@ export const crearRegistro = async (req, res) => {
       const sexo = recienN.sexo;
 
       const tipoParto = datosClinicos.tipoParto || datosClinicos.tipo_parto;
-      const complicacionesAlNacer = datosClinicos.complicacionesNacer === "Sí" || datosClinicos.complicaciones_al_nacer === true || datosClinicos.complicacionesAlNacer === true;
+      const complicacionesAlNacer =
+        normalizarSiNo(datosClinicos.complicacionesNacer) ||
+        datosClinicos.complicaciones_al_nacer === true;
       const especificacionComplicaciones = complicacionesAlNacer ? (datosClinicos.complicacion || datosClinicos.especificacion_complicaciones) : null;
-      const hospitalizacionNeonatal = datosClinicos.hospitalizacionNeonatal === "Sí" || datosClinicos.hospitalizacion_neonatal === true || datosClinicos.hospitalizacionNeonatal === true;
+      const hospitalizacionNeonatal =
+        normalizarSiNo(datosClinicos.hospitalizacionNeonatal) ||
+        datosClinicos.hospitalizacion_neonatal === true;
       const motivoHospitalizacion = hospitalizacionNeonatal ? (datosClinicos.motivoHospitalizacion || datosClinicos.motivo_hospitalizacion) : null;
       const duracionHospitalizacion = hospitalizacionNeonatal ? (datosClinicos.duracionHospitalizacion || datosClinicos.duracion_hospitalizacion) : null;
       const requirioCuidadosEspeciales = datosClinicos.cuidadosEspeciales || datosClinicos.requirio_cuidados_especiales || "No";
@@ -156,6 +222,45 @@ export const crearRegistro = async (req, res) => {
 
       const bebeId = resBebe.rows[0].id || resBebe.rows[0].insertId;
 
+      const resultadoRiesgo = evaluarRegistro({
+        madre: {
+          edad: edadMadre,
+          nivelEducativo: nivelEducacion,
+          zonaResidencia: zonaResidencia,
+          accesoCentroSalud: accesoCentroSalud,
+          madreSola: esMadreSola,
+          apoyoFamiliar: tieneApoyoFamiliar,
+          numeroHijos: numeroHijos,
+          situacionEconomica: situacionEconomica,
+        },
+        bebe: {
+          edadGestacional: edadGestacional,
+          pesoNacer: pesoAlNacer,
+          fechaNacimiento: fechaNacimiento,
+        },
+        datosClinicos: {
+          complicacionesNacer: complicacionesAlNacer,
+          hospitalizacionNeonatal: hospitalizacionNeonatal,
+        },
+      });
+
+      await executeQuery(
+        `INSERT INTO evaluaciones_riesgo_registro (
+          madre_id, bebe_id, puntaje_materno, clasificacion_materna,
+          puntaje_neonatal, clasificacion_neonatal, clasificacion_final, recomendacion_seguimiento
+        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+        [
+          madreId,
+          bebeId,
+          resultadoRiesgo.puntajeMaterno || 0,
+          resultadoRiesgo.clasificacionMaterna || "Bajo",
+          resultadoRiesgo.puntajeNeonatal || 0,
+          resultadoRiesgo.clasificacionNeonatal || "Bajo",
+          resultadoRiesgo.clasificacionFinal || "Bajo",
+          resultadoRiesgo.recomendacionSeguimiento || "",
+        ]
+      );
+
       return { 
         madreId, 
         bebeId, 
@@ -171,33 +276,13 @@ export const crearRegistro = async (req, res) => {
         motivoHospitalizacion, 
         duracionHospitalizacion, 
         requirioCuidadosEspeciales, 
-        tipoCuidadoRecibido 
+        tipoCuidadoRecibido,
+        resultadoRiesgo,
       };
     });
 
-    // Calcular riesgo de la evaluación con datos normalizados
-    const resultadoRiesgo = evaluarRegistro({
-      madre: {
-        edad: edadMadre,
-        nivelEducativo: nivelEducacion,
-        zonaResidencia: zonaResidencia,
-        accesoCentroSalud: accesoCentroSalud,
-        madreSola: esMadreSola,
-        apoyoFamiliar: tieneApoyoFamiliar,
-        numeroHijos: numeroHijos,
-        situacionEconomica: situacionEconomica
-      },
-      bebe: {
-        edadGestacional: result.edadGestacional,
-        pesoNacer: result.pesoAlNacer
-      },
-      datosClinicos: {
-        complicacionesNacer: result.complicacionesAlNacer,
-        hospitalizacionNeonatal: result.hospitalizacionNeonatal
-      }
-    });
+    const resultadoRiesgo = result.resultadoRiesgo;
 
-    // Crear token JWT para inicio de sesión inmediato
     const token = jwt.sign(
       { id: result.madreId, correo: correoMadre },
       process.env.JWT_SECRET || "neocare_secret_key",
@@ -264,10 +349,8 @@ export const crearRegistro = async (req, res) => {
 
   } catch (error) {
     console.error("Error al registrar:", error);
-    return res.status(500).json({
-      mensaje: "Error interno al crear el registro en la base de datos.",
-      error: error.message
-    });
+    const mapped = mapearErrorRegistro(error);
+    return res.status(mapped.status).json(mapped);
   }
 };
 

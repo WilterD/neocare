@@ -4,12 +4,10 @@ import "./Education.css";
 
 import Header2 from "../../components/Header2/Header2.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
+import SidebarNeoCare from "../../components/SidebarNeoCare/SidebarNeoCare.jsx";
 
-import inicioImage from "../../assets/Inicio.png";
-import evaluacionImage from "../../assets/Evaluacion.png";
-import educacionImage from "../../assets/Educacion.png";
-import historialImage from "../../assets/H.png";
-import perfilImage from "../../assets/Perfil.png";
+import { listarContenidoEducativo } from "../../services/api.js";
+import { mapContenidoToTopic } from "../../utils/educacionHelpers.js";
 
 import dtImage from "../../assets/DT.png";
 
@@ -35,34 +33,6 @@ import saImage from "../../assets/SA.png";
 import cuidadosBasicosImage from "../../assets/CUIDADOSBASICOS.png";
 import lacLogoImage from "../../assets/LACLOGO.png";
 import temLogoImage from "../../assets/TEMLOGO.png";
-
-const sidebarItems = [
-  {
-    image: inicioImage,
-    label: "Inicio",
-    path: "/inicio",
-  },
-  {
-    image: evaluacionImage,
-    label: "Evaluación",
-    path: "/evaluacion",
-  },
-  {
-    image: educacionImage,
-    label: "Educación",
-    path: "/educacion",
-  },
-  {
-    image: historialImage,
-    label: "Historial",
-    path: "/historial",
-  },
-  {
-    image: perfilImage,
-    label: "Perfil",
-    path: "/perfil",
-  },
-];
 
 const mainFilters = [
   {
@@ -130,70 +100,6 @@ const moreFilters = [
   },
 ];
 
-const topics = [
-  {
-    id: "signos-alarma",
-    title: "Signos de alarma en el recién nacido",
-    description:
-      "Aprende a identificar señales que pueden indicar que tu bebé necesita atención médica.",
-    category: "signos",
-    image: saImage,
-  },
-  {
-    id: "ictericia-neonatal",
-    title: "Ictericia neonatal",
-    description:
-      "Qué es, cómo identificarla y cuándo consultar al personal de salud.",
-    category: "ictericia",
-    image: datosBebeImage,
-  },
-  {
-    id: "cuidados-basicos",
-    title: "Cuidados básicos del recién nacido",
-    description:
-      "Conoce prácticas diarias para mantener a tu bebé seguro en casa.",
-    category: "cuidados",
-    image: cuidadosBasicosImage,
-  },
-  {
-    id: "sepsis-neonatal",
-    title: "Sepsis neonatal",
-    description: "Información importante para prevenirla y actuar a tiempo.",
-    category: "sepsis",
-    image: sepsisImage,
-  },
-  {
-    id: "lactancia-materna",
-    title: "Lactancia materna",
-    description:
-      "Beneficios, frecuencia y recomendaciones para una lactancia adecuada.",
-    category: "lactancia",
-    image: lacLogoImage,
-  },
-  {
-    id: "hipotermia-neonatal",
-    title: "Hipotermia neonatal",
-    description: "Qué es, causas, cómo prevenirla y cuándo buscar ayuda.",
-    category: "hipotermia",
-    image: hipoImage,
-  },
-  {
-    id: "temperatura",
-    title: "Control de temperatura",
-    description:
-      "Cómo mantener a tu bebé a una temperatura adecuada y reconocer señales de alerta.",
-    category: "temperatura",
-    image: temLogoImage,
-  },
-  {
-    id: "centro-salud",
-    title: "¿Cuándo acudir al centro de salud?",
-    description: "Situaciones que requieren atención médica inmediata.",
-    category: "signos",
-    image: controlImage,
-  },
-];
-
 const neocareModules = [
   {
     id: "triaje-neonatal",
@@ -236,6 +142,8 @@ const Education = () => {
   const topicsRef = useRef(null);
 
   const [usuario, setUsuario] = useState(location.state?.user || null);
+  const [topics, setTopics] = useState([]);
+  const [loadingTopics, setLoadingTopics] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState("todos");
   const [isMoreOpen, setIsMoreOpen] = useState(false);
@@ -251,6 +159,13 @@ const Education = () => {
       console.error("Error al cargar usuario:", error);
     }
   }, [usuario]);
+
+  useEffect(() => {
+    listarContenidoEducativo()
+      .then((d) => setTopics((d.contenidos || []).map(mapContenidoToTopic)))
+      .catch(console.error)
+      .finally(() => setLoadingTopics(false));
+  }, []);
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
@@ -286,7 +201,7 @@ const Education = () => {
 
       return matchesFilter && matchesSearch;
     });
-  }, [activeFilter, searchTerm]);
+  }, [activeFilter, searchTerm, topics]);
 
   const handleSelectFilter = (filterId) => {
     setActiveFilter(filterId);
@@ -310,32 +225,7 @@ const Education = () => {
       <Header2 user={usuario} />
 
       <section className="education-desktop">
-        <aside className="education-sidebar">
-          <nav className="education-sidebar-nav">
-            {sidebarItems.map((item) => (
-              <NavLink
-                key={item.label}
-                to={item.path}
-                end={item.path === "/inicio"}
-                className={({ isActive }) =>
-                  isActive
-                    ? "education-sidebar-item active"
-                    : "education-sidebar-item"
-                }
-              >
-                <span className="education-sidebar-icon-box">
-                  <img
-                    src={item.image}
-                    alt={item.label}
-                    className="education-sidebar-icon"
-                  />
-                </span>
-
-                {item.label}
-              </NavLink>
-            ))}
-          </nav>
-        </aside>
+        <SidebarNeoCare className="education" activePath="/educacion" />
 
         <section className="education-main-panel">
           <header className="education-title-row">

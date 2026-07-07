@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
+import { guardarSeguimientoBebe } from "../../../services/api.js";
 
 const COLOR = {
   Verde: "#6fa04f",
@@ -6,7 +7,12 @@ const COLOR = {
   Rojo: "#c64a4a",
 };
 
-const SeguimientoDiario = ({ data }) => {
+const SeguimientoDiario = ({ data, bebeId, ultimaEvaluacionId, onSaved }) => {
+  const [evalId, setEvalId] = useState("");
+  const [registro, setRegistro] = useState({});
+  const [guardando, setGuardando] = useState(false);
+  const [msg, setMsg] = useState(null);
+
   if (!data) {
     return (
       <div className="modulo-empty">
@@ -18,6 +24,51 @@ const SeguimientoDiario = ({ data }) => {
   const { meta = {}, triajes = [], resumenGlobal = {} } = data;
   const items = meta.items || [];
   const recomendaciones = meta.recomendaciones || {};
+  const valores = meta.valoresValidos?.filter((v) =>
+    ["Mejoró", "Igual", "Empeoró"].includes(v)
+  ) || ["Mejoró", "Igual", "Empeoró"];
+
+  const evaluacionesDisponibles = useMemo(() => {
+    if (triajes.length) {
+      return triajes.map((t) => ({
+        id: t.evaluacionRiesgoId,
+        diasRegistrados: t.totalDias,
+      }));
+    }
+    if (ultimaEvaluacionId) {
+      return [{ id: ultimaEvaluacionId, diasRegistrados: 0 }];
+    }
+    return [];
+  }, [triajes, ultimaEvaluacionId]);
+
+  const evaluacionActiva = evalId || String(evaluacionesDisponibles[0]?.id || "");
+  const diasRegistrados =
+    evaluacionesDisponibles.find((e) => String(e.id) === evaluacionActiva)
+      ?.diasRegistrados || 0;
+  const proximoDia = diasRegistrados + 1;
+  const puedeRegistrar =
+    bebeId && evaluacionActiva && proximoDia <= (meta.totalDias || 5);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!puedeRegistrar) return;
+    setGuardando(true);
+    setMsg(null);
+    try {
+      await guardarSeguimientoBebe(bebeId, {
+        evaluacionRiesgoId: Number(evaluacionActiva),
+        diaSeguimiento: proximoDia,
+        registro,
+      });
+      setRegistro({});
+      setMsg(`Día ${proximoDia} registrado correctamente.`);
+      onSaved?.();
+    } catch (err) {
+      setMsg(err.message);
+    } finally {
+      setGuardando(false);
+    }
+  };
 
   return (
     <div className="modulo-seguimiento">
@@ -112,16 +163,58 @@ const SeguimientoDiario = ({ data }) => {
         </section>
       )}
 
-      {triajes.length === 0 ? (
+      {puedeRegistrar && (
+        <section className="seguimiento-form-card">
+          <h3>Registrar día {proximoDia} de seguimiento</h3>
+          {evaluacionesDisponibles.length > 1 && (
+            <label>
+              Evaluación de triaje
+              <select value={evaluacionActiva} onChange={(e) => setEvalId(e.target.value)}>
+                {evaluacionesDisponibles.map((ev) => (
+                  <option key={ev.id} value={ev.id}>
+                    Triaje #{ev.id} ({ev.diasRegistrados} días)
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          <form onSubmit={handleSubmit}>
+            {items.map((it) => (
+              <label key={it.id} className="seguimiento-form-item">
+                {it.label}
+                <select
+                  required
+                  value={registro[it.id] || ""}
+                  onChange={(e) =>
+                    setRegistro({ ...registro, [it.id]: e.target.value })
+                  }
+                >
+                  <option value="">Seleccionar</option>
+                  {valores.map((v) => (
+                    <option key={v} value={v}>
+                      {v}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ))}
+            {msg && <p className="modulo-msg">{msg}</p>}
+            <button type="submit" className="neo-btn-primary" disabled={guardando}>
+              {guardando ? "Guardando..." : `Guardar día ${proximoDia}`}
+            </button>
+          </form>
+        </section>
+      )}
+
+      {bebeId && !puedeRegistrar && evaluacionesDisponibles.length === 0 && (
         <section className="seguimiento-empty">
           <p>
-            Este bebé aún no tiene días de seguimiento registrados. Cuando se
-            realice una evaluación de triaje con nivel de riesgo medio o
-            seguimiento recomendado, podrás comenzar a registrar la evolución
-            diaria.
+            Primero registra una evaluación de triaje para activar el seguimiento diario.
           </p>
         </section>
-      ) : (
+      )}
+
+      {triajes.length > 0 &&
         triajes.map((triaje) => (
           <section
             key={triaje.evaluacionRiesgoId}
@@ -210,8 +303,7 @@ const SeguimientoDiario = ({ data }) => {
               ))}
             </div>
           </section>
-        ))
-      )}
+        ))}
 
       <section className="seguimiento-info-card">
         <h3>Indicadores evaluados</h3>

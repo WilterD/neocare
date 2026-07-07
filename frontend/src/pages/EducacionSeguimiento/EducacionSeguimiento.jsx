@@ -1,38 +1,29 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./EducacionSeguimiento.css";
 
 import Header2 from "../../components/Header2/Header2.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
 import SidebarNeoCare from "../../components/SidebarNeoCare/SidebarNeoCare.jsx";
+import { obtenerMetaSeguimiento } from "../../services/api.js";
 
 import realizarEImage from "../../assets/RealizarE.png";
 import saImage from "../../assets/SA.png";
 import gorroImage from "../../assets/GORRO.png";
 import duvidaImage from "../../assets/DUDA.png";
 
-const ITEMS = [
-  { id: "alimentacion_normal", label: "Se alimenta con normalidad" },
-  { id: "alimentacion_rechazo", label: "Rechazo alimentario" },
-  { id: "temperatura_fiebre", label: "Fiebre" },
-  { id: "temperatura_frio", label: "Hipotermia" },
-  { id: "actividad_normal", label: "Actividad habitual" },
-  { id: "actividad_letargo", label: "Letargo o somnolencia excesiva" },
-  { id: "respiracion_normal", label: "Respiración normal" },
-  { id: "respiracion_dificultad", label: "Dificultad respiratoria" },
-  { id: "piel_normal", label: "Coloración normal de la piel" },
-  { id: "piel_alteracion", label: "Alteraciones en la piel" },
-  { id: "eliminacion_panales", label: "Pañales mojados con regularidad" },
-  { id: "eliminacion_deposiciones", label: "Deposiciones normales" },
-  { id: "llanto_normal", label: "Llanto consolable" },
-  { id: "llanto_alteracion", label: "Llanto inconsolable" },
-  { id: "alarma_convulsiones", label: "Convulsiones" },
-  { id: "alarma_vomito", label: "Vómitos repetitivos" },
-  { id: "alarma_empeoramiento", label: "Empeoramiento general" },
-];
-
 const EducacionSeguimiento = () => {
   const navigate = useNavigate();
+  const [meta, setMeta] = useState(null);
+
+  useEffect(() => {
+    obtenerMetaSeguimiento()
+      .then((d) => setMeta(d.meta || null))
+      .catch(console.error);
+  }, []);
+
+  const items = meta?.items || [];
+  const totalDias = meta?.totalDias || 5;
 
   return (
     <main className="edu-seg-page-wrapper">
@@ -49,14 +40,14 @@ const EducacionSeguimiento = () => {
 
               <p>
                 Después de una evaluación de triaje, NeoCare permite registrar
-                la <strong>evolución del bebé durante 5 días</strong>{" "}
-                consecutivos. Cada día se evalúan 17 indicadores para confirmar
+                la <strong>evolución del bebé durante {totalDias} días</strong>{" "}
+                consecutivos. Cada día se evalúan {items.length || 17} indicadores para confirmar
                 la mejoría o detectar empeoramiento.
               </p>
 
               <div className="edu-seg-hero-tags">
-                <span className="edu-seg-tag">5 días</span>
-                <span className="edu-seg-tag">17 indicadores</span>
+                <span className="edu-seg-tag">{totalDias} días</span>
+                <span className="edu-seg-tag">{items.length || 17} indicadores</span>
                 <span className="edu-seg-tag">Verde / Amarillo / Rojo</span>
               </div>
             </div>
@@ -72,7 +63,7 @@ const EducacionSeguimiento = () => {
             <p>
               Es un control estructurado que la madre, el cuidador o el
               personal de salud realiza al bebé durante{" "}
-              <strong>5 días seguidos</strong> luego de un triaje. Permite
+              <strong>{totalDias} días seguidos</strong> luego de un triaje. Permite
               confirmar que los signos observados están mejorando, se mantienen
               estables o están empeorando, y tomar decisiones oportunas.
             </p>
@@ -203,7 +194,7 @@ const EducacionSeguimiento = () => {
           <section className="edu-seg-items-card">
             <div className="edu-seg-section-title">
               <img src={saImage} alt="Indicadores" />
-              <h3>Los 17 indicadores evaluados</h3>
+              <h3>Los {items.length || 17} indicadores evaluados</h3>
             </div>
 
             <p className="edu-seg-subtitle">
@@ -212,7 +203,7 @@ const EducacionSeguimiento = () => {
             </p>
 
             <div className="edu-seg-items-grid">
-              {ITEMS.map((it, idx) => (
+              {items.map((it, idx) => (
                 <div key={it.id} className="edu-seg-item">
                   <span className="edu-seg-item-num">{idx + 1}</span>
                   <span className="edu-seg-item-label">{it.label}</span>
@@ -235,11 +226,11 @@ const EducacionSeguimiento = () => {
 
               <li>
                 Si el resultado lo recomienda, NeoCare activará el{" "}
-                <strong>seguimiento de 5 días</strong>.
+                <strong>seguimiento de {totalDias} días</strong>.
               </li>
 
               <li>
-                Cada día, marca el estado de los 17 indicadores: Mejoró, Igual
+                Cada día, marca el estado de los {items.length || 17} indicadores: Mejoró, Igual
                 o Empeoró.
               </li>
 

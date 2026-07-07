@@ -1,0 +1,280 @@
+﻿.neo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 520px;
+}
+
+.neo-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #343349;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.neo-form-field input,
+.neo-form-field select,
+.neo-form-field textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1.5px solid #e2d8cf;
+  border-radius: 11px;
+  background: #ffffff;
+  color: #343349;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  resize: vertical;
+}
+
+.neo-form-field textarea {
+  min-height: 100px;
+}
+
+.neo-form-field input:focus,
+.neo-form-field select:focus,
+.neo-form-field textarea:focus {
+  outline: none;
+  border-color: #6fa04f;
+  box-shadow: 0 0 0 3px rgba(111, 160, 79, 0.15);
+}
+
+.neo-form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.neo-btn-primary,
+.neo-btn-secondary {
+  min-width: 148px;
+  height: 44px;
+  border-radius: 11px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.neo-btn-primary {
+  border: none;
+  background: linear-gradient(135deg, #8ab86c, #6fa04f);
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(111, 160, 79, 0.22);
+}
+
+.neo-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px rgba(111, 160, 79, 0.28);
+}
+
+.neo-btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.neo-btn-secondary {
+  border: 1.5px solid #aeb4c0;
+  background: #ffffff;
+  color: #343349;
+}
+
+.neo-form-error {
+  margin: 0;
+  color: #c64a4a;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.neo-form-success {
+  margin: 0;
+  color: #4d7635;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.seguimiento-form-card,
+.triaje-form-card,
+.bebes-form-card {
+  margin-top: 18px;
+  padding: 18px;
+  background: #fffaf2;
+  border: 1.5px solid #ece2d4;
+  border-radius: 14px;
+}
+
+.seguimiento-form-card form,
+.triaje-form-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.seguimiento-form-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #343349;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.seguimiento-form-item select,
+.seguimiento-form-card > label select {
+  min-height: 42px;
+  padding: 8px 12px;
+  border: 1.5px solid #e2d8cf;
+  border-radius: 10px;
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #343349;
+}
+
+.seguimiento-form-card button[type="submit"],
+.triaje-form-card button[type="submit"] {
+  align-self: flex-start;
+  min-width: 180px;
+  height: 44px;
+  border: none;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #8ab86c, #6fa04f);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 12px 24px rgba(111, 160, 79, 0.22);
+}
+
+.neo-btn-sm {
+  min-width: auto;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.neo-btn-primary.neo-btn-outline,
+button.neo-btn-outline {
+  min-width: auto;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  border: 1.5px solid rgba(111, 160, 79, 0.55);
+  background: #ffffff;
+  color: #4d7635;
+  box-shadow: none;
+}
+
+.neo-btn-primary.neo-btn-outline:hover:not(:disabled),
+button.neo-btn-outline:hover:not(:disabled) {
+  background: rgba(111, 160, 79, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(111, 160, 79, 0.15);
+}
+
+.neo-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(52, 51, 73, 0.45);
+}
+
+.neo-modal {
+  width: min(100%, 420px);
+  padding: 22px 24px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #fffaf2 0%, #fff3e7 100%);
+  border: 1.5px solid #ece2d4;
+  box-shadow: 0 24px 48px rgba(146, 116, 78, 0.22);
+}
+
+.neo-modal h4 {
+  margin: 0 0 8px;
+  color: #343349;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.neo-modal p {
+  margin: 0 0 16px;
+  color: #6b6b7c;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.vacunas-control-form {
+  margin-top: 18px;
+  padding: 18px;
+  background: #fffaf2;
+  border: 1.5px solid #ece2d4;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 560px;
+}
+
+.vacunas-control-form h4 {
+  margin: 0;
+  color: #343349;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.vacunas-control-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #343349;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.vacunas-control-form input,
+.vacunas-control-form textarea {
+  min-height: 42px;
+  padding: 8px 12px;
+  border: 1.5px solid #e2d8cf;
+  border-radius: 10px;
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #343349;
+}
+
+.vacunas-control-form textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.vacunas-control-form input:focus,
+.vacunas-control-form textarea:focus {
+  outline: none;
+  border-color: #6fa04f;
+  box-shadow: 0 0 0 3px rgba(111, 160, 79, 0.15);
+}
+
+.vacunas-tabla .neo-btn-outline {
+  min-width: auto;
+}

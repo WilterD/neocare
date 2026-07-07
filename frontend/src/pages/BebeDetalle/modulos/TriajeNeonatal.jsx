@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { guardarTriajeBebe } from "../../../services/api.js";
 
 const COLOR = {
   Bajo: "#6fa04f",
@@ -12,7 +13,11 @@ const TEXTO = {
   Alto: "Riesgo alto",
 };
 
-const TriajeNeonatal = ({ data }) => {
+const TriajeNeonatal = ({ data, bebeId, onSaved }) => {
+  const [signosForm, setSignosForm] = useState({});
+  const [guardando, setGuardando] = useState(false);
+  const [msg, setMsg] = useState(null);
+
   if (!data) {
     return (
       <div className="modulo-empty">
@@ -23,6 +28,27 @@ const TriajeNeonatal = ({ data }) => {
 
   const { catalogoSignos = [], evaluaciones = [], ultimaEvaluacion, meta = {} } = data;
   const rangos = meta.ranges || [];
+
+  const toggleSigno = (signoId) => {
+    setSignosForm((prev) => ({ ...prev, [signoId]: !prev[signoId] }));
+  };
+
+  const handleGuardarTriaje = async (e) => {
+    e.preventDefault();
+    if (!bebeId) return;
+    setGuardando(true);
+    setMsg(null);
+    try {
+      await guardarTriajeBebe(bebeId, signosForm);
+      setSignosForm({});
+      setMsg("Evaluación de triaje registrada correctamente.");
+      onSaved?.();
+    } catch (err) {
+      setMsg(err.message);
+    } finally {
+      setGuardando(false);
+    }
+  };
 
   return (
     <div className="modulo-triaje">
@@ -114,6 +140,33 @@ const TriajeNeonatal = ({ data }) => {
             <p>{ultimaEvaluacion.recomendacion?.text}</p>
             <small>{ultimaEvaluacion.recomendacion?.followUp}</small>
           </div>
+        </section>
+      )}
+
+      {bebeId && (
+        <section className="triaje-form-card">
+          <h3>Registrar nueva evaluación de triaje</h3>
+          <p className="modulo-subtitle">
+            Marca los signos observados y guarda la evaluación en el historial del bebé.
+          </p>
+          <form onSubmit={handleGuardarTriaje}>
+            <div className="triaje-catalog-grid">
+              {catalogoSignos.map((signo) => (
+                <label key={signo.id} className={`triaje-signo-card ${signo.category}`}>
+                  <input
+                    type="checkbox"
+                    checked={Boolean(signosForm[signo.id])}
+                    onChange={() => toggleSigno(signo.id)}
+                  />
+                  <div className="triaje-signo-label">{signo.label}</div>
+                </label>
+              ))}
+            </div>
+            {msg && <p className="modulo-msg">{msg}</p>}
+            <button type="submit" className="neo-btn-primary" disabled={guardando}>
+              {guardando ? "Guardando..." : "Guardar evaluación"}
+            </button>
+          </form>
         </section>
       )}
 

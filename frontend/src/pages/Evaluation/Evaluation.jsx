@@ -933,7 +933,7 @@ const Evaluation = () => {
           irritabilidadOcasional: false,
         };
         signosReales.forEach((id) => { signosBool[id] = true; });
-        await guardarTriajeBebe(idBebe, { signos: signosBool });
+        await guardarTriajeBebe(idBebe, signosBool);
       }
     } catch (err) {
       console.error("No se pudo guardar el triaje en backend:", err);

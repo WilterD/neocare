@@ -1,0 +1,26 @@
+﻿aside[class*="-sidebar"] {
+  overflow-y: auto;
+  min-height: 0;
+  align-self: stretch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(111, 160, 79, 0.45) transparent;
+}
+
+aside[class*="-sidebar"]::-webkit-scrollbar {
+  width: 5px;
+}
+
+aside[class*="-sidebar"]::-webkit-scrollbar-thumb {
+  background: rgba(111, 160, 79, 0.45);
+  border-radius: 999px;
+}
+
+@media (min-width: 1051px) {
+  section[class*="-desktop"] {
+    align-items: stretch;
+  }
+
+  aside[class*="-sidebar"] {
+    max-height: calc(100vh - 120px);
+  }
+}

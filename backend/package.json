@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "neocare-backend",
   "version": "1.0.0",
   "description": "Backend para NeoCare",
@@ -6,13 +6,15 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "reset-demo": "node scripts/reset-demo-db.mjs"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^12.11.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",

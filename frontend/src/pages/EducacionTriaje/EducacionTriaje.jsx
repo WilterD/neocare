@@ -1,126 +1,46 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./EducacionTriaje.css";
 
 import Header2 from "../../components/Header2/Header2.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
 import SidebarNeoCare from "../../components/SidebarNeoCare/SidebarNeoCare.jsx";
+import { obtenerMetaTriaje } from "../../services/api.js";
 
 import qsImage from "../../assets/QS.png";
 import saImage from "../../assets/SA.png";
 import gorroImage from "../../assets/GORRO.png";
 import duvidaImage from "../../assets/DUDA.png";
 
-const SIGNOS_CATALOGO = [
-  {
-    id: "convulsiones",
-    label: "Convulsiones",
-    points: 3,
-    category: "alto",
-  },
-  {
-    id: "dificultadRespiratoria",
-    label: "Dificultad respiratoria",
-    points: 3,
-    category: "alto",
-  },
-  {
-    id: "coloracionAzulada",
-    label: "Coloración azulada de labios o piel",
-    points: 3,
-    category: "alto",
-  },
-  {
-    id: "fiebreHipotermia",
-    label: "Fiebre o hipotermia",
-    points: 3,
-    category: "alto",
-  },
-  {
-    id: "rechazoAlimentacion",
-    label: "Rechazo completo de la alimentación",
-    points: 3,
-    category: "alto",
-  },
-  {
-    id: "disminucionConciencia",
-    label: "Disminución importante del estado de conciencia",
-    points: 3,
-    category: "alto",
-  },
-  {
-    id: "vomitosRepetitivos",
-    label: "Vómitos repetitivos",
-    points: 2,
-    category: "medio",
-  },
-  {
-    id: "ictericiaProgresiva",
-    label: "Ictericia progresiva",
-    points: 2,
-    category: "medio",
-  },
-  {
-    id: "disminucionActividad",
-    label: "Disminución de la actividad habitual",
-    points: 2,
-    category: "medio",
-  },
-  {
-    id: "llantoPersistente",
-    label: "Llanto persistente o inconsolable",
-    points: 2,
-    category: "medio",
-  },
-  {
-    id: "alteracionesSueno",
-    label: "Alteraciones leves del sueño",
-    points: 1,
-    category: "bajo",
-  },
-  {
-    id: "disminucionApetito",
-    label: "Disminución leve del apetito",
-    points: 1,
-    category: "bajo",
-  },
-  {
-    id: "irritabilidadOcasional",
-    label: "Irritabilidad ocasional",
-    points: 1,
-    category: "bajo",
-  },
-];
-
-const RANGOS = [
-  {
-    level: "Bajo",
-    color: "#6fa04f",
-    rango: "0–2 puntos",
-    descripcion:
-      "No se identifican condiciones importantes de alarma. Mantén los cuidados generales en casa y observa al recién nacido.",
-    accion: "Cuidados generales en casa",
-  },
-  {
-    level: "Moderado",
-    color: "#e0a64a",
-    rango: "3–5 puntos",
-    descripcion:
-      "Hay señales de riesgo moderado. Activa el seguimiento diario y consulta a un profesional de salud si las señales persisten o aumentan.",
-    accion: "Seguimiento reforzado",
-  },
-  {
-    level: "Alto",
-    color: "#c64a4a",
-    rango: "≥ 6 puntos o cualquier signo de alto riesgo",
-    descripcion:
-      "Condiciones de alto riesgo. Acude de inmediato al centro de salud más cercano. NeoCare no reemplaza la atención médica profesional.",
-    accion: "Atención médica inmediata",
-  },
-];
-
 const EducacionTriaje = () => {
   const navigate = useNavigate();
+  const [catalogoSignos, setCatalogoSignos] = useState([]);
+  const [meta, setMeta] = useState(null);
+
+  useEffect(() => {
+    obtenerMetaTriaje()
+      .then((d) => {
+        setCatalogoSignos(d.catalogoSignos || []);
+        setMeta(d.meta || null);
+      })
+      .catch(console.error);
+  }, []);
+
+  const rangos = useMemo(() => {
+    if (!meta?.ranges) return [];
+    return meta.ranges.map((r) => ({
+      level: r.level,
+      color: r.color,
+      rango:
+        r.level === "Alto"
+          ? "≥ 6 puntos o cualquier signo de alto riesgo"
+          : r.min === r.max
+          ? `${r.min} puntos`
+          : `${r.min}–${r.max} puntos`,
+      descripcion: meta.recommendations?.[r.level]?.text || "",
+      accion: meta.recommendations?.[r.level]?.title || "",
+    }));
+  }, [meta]);
 
   return (
     <main className="edu-triaje-page-wrapper">
@@ -179,7 +99,7 @@ const EducacionTriaje = () => {
             <h3>Los tres niveles de riesgo</h3>
 
             <div className="edu-triaje-rangos-grid">
-              {RANGOS.map((r) => (
+              {rangos.map((r) => (
                 <div
                   key={r.level}
                   className="edu-triaje-rango"
@@ -221,7 +141,7 @@ const EducacionTriaje = () => {
             </p>
 
             <div className="edu-triaje-signos-grid">
-              {SIGNOS_CATALOGO.map((s) => (
+              {catalogoSignos.map((s) => (
                 <div
                   key={s.id}
                   className={`edu-triaje-signo-card ${s.category}`}

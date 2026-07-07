@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { authRequired } from "../middleware/authMiddleware.js";
 import {
   listarBebes,
   obtenerBebeDetalle,
@@ -14,18 +15,16 @@ import {
 
 const router = Router();
 
-// Rutas de lectura (GET)
-router.get("/bebes", listarBebes);
-router.get("/bebes/:id", obtenerBebeDetalle);
-router.get("/bebes/:id/triaje", obtenerTriajeBebe);
-router.get("/bebes/:id/seguimiento", obtenerSeguimientoBebe);
-router.get("/bebes/:id/vacunas-controles", obtenerVacunasControlesBebe);
-router.get("/bebes/:id/modulo-educativo", obtenerModuloEducativoCompleto);
+router.get("/bebes", authRequired, listarBebes);
+router.get("/bebes/:id", authRequired, obtenerBebeDetalle);
+router.get("/bebes/:id/triaje", authRequired, obtenerTriajeBebe);
+router.get("/bebes/:id/seguimiento", authRequired, obtenerSeguimientoBebe);
+router.get("/bebes/:id/vacunas-controles", authRequired, obtenerVacunasControlesBebe);
+router.get("/bebes/:id/modulo-educativo", authRequired, obtenerModuloEducativoCompleto);
 
-// Rutas de escritura (POST / PUT)
-router.post("/bebes/:id/triaje", guardarTriajeBebe);
-router.post("/bebes/:id/seguimiento", guardarSeguimientoBebe);
-router.post("/bebes/:id/controles", guardarControlBebe);
-router.post("/bebes/:id/vacunas", actualizarEstadoVacuna);
+router.post("/bebes/:id/triaje", authRequired, guardarTriajeBebe);
+router.post("/bebes/:id/seguimiento", authRequired, guardarSeguimientoBebe);
+router.post("/bebes/:id/controles", authRequired, guardarControlBebe);
+router.post("/bebes/:id/vacunas", authRequired, actualizarEstadoVacuna);
 
 export default router;

@@ -53,8 +53,21 @@ const calcularEdad = (fechaNacimiento) => {
  * Devuelve la lista de todos los recién nacidos con datos resumidos
  * de su madre y la última evaluación de riesgo.
  */
+const verificarPropiedadBebe = async (bebeId, madreId) => {
+  const { rows } = await query(
+    "SELECT id FROM recien_nacidos WHERE id = $1 AND madre_id = $2",
+    [bebeId, madreId]
+  );
+  return rows.length > 0;
+};
+
 export const listarBebes = async (req, res) => {
   try {
+    const madreId = req.user?.id;
+    if (!madreId) {
+      return res.status(401).json({ mensaje: "Autenticación requerida." });
+    }
+
     const sql = `
       SELECT
         rn.id,
@@ -72,9 +85,10 @@ export const listarBebes = async (req, res) => {
         m.correo_electronico AS correo_madre
       FROM recien_nacidos rn
       LEFT JOIN madres_cuidadores m ON m.id = rn.madre_id
+      WHERE rn.madre_id = $1
       ORDER BY rn.creado_en DESC
     `;
-    const { rows } = await query(sql);
+    const { rows } = await query(sql, [madreId]);
 
     // Buscar la última evaluación de riesgo de cada bebé (N+1 tolerable:
     //  los volúmenes esperados son bajos y la operación es indexada por bebe_id).
@@ -139,14 +153,19 @@ export const listarBebes = async (req, res) => {
 export const obtenerBebeDetalle = async (req, res) => {
   try {
     const { id } = req.params;
+    const madreId = req.user?.id;
+    if (!madreId) {
+      return res.status(401).json({ mensaje: "Autenticación requerida." });
+    }
+
     const sqlBebe = `
       SELECT rn.*, m.nombre AS nombre_madre, m.telefono AS telefono_madre,
              m.correo_electronico AS correo_madre, m.edad AS edad_madre
       FROM recien_nacidos rn
       LEFT JOIN madres_cuidadores m ON m.id = rn.madre_id
-      WHERE rn.id = $1
+      WHERE rn.id = $1 AND rn.madre_id = $2
     `;
-    const { rows: bebeRows } = await query(sqlBebe, [id]);
+    const { rows: bebeRows } = await query(sqlBebe, [id, madreId]);
     if (bebeRows.length === 0) {
       return res.status(404).json({ mensaje: "Bebé no encontrado." });
     }
@@ -200,8 +219,8 @@ export const obtenerTriajeBebe = async (req, res) => {
 
     // Verificar bebé
     const { rows: bebeRows } = await query(
-      "SELECT id, nombre_bebe, fecha_nacimiento FROM recien_nacidos WHERE id = $1",
-      [id]
+      "SELECT id, nombre_bebe, fecha_nacimiento FROM recien_nacidos WHERE id = $1 AND madre_id = $2",
+      [id, req.user.id]
     );
     if (bebeRows.length === 0) {
       return res.status(404).json({ mensaje: "Bebé no encontrado." });
@@ -277,8 +296,8 @@ export const obtenerSeguimientoBebe = async (req, res) => {
     const { id } = req.params;
 
     const { rows: bebeRows } = await query(
-      "SELECT id, nombre_bebe, fecha_nacimiento FROM recien_nacidos WHERE id = $1",
-      [id]
+      "SELECT id, nombre_bebe, fecha_nacimiento FROM recien_nacidos WHERE id = $1 AND madre_id = $2",
+      [id, req.user.id]
     );
     if (bebeRows.length === 0) {
       return res.status(404).json({ mensaje: "Bebé no encontrado." });
@@ -374,8 +393,8 @@ export const obtenerVacunasControlesBebe = async (req, res) => {
     const { id } = req.params;
 
     const { rows: bebeRows } = await query(
-      "SELECT id, nombre_bebe, fecha_nacimiento FROM recien_nacidos WHERE id = $1",
-      [id]
+      "SELECT id, nombre_bebe, fecha_nacimiento FROM recien_nacidos WHERE id = $1 AND madre_id = $2",
+      [id, req.user.id]
     );
     if (bebeRows.length === 0) {
       return res.status(404).json({ mensaje: "Bebé no encontrado." });
@@ -472,8 +491,8 @@ export const obtenerModuloEducativoCompleto = async (req, res) => {
     };
     // Llamadas internas vía query para no duplicar lógica.
     const { rows: bebeRows } = await query(
-      "SELECT * FROM recien_nacidos WHERE id = $1",
-      [id]
+      "SELECT * FROM recien_nacidos WHERE id = $1 AND madre_id = $2",
+      [id, req.user.id]
     );
     if (bebeRows.length === 0) {
       return res.status(404).json({ mensaje: "Bebé no encontrado." });
@@ -656,8 +675,8 @@ export const guardarTriajeBebe = async (req, res) => {
     }
 
     const { rows: bebeRows } = await query(
-      "SELECT id FROM recien_nacidos WHERE id = $1",
-      [id]
+      "SELECT id FROM recien_nacidos WHERE id = $1 AND madre_id = $2",
+      [id, req.user.id]
     );
     if (bebeRows.length === 0) {
       return res.status(404).json({ mensaje: "Bebé no encontrado." });
@@ -681,16 +700,16 @@ export const guardarTriajeBebe = async (req, res) => {
 
     const sql = `
       INSERT INTO evaluaciones_riesgo_bebe (
-        bebe_id, convulsiones, dificultad_respiratoria, coloracion_azulada, fiebre_hipotermia,
+        bebe_id, madre_id, convulsiones, dificultad_respiratoria, coloracion_azulada, fiebre_hipotermia,
         rechazo_alimentacion, disminucion_conciencia, vomitos_repetitivos, ictericia_progresiva,
         disminucion_actividad, llanto_persistente, alteraciones_sueno, disminucion_apetito,
         irritabilidad_ocasional, puntuacion_total, nivel_riesgo
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
       RETURNING id;
     `;
 
     const { rows } = await query(sql, [
-      id, convulsiones, dificultad_respiratoria, coloracion_azulada, fiebre_hipotermia,
+      id, req.user.id, convulsiones, dificultad_respiratoria, coloracion_azulada, fiebre_hipotermia,
       rechazo_alimentacion, disminucion_conciencia, vomitos_repetitivos, ictericia_progresiva,
       disminucion_actividad, llanto_persistente, alteraciones_sueno, disminucion_apetito,
       irritabilidad_ocasional, resTriaje.puntuacion, resTriaje.nivel
@@ -732,8 +751,8 @@ export const guardarSeguimientoBebe = async (req, res) => {
     }
 
     const { rows: bebeRows } = await query(
-      "SELECT id FROM recien_nacidos WHERE id = $1",
-      [id]
+      "SELECT id FROM recien_nacidos WHERE id = $1 AND madre_id = $2",
+      [id, req.user.id]
     );
     if (bebeRows.length === 0) {
       return res.status(404).json({ mensaje: "Bebé no encontrado." });
@@ -743,18 +762,19 @@ export const guardarSeguimientoBebe = async (req, res) => {
 
     const sql = `
       INSERT INTO seguimiento_diario_neonato (
-        bebe_id, evaluacion_riesgo_id, dia_seguimiento,
+        bebe_id, madre_id, evaluacion_riesgo_id, dia_seguimiento,
         alimentacion_normal, alimentacion_rechazo, temperatura_fiebre, temperatura_frio,
         actividad_normal, actividad_letargo, respiracion_normal, respiracion_dificultad,
         piel_normal, piel_alteracion, eliminacion_panales, eliminacion_deposiciones,
         llanto_normal, llanto_alteracion, alarma_convulsiones, alarma_vomito, alarma_empeoramiento,
         resultado_evolucion
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
       RETURNING id;
     `;
 
     const { rows } = await query(sql, [
       id,
+      req.user.id,
       evaluacionRiesgoId,
       diaSeguimiento,
       registro.alimentacion_normal,
@@ -811,8 +831,8 @@ export const guardarControlBebe = async (req, res) => {
     }
 
     const { rows: bebeRows } = await query(
-      "SELECT id FROM recien_nacidos WHERE id = $1",
-      [id]
+      "SELECT id FROM recien_nacidos WHERE id = $1 AND madre_id = $2",
+      [id, req.user.id]
     );
     if (bebeRows.length === 0) {
       return res.status(404).json({ mensaje: "Bebé no encontrado." });
@@ -820,13 +840,14 @@ export const guardarControlBebe = async (req, res) => {
 
     const sql = `
       INSERT INTO controles_nino_sano (
-        bebe_id, fecha_control, peso_kg, talla_cm, perimetro_cefalico_cm, observaciones, estado
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+        bebe_id, madre_id, fecha_control, peso_kg, talla_cm, perimetro_cefalico_cm, observaciones, estado
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING id;
     `;
 
     const { rows } = await query(sql, [
       id,
+      req.user.id,
       fechaControl,
       pesoKg,
       tallaCm,
@@ -864,8 +885,8 @@ export const actualizarEstadoVacuna = async (req, res) => {
     }
 
     const { rows: bebeRows } = await query(
-      "SELECT id FROM recien_nacidos WHERE id = $1",
-      [id]
+      "SELECT id FROM recien_nacidos WHERE id = $1 AND madre_id = $2",
+      [id, req.user.id]
     );
     if (bebeRows.length === 0) {
       return res.status(404).json({ mensaje: "Bebé no encontrado." });
@@ -891,7 +912,9 @@ export const actualizarEstadoVacuna = async (req, res) => {
         vacunaId: vacRows[0].id
       });
     } else {
-      const fechaProgramada = req.body.fechaProgramada || new Date();
+      const fechaProgramada =
+        req.body.fechaProgramada ||
+        new Date().toISOString().slice(0, 10);
       const sqlInsert = `
         INSERT INTO vacunacion_neonato (
           bebe_id, nombre_vacuna, dosis, fecha_programada, fecha_aplicacion, estado

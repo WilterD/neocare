@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import "./Contact.css";
 
 import Header from "../../components/Header/Header.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
+import { enviarContacto } from "../../services/api.js";
 
 import correoIcon from "../../assets/CORREO.png";
 import ubiIcon from "../../assets/UBI.png";
@@ -11,9 +12,39 @@ import horarioIcon from "../../assets/HORARIO.png";
 import enviarIcon from "../../assets/ENVIAR.png";
 
 const Contact = () => {
-  const handleSubmit = (event) => {
+  const [formData, setFormData] = useState({
+    nombre: "",
+    correo: "",
+    telefono: "",
+    asunto: "",
+    mensaje: "",
+  });
+  const [mensaje, setMensaje] = useState("");
+  const [error, setError] = useState("");
+  const [enviando, setEnviando] = useState(false);
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setError("");
+    setMensaje("");
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    alert("Mensaje enviado correctamente. Nos pondremos en contacto contigo.");
+    setEnviando(true);
+    setError("");
+    setMensaje("");
+
+    try {
+      const data = await enviarContacto(formData);
+      setMensaje(data.mensaje || "Mensaje enviado correctamente.");
+      setFormData({ nombre: "", correo: "", telefono: "", asunto: "", mensaje: "" });
+    } catch (err) {
+      setError(err.message || "Error al enviar el mensaje.");
+    } finally {
+      setEnviando(false);
+    }
   };
 
   return (
@@ -50,22 +81,47 @@ const Contact = () => {
             <form className="contact-form" onSubmit={handleSubmit}>
               <label>
                 Nombre completo <span>*</span>
-                <input type="text" placeholder="Tu nombre" required />
+                <input
+                  type="text"
+                  name="nombre"
+                  placeholder="Tu nombre"
+                  value={formData.nombre}
+                  onChange={handleChange}
+                  required
+                />
               </label>
 
               <label>
                 Correo electrónico <span>*</span>
-                <input type="email" placeholder="tu@email.com" required />
+                <input
+                  type="email"
+                  name="correo"
+                  placeholder="tu@email.com"
+                  value={formData.correo}
+                  onChange={handleChange}
+                  required
+                />
               </label>
 
               <label>
                 Teléfono <small>(opcional)</small>
-                <input type="tel" placeholder="+58 412 1234567" />
+                <input
+                  type="tel"
+                  name="telefono"
+                  placeholder="+58 412 1234567"
+                  value={formData.telefono}
+                  onChange={handleChange}
+                />
               </label>
 
               <label>
                 Asunto <span>*</span>
-                <select required defaultValue="">
+                <select
+                  name="asunto"
+                  required
+                  value={formData.asunto}
+                  onChange={handleChange}
+                >
                   <option value="" disabled>
                     Selecciona un asunto
                   </option>
@@ -85,12 +141,22 @@ const Contact = () => {
               <label>
                 Mensaje <span>*</span>
                 <textarea
+                  name="mensaje"
                   placeholder="Cuéntanos en qué podemos ayudarte..."
+                  value={formData.mensaje}
+                  onChange={handleChange}
                   required
                 ></textarea>
               </label>
 
-              <button type="submit" className="contact-submit-button">
+              {error && <p className="contact-error">{error}</p>}
+              {mensaje && <p className="contact-success">{mensaje}</p>}
+
+              <button
+                type="submit"
+                className="contact-submit-button"
+                disabled={enviando}
+              >
                 <span className="contact-submit-icon-box">
                   <img
                     src={enviarIcon}
@@ -99,7 +165,7 @@ const Contact = () => {
                   />
                 </span>
 
-                Enviar mensaje
+                {enviando ? "Enviando..." : "Enviar mensaje"}
               </button>
 
               <p className="contact-privacy-text">

@@ -4,12 +4,12 @@ import "./Profile.css";
 
 import Header2 from "../../components/Header2/Header2.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
-
-import inicioImage from "../../assets/Inicio.png";
-import evaluacionImage from "../../assets/Evaluacion.png";
-import educacionImage from "../../assets/Educacion.png";
-import historialImage from "../../assets/H.png";
-import perfilImage from "../../assets/Perfil.png";
+import SidebarNeoCare from "../../components/SidebarNeoCare/SidebarNeoCare.jsx";
+import {
+  obtenerPerfil,
+  actualizarPerfil,
+  cambiarContrasena,
+} from "../../services/api.js";
 
 import avatarImage from "../../assets/Avatar.png";
 import teleImage from "../../assets/TELE.png";
@@ -19,34 +19,6 @@ import candadoImage from "../../assets/CANDADO.png";
 import guardarImage from "../../assets/GUARDAR.png";
 import tusDImage from "../../assets/TusD.png";
 import informacionSeguraImage from "../../assets/InformacionSegura.png";
-
-const sidebarItems = [
-  {
-    image: inicioImage,
-    label: "Inicio",
-    path: "/inicio",
-  },
-  {
-    image: evaluacionImage,
-    label: "Evaluación",
-    path: "/evaluacion",
-  },
-  {
-    image: educacionImage,
-    label: "Educación",
-    path: "/educacion",
-  },
-  {
-    image: historialImage,
-    label: "Historial",
-    path: "/historial",
-  },
-  {
-    image: perfilImage,
-    label: "Perfil",
-    path: "/perfil",
-  },
-];
 
 const Profile = () => {
   const location = useLocation();
@@ -69,6 +41,28 @@ const Profile = () => {
 
   const [profileMessage, setProfileMessage] = useState("");
   const [passwordMessage, setPasswordMessage] = useState("");
+
+  useEffect(() => {
+    const cargarPerfil = async () => {
+      if (!localStorage.getItem("neocareToken")) return;
+      try {
+        const data = await obtenerPerfil();
+        const p = data.perfil;
+        if (p) {
+          setProfileData({
+            fullName: p.nombreCompleto || "",
+            age: p.edad || "",
+            phone: p.telefono || "",
+            email: p.correo || "",
+            relation: p.relacion || "Madre",
+          });
+        }
+      } catch (error) {
+        console.error("Error al cargar perfil:", error);
+      }
+    };
+    cargarPerfil();
+  }, []);
 
   useEffect(() => {
     try {
@@ -126,23 +120,36 @@ const Profile = () => {
     setPasswordMessage("");
   };
 
-  const handleSaveProfile = (event) => {
+  const handleSaveProfile = async (event) => {
     event.preventDefault();
 
-    const updatedUser = {
-      ...(usuario || {}),
-      nombreCompleto: profileData.fullName,
-      nombre: profileData.fullName,
-      edad: profileData.age,
-      telefono: profileData.phone,
-      email: profileData.email,
-      correo: profileData.email,
-      relacion: profileData.relation,
-    };
+    try {
+      const data = await actualizarPerfil({
+        nombreCompleto: profileData.fullName,
+        edad: profileData.age,
+        telefono: profileData.phone,
+        correo: profileData.email,
+        relacion: profileData.relation,
+      });
 
-    localStorage.setItem("neocareUser", JSON.stringify(updatedUser));
-    setUsuario(updatedUser);
-    setProfileMessage("Datos personales actualizados correctamente.");
+      const p = data.perfil;
+      const updatedUser = {
+        ...(usuario || {}),
+        nombreCompleto: p.nombreCompleto,
+        nombre: p.nombreCompleto,
+        edad: p.edad,
+        telefono: p.telefono,
+        email: p.correo,
+        correo: p.correo,
+        relacion: p.relacion,
+      };
+
+      localStorage.setItem("neocareUser", JSON.stringify(updatedUser));
+      setUsuario(updatedUser);
+      setProfileMessage("Datos personales actualizados correctamente.");
+    } catch (error) {
+      setProfileMessage(error.message || "Error al actualizar el perfil.");
+    }
   };
 
   const handleCancelProfile = () => {
@@ -157,7 +164,7 @@ const Profile = () => {
     setProfileMessage("");
   };
 
-  const handleUpdatePassword = (event) => {
+  const handleUpdatePassword = async (event) => {
     event.preventDefault();
 
     if (
@@ -179,13 +186,20 @@ const Profile = () => {
       return;
     }
 
-    setPasswordData({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
-
-    setPasswordMessage("Contraseña actualizada correctamente.");
+    try {
+      await cambiarContrasena(
+        passwordData.currentPassword,
+        passwordData.newPassword
+      );
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setPasswordMessage("Contraseña actualizada correctamente.");
+    } catch (error) {
+      setPasswordMessage(error.message || "Error al cambiar la contraseña.");
+    }
   };
 
   return (
@@ -193,32 +207,7 @@ const Profile = () => {
       <Header2 user={usuario} />
 
       <section className="profile-desktop">
-        <aside className="profile-sidebar">
-          <nav className="profile-sidebar-nav">
-            {sidebarItems.map((item) => (
-              <NavLink
-                key={item.label}
-                to={item.path}
-                end={item.path === "/inicio"}
-                className={({ isActive }) =>
-                  isActive
-                    ? "profile-sidebar-item active"
-                    : "profile-sidebar-item"
-                }
-              >
-                <span className="profile-sidebar-icon-box">
-                  <img
-                    src={item.image}
-                    alt={item.label}
-                    className="profile-sidebar-icon"
-                  />
-                </span>
-
-                {item.label}
-              </NavLink>
-            ))}
-          </nav>
-        </aside>
+        <SidebarNeoCare className="profile" activePath="/perfil" />
 
         <section className="profile-main-panel">
           <header className="profile-title-row">

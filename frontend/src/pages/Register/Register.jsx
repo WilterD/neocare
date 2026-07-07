@@ -5,6 +5,7 @@ import "./Register.css";
 import Header from "../../components/Header/Header.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
 import { crearRegistro } from "../../services/api.js";
+import { mapRegistroPayload } from "../../utils/mapRegistroPayload.js";
 
 import dtImage from "../../assets/DT.png";
 
@@ -571,14 +572,14 @@ const Register = () => {
     setSubmitting(true);
 
     try {
-      const payload = {
+      const payload = mapRegistroPayload({
         datosPersonales: usuarioRegistrado.datosPersonales,
         sociodemografica: usuarioRegistrado.sociodemografica,
         condicionesCuidado: usuarioRegistrado.condicionesCuidado,
         recienNacido: usuarioRegistrado.recienNacido,
         datosClinicos: usuarioRegistrado.datosClinicos,
         consentimientoAceptado: true,
-      };
+      });
 
       const resp = await crearRegistro(payload);
 

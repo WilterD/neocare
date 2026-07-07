@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./EducacionVacunas.css";
 
 import Header2 from "../../components/Header2/Header2.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
 import SidebarNeoCare from "../../components/SidebarNeoCare/SidebarNeoCare.jsx";
+import { obtenerMetaVacunas } from "../../services/api.js";
+import { formatEdadDias } from "../../utils/educacionHelpers.js";
 
 import vacuImage from "../../assets/VACU.png";
 import controlImage from "../../assets/CONTROL.png";
@@ -12,147 +14,32 @@ import pesoImage from "../../assets/Peso.png";
 import gorroImage from "../../assets/GORRO.png";
 import duvidaImage from "../../assets/DUDA.png";
 
-const VACUNAS = [
-  {
-    nombre: "BCG",
-    dosis: "Única",
-    momento: "Al nacer",
-    previene: "Tuberculosis meníngea y miliar",
-  },
-  {
-    nombre: "Hepatitis B (RN)",
-    dosis: "Primera",
-    momento: "En las primeras 24 horas de vida",
-    previene: "Hepatitis B",
-  },
-  {
-    nombre: "Pentavalente (1ra)",
-    dosis: "Primera",
-    momento: "A los 2 meses",
-    previene:
-      "Difteria, tétanos, tosferina, polio y Haemophilus influenzae tipo b",
-  },
-  {
-    nombre: "Polio (1ra)",
-    dosis: "Primera",
-    momento: "A los 2 meses",
-    previene: "Poliomielitis",
-  },
-  {
-    nombre: "Rotavirus (1ra)",
-    dosis: "Primera",
-    momento: "A los 2 meses",
-    previene: "Gastroenteritis severa por rotavirus",
-  },
-  {
-    nombre: "Neumococo conjugada (1ra)",
-    dosis: "Primera",
-    momento: "A los 2 meses",
-    previene: "Neumonía, meningitis y otitis por neumococo",
-  },
-  {
-    nombre: "Pentavalente (2da)",
-    dosis: "Segunda",
-    momento: "A los 4 meses",
-    previene: "Difteria, tétanos, tosferina, polio y Hib",
-  },
-  {
-    nombre: "Polio (2da)",
-    dosis: "Segunda",
-    momento: "A los 4 meses",
-    previene: "Poliomielitis",
-  },
-  {
-    nombre: "Rotavirus (2da)",
-    dosis: "Segunda",
-    momento: "A los 4 meses",
-    previene: "Gastroenteritis por rotavirus",
-  },
-  {
-    nombre: "Neumococo conjugada (2da)",
-    dosis: "Segunda",
-    momento: "A los 4 meses",
-    previene: "Infecciones por neumococo",
-  },
-  {
-    nombre: "Pentavalente (3ra)",
-    dosis: "Tercera",
-    momento: "A los 6 meses",
-    previene: "Difteria, tétanos, tosferina, polio y Hib",
-  },
-  {
-    nombre: "Polio (3ra)",
-    dosis: "Tercera",
-    momento: "A los 6 meses",
-    previene: "Poliomielitis",
-  },
-  {
-    nombre: "Neumococo conjugada (3ra)",
-    dosis: "Tercera",
-    momento: "Entre los 9 y 12 meses",
-    previene: "Infecciones por neumococo",
-  },
-  {
-    nombre: "SRP (Triple Viral)",
-    dosis: "Primera",
-    momento: "Al año de edad",
-    previene: "Sarampión, rubéola y parotiditis",
-  },
-  {
-    nombre: "Fiebre Amarilla",
-    dosis: "Única",
-    momento: "Al año (zonas endémicas)",
-    previene: "Fiebre amarilla",
-  },
-];
-
-const CONTROLES = [
-  {
-    edad: "7 días",
-    titulo: "Primer control del recién nacido",
-    descripcion:
-      "Evaluación inicial tras el alta hospitalaria. Verifica peso, talla, perímetro cefálico, alimentación y signos de alarma.",
-  },
-  {
-    edad: "1 mes",
-    titulo: "Control del mes de vida",
-    descripcion:
-      "Control de crecimiento y desarrollo. Refuerzo de lactancia materna y orientación a la familia.",
-  },
-  {
-    edad: "2 meses",
-    titulo: "Control de los 2 meses",
-    descripcion:
-      "Control de crecimiento, aplicación del esquema de vacunas y tamizaje del desarrollo.",
-  },
-  {
-    edad: "4 meses",
-    titulo: "Control de los 4 meses",
-    descripcion:
-      "Control de crecimiento, segunda dosis de vacunas y orientación sobre alimentación complementaria.",
-  },
-  {
-    edad: "6 meses",
-    titulo: "Control de los 6 meses",
-    descripcion:
-      "Inicio de alimentación complementaria, control de peso y talla, evaluación del desarrollo motor.",
-  },
-  {
-    edad: "9 meses",
-    titulo: "Control de los 9 meses",
-    descripcion:
-      "Refuerzo de vacunas, evaluación del desarrollo y tamizaje de anemia según el caso.",
-  },
-  {
-    edad: "12 meses",
-    titulo: "Control del año de vida",
-    descripcion:
-      "Vacunas del año, evaluación del desarrollo psicomotor y nutrición.",
-  },
-];
-
 const EducacionVacunas = () => {
   const navigate = useNavigate();
+  const [meta, setMeta] = useState(null);
+
+  useEffect(() => {
+    obtenerMetaVacunas()
+      .then((d) => setMeta(d.meta || null))
+      .catch(console.error);
+  }, []);
+
+  const vacunas = useMemo(() => {
+    return (meta?.esquema || []).map((v) => ({
+      nombre: v.nombre,
+      dosis: v.dosis,
+      momento: formatEdadDias(v.edadDias),
+      previene: v.enfermedadPreviene,
+    }));
+  }, [meta]);
+
+  const controles = useMemo(() => {
+    return (meta?.controles || []).map((c) => ({
+      edad: formatEdadDias(c.edadDias),
+      titulo: c.titulo,
+      descripcion: c.descripcion,
+    }));
+  }, [meta]);
 
   return (
     <main className="edu-vac-page-wrapper">
@@ -177,8 +64,8 @@ const EducacionVacunas = () => {
 
               <div className="edu-vac-hero-tags">
                 <span className="edu-vac-tag">Esquema PAI/OPS</span>
-                <span className="edu-vac-tag">15 vacunas</span>
-                <span className="edu-vac-tag">7 controles</span>
+                <span className="edu-vac-tag">{vacunas.length} vacunas</span>
+                <span className="edu-vac-tag">{controles.length} controles</span>
               </div>
             </div>
 
@@ -219,7 +106,7 @@ const EducacionVacunas = () => {
             </p>
 
             <div className="edu-vac-vacunas-grid">
-              {VACUNAS.map((v, idx) => (
+              {vacunas.map((v, idx) => (
                 <div key={idx} className="edu-vac-vacuna">
                   <div className="edu-vac-vacuna-head">
                     <strong>{v.nombre}</strong>
@@ -252,7 +139,7 @@ const EducacionVacunas = () => {
             </p>
 
             <div className="edu-vac-controles-linea">
-              {CONTROLES.map((c, idx) => (
+              {controles.map((c, idx) => (
                 <div key={idx} className="edu-vac-control">
                   <div className="edu-vac-control-punto">
                     <span className="edu-vac-control-num">{idx + 1}</span>
