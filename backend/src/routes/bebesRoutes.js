@@ -2,6 +2,7 @@ import { Router } from "express";
 import { authRequired } from "../middleware/authMiddleware.js";
 import {
   listarBebes,
+  obtenerResumenUserHome,
   obtenerBebeDetalle,
   obtenerTriajeBebe,
   obtenerSeguimientoBebe,
@@ -16,11 +17,21 @@ import {
 const router = Router();
 
 router.get("/bebes", authRequired, listarBebes);
+router.get("/bebes/user-home/resumen", authRequired, obtenerResumenUserHome);
+
 router.get("/bebes/:id", authRequired, obtenerBebeDetalle);
 router.get("/bebes/:id/triaje", authRequired, obtenerTriajeBebe);
 router.get("/bebes/:id/seguimiento", authRequired, obtenerSeguimientoBebe);
-router.get("/bebes/:id/vacunas-controles", authRequired, obtenerVacunasControlesBebe);
-router.get("/bebes/:id/modulo-educativo", authRequired, obtenerModuloEducativoCompleto);
+router.get(
+  "/bebes/:id/vacunas-controles",
+  authRequired,
+  obtenerVacunasControlesBebe
+);
+router.get(
+  "/bebes/:id/modulo-educativo",
+  authRequired,
+  obtenerModuloEducativoCompleto
+);
 
 router.post("/bebes/:id/triaje", authRequired, guardarTriajeBebe);
 router.post("/bebes/:id/seguimiento", authRequired, guardarSeguimientoBebe);

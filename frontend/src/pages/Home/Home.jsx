@@ -4,7 +4,12 @@ import "./Home.css";
 
 import Header2 from "../../components/Header2/Header2.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
-import { obtenerTriajeBebe } from "../../services/api.js";
+
+import {
+  obtenerResumenUserHome,
+  listarBebes,
+  obtenerTriajeBebe,
+} from "../../services/api.js";
 
 import inicioImage from "../../assets/Inicio.png";
 import evaluacionImage from "../../assets/Evaluacion.png";
@@ -52,115 +57,535 @@ const sidebarItems = [
   },
 ];
 
+const leerJSONStorage = (key) => {
+  try {
+    const value = localStorage.getItem(key) || sessionStorage.getItem(key);
+    return value ? JSON.parse(value) : null;
+  } catch {
+    return null;
+  }
+};
+
+const primerValor = (...values) => {
+  return values.find(
+    (value) =>
+      value !== undefined &&
+      value !== null &&
+      String(value).trim() !== ""
+  );
+};
+
+const normalizarTexto = (value) =>
+  String(value || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+const calcularDiasDesdeNacimiento = (fechaNacimiento) => {
+  if (!fechaNacimiento) return "Sin registro";
+
+  const raw = String(fechaNacimiento);
+  let fecha;
+
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(raw)) {
+    const [dd, mm, yyyy] = raw.split("/");
+    fecha = new Date(Number(yyyy), Number(mm) - 1, Number(dd));
+  } else {
+    fecha = new Date(raw);
+  }
+
+  if (Number.isNaN(fecha.getTime())) return "Sin registro";
+
+  const hoy = new Date();
+
+  fecha.setHours(0, 0, 0, 0);
+  hoy.setHours(0, 0, 0, 0);
+
+  const diffMs = hoy - fecha;
+  const dias = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+
+  return `${dias} ${dias === 1 ? "día" : "días"}`;
+};
+
+const normalizarNivel = (nivel) => {
+  const n = normalizarTexto(nivel);
+
+  if (n.includes("alto")) return "alto";
+  if (n.includes("medio") || n.includes("moderado")) return "medio";
+  if (n.includes("bajo")) return "bajo";
+
+  return "";
+};
+
+const obtenerRiskLabel = (nivel) => {
+  const n = normalizarNivel(nivel);
+
+  if (n === "alto") return "Alto";
+  if (n === "medio") return "Moderado";
+  if (n === "bajo") return "Bajo";
+
+  return "Sin clasificar";
+};
+
+const obtenerRiskClass = (nivel) => {
+  const n = normalizarNivel(nivel);
+
+  if (n === "alto") return "alto";
+  if (n === "medio") return "medio";
+  if (n === "bajo") return "bajo";
+
+  return "low";
+};
+
+const obtenerProximaEvaluacion = (nivel) => {
+  const n = normalizarNivel(nivel);
+
+  if (n === "alto") return "De inmediato";
+  if (n === "medio") return "En 24 horas";
+  if (n === "bajo") return "Según control";
+
+  return "Según control";
+};
+
+const obtenerRecomendacion = (nivel) => {
+  const n = normalizarNivel(nivel);
+
+  if (n === "alto") {
+    return "El resultado indica un nivel de riesgo alto. Se recomienda acudir de inmediato a un centro de salud o contactar a un profesional médico, sin esperar una nueva evaluación.";
+  }
+
+  if (n === "medio") {
+    return "El resultado indica un nivel de riesgo moderado. Se recomienda mantener vigilancia cercana, repetir la evaluación en las próximas 24 horas y consultar a un profesional de salud si los signos persisten o aumentan.";
+  }
+
+  if (n === "bajo") {
+    return "El resultado indica un nivel de riesgo bajo. Se recomienda continuar con los cuidados básicos en casa, mantener la observación diaria y asistir a los controles correspondientes.";
+  }
+
+  return "Aún no hay una evaluación registrada. Realiza una evaluación para generar el nivel de riesgo y recibir una recomendación personalizada.";
+};
+
+const normalizarUsuario = (data) => {
+  if (!data) return null;
+
+  const base = data.usuario || data.user || data.madre || data.cuidador || data;
+
+  const nombre = primerValor(
+    base.nombre,
+    base.nombreCompleto,
+    base.nombre_completo,
+    base.nombre_usuario,
+    data.nombre,
+    data.nombreCompleto,
+    data.nombre_completo,
+    data.nombre_usuario,
+    data.datosPersonales?.nombreCompleto,
+    data.datosPersonales?.nombre
+  );
+
+  return {
+    ...base,
+    nombre: nombre || "Usuario",
+    nombreCompleto: nombre || "Usuario",
+  };
+};
+
+const normalizarBebe = (bebe) => {
+  if (!bebe) return null;
+
+  const nombreBebe = primerValor(
+    bebe.nombreBebe,
+    bebe.nombre_bebe,
+    bebe.nombre,
+    bebe.bebeNombre,
+    bebe.bebe_nombre
+  );
+
+  const fechaNacimiento = primerValor(
+    bebe.fechaNacimiento,
+    bebe.fecha_nacimiento,
+    bebe.nacimiento
+  );
+
+  return {
+    ...bebe,
+    id: primerValor(bebe.id, bebe.bebeId, bebe.bebe_id),
+    madreId: primerValor(bebe.madreId, bebe.madre_id),
+    nombreBebe,
+    nombre_bebe: nombreBebe,
+    fechaNacimiento,
+    fecha_nacimiento: fechaNacimiento,
+    edadActual:
+      primerValor(bebe.edadActual, bebe.edad_actual) ||
+      calcularDiasDesdeNacimiento(fechaNacimiento),
+    ultimaEvaluacion: bebe.ultimaEvaluacion || bebe.ultima_evaluacion || null,
+    madre: bebe.madre || null,
+  };
+};
+
+const extraerBebes = (data) => {
+  if (Array.isArray(data)) return data;
+
+  if (Array.isArray(data?.bebes)) return data.bebes;
+  if (Array.isArray(data?.data)) return data.data;
+  if (Array.isArray(data?.items)) return data.items;
+  if (Array.isArray(data?.resultados)) return data.resultados;
+  if (Array.isArray(data?.data?.bebes)) return data.data.bebes;
+
+  if (data?.ultimoBebe) return [data.ultimoBebe];
+  if (data?.bebe) return [data.bebe];
+
+  return [];
+};
+
+const extraerEvaluaciones = (data) => {
+  if (Array.isArray(data)) return data;
+
+  if (Array.isArray(data?.evaluaciones)) return data.evaluaciones;
+  if (Array.isArray(data?.data)) return data.data;
+  if (Array.isArray(data?.items)) return data.items;
+  if (Array.isArray(data?.resultados)) return data.resultados;
+  if (Array.isArray(data?.data?.evaluaciones)) return data.data.evaluaciones;
+
+  if (data?.ultimaEvaluacion) return [data.ultimaEvaluacion];
+
+  return [];
+};
+
+const obtenerUltimoBebe = (data) => {
+  const bebes = extraerBebes(data).map(normalizarBebe).filter(Boolean);
+
+  if (bebes.length === 0) return null;
+
+  return [...bebes].sort((a, b) => Number(b.id || 0) - Number(a.id || 0))[0];
+};
+
+const obtenerNivelEvaluacion = (evaluacion) => {
+  if (!evaluacion) return "";
+
+  const nivel = primerValor(
+    evaluacion.nivel,
+    evaluacion.nivelRiesgo,
+    evaluacion.nivel_riesgo,
+    evaluacion.nivelTexto,
+    evaluacion.riesgo,
+    evaluacion.risk,
+    evaluacion.riskLabel
+  );
+
+  const n = normalizarTexto(nivel);
+
+  if (n.includes("alto")) return "alto";
+  if (n.includes("medio") || n.includes("moderado")) return "medio";
+  if (n.includes("bajo")) return "bajo";
+
+  return "";
+};
+
+const obtenerFechaEvaluacion = (evaluacion) => {
+  if (!evaluacion) return "Sin evaluación previa";
+
+  return (
+    evaluacion.fecha ||
+    evaluacion.fechaEvaluacion ||
+    evaluacion.fecha_evaluacion ||
+    evaluacion.createdAt ||
+    evaluacion.created_at ||
+    "Sin evaluación previa"
+  );
+};
+
+const ordenarEvaluaciones = (lista) => {
+  return [...lista].sort((a, b) => {
+    const fechaA = new Date(
+      obtenerFechaEvaluacion(a) === "Sin evaluación previa"
+        ? 0
+        : obtenerFechaEvaluacion(a)
+    );
+
+    const fechaB = new Date(
+      obtenerFechaEvaluacion(b) === "Sin evaluación previa"
+        ? 0
+        : obtenerFechaEvaluacion(b)
+    );
+
+    const diffFecha = fechaB - fechaA;
+
+    if (diffFecha !== 0) return diffFecha;
+
+    return Number(b.id || 0) - Number(a.id || 0);
+  });
+};
+
 const Home = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [usuario, setUsuario] = useState(location.state?.user || null);
-  const [registro, setRegistro] = useState(location.state?.registro || null);
+  const [usuario, setUsuario] = useState(() =>
+    normalizarUsuario(location.state?.user || leerJSONStorage("neocareUser"))
+  );
+
+  const [registro, setRegistro] = useState(() => {
+    return (
+      location.state?.registro ||
+      leerJSONStorage("neocareRegisterData") ||
+      leerJSONStorage("neocareRegistro") ||
+      null
+    );
+  });
+
+  const [bebeActual, setBebeActual] = useState(() =>
+    normalizarBebe(
+      location.state?.bebe ||
+        location.state?.user?.bebe ||
+        location.state?.registro?.recienNacido ||
+        leerJSONStorage("neocareBebe")
+    )
+  );
+
   const [evaluations, setEvaluations] = useState([]);
+  const [latestEvaluationData, setLatestEvaluationData] = useState(null);
   const [notification, setNotification] = useState(null);
 
+  const [totalBebes, setTotalBebes] = useState(0);
+  const [totalEvaluaciones, setTotalEvaluaciones] = useState(0);
+  const [seguimientosActivos, setSeguimientosActivos] = useState(0);
+
+  const [cargando, setCargando] = useState(true);
+  const [errorCarga, setErrorCarga] = useState("");
+
   useEffect(() => {
-    const fetchEvaluations = async () => {
-      const idBebe =
-        usuario?.bebe?.id ||
-        registro?.recienNacido?.id ||
-        location.state?.bebe?.id;
+    const cargarResumenHome = async () => {
+      setCargando(true);
+      setErrorCarga("");
 
-      if (idBebe) {
-        try {
-          const triaje = await obtenerTriajeBebe(idBebe);
-          const lista =
-            triaje && Array.isArray(triaje.evaluaciones)
-              ? triaje.evaluaciones
-              : [];
+      try {
+        const dataResumen = await obtenerResumenUserHome();
 
-          setEvaluations(lista);
+        console.log("RESPUESTA RESUMEN HOME:", dataResumen);
 
-          if (lista.length > 0) {
-            const sorted = [...lista].sort(
-              (a, b) => new Date(b.fecha) - new Date(a.fecha)
-            );
-            const latest = sorted[0];
+        const usuarioDB = normalizarUsuario(dataResumen?.usuario);
+        const bebeDB = normalizarBebe(dataResumen?.bebe);
 
-            const riskLevel = (latest.nivel || "bajo").toLowerCase();
-
-            // Notification Logic via localStorage
-            const today = new Date().toLocaleDateString("en-CA");
-            const lastNotified = localStorage.getItem("neocareLastNotif");
-
-            if (lastNotified !== today) {
-              if (riskLevel === "alto") {
-                setNotification("¡Atención! Se requiere una evaluación de inmediato o acudir a un centro de salud.");
-              } else if (riskLevel === "medio") {
-                setNotification("Recordatorio: Debes repetir la evaluación clínica en 24 horas.");
-              } else {
-                setNotification("Recuerda continuar con el seguimiento básico y monitorear los signos vitales del bebé.");
-              }
-              localStorage.setItem("neocareLastNotif", today);
-            }
-          }
-        } catch (err) {
-          console.error("Error al obtener evaluaciones:", err);
+        if (usuarioDB) {
+          setUsuario(usuarioDB);
+          localStorage.setItem("neocareUser", JSON.stringify(usuarioDB));
         }
+
+        if (bebeDB) {
+          setBebeActual(bebeDB);
+          localStorage.setItem("neocareBebe", JSON.stringify(bebeDB));
+        }
+
+        let ultimaEvaluacion =
+          dataResumen?.ultimaEvaluacion ||
+          dataResumen?.ultima_evaluacion ||
+          bebeDB?.ultimaEvaluacion ||
+          null;
+
+        let evaluacionesActuales = ultimaEvaluacion ? [ultimaEvaluacion] : [];
+
+        if (bebeDB?.id) {
+          try {
+            const dataTriaje = await obtenerTriajeBebe(bebeDB.id);
+
+            console.log("RESPUESTA TRIAJE HOME:", dataTriaje);
+
+            const evaluacionesTriaje = extraerEvaluaciones(dataTriaje);
+            const ordenadas = ordenarEvaluaciones(evaluacionesTriaje);
+
+            if (ordenadas.length > 0) {
+              evaluacionesActuales = ordenadas;
+              ultimaEvaluacion = dataTriaje?.ultimaEvaluacion || ordenadas[0];
+            }
+          } catch (triajeError) {
+            console.error("Error consultando triaje desde Home:", triajeError);
+          }
+        }
+
+        setEvaluations(evaluacionesActuales);
+        setLatestEvaluationData(ultimaEvaluacion);
+
+        setTotalBebes(Number(dataResumen?.resumen?.totalBebes || 0));
+        setTotalEvaluaciones(
+          Number(
+            dataResumen?.resumen?.totalEvaluaciones ||
+              evaluacionesActuales.length ||
+              0
+          )
+        );
+        setSeguimientosActivos(
+          Number(dataResumen?.resumen?.seguimientosActivos || 0)
+        );
+      } catch (error) {
+        console.error("Error consultando resumen de Home:", error);
+        setErrorCarga(error.message || "No se pudo cargar la información.");
+
+        try {
+          const dataBebes = await listarBebes();
+
+          console.log("RESPUESTA BEBES FALLBACK HOME:", dataBebes);
+
+          const listaBebes = extraerBebes(dataBebes);
+          const ultimoBebe = obtenerUltimoBebe(dataBebes);
+
+          setTotalBebes(listaBebes.length);
+          setSeguimientosActivos(listaBebes.length);
+
+          if (ultimoBebe) {
+            setBebeActual(ultimoBebe);
+            localStorage.setItem("neocareBebe", JSON.stringify(ultimoBebe));
+
+            if (ultimoBebe.madre?.nombre) {
+              const usuarioDesdeBebe = {
+                id: ultimoBebe.madre.id || ultimoBebe.madreId,
+                nombre: ultimoBebe.madre.nombre,
+                nombreCompleto: ultimoBebe.madre.nombre,
+                correo: ultimoBebe.madre.correo,
+              };
+
+              setUsuario(usuarioDesdeBebe);
+              localStorage.setItem(
+                "neocareUser",
+                JSON.stringify(usuarioDesdeBebe)
+              );
+            }
+
+            let ultimaFallback = ultimoBebe.ultimaEvaluacion || null;
+            let evaluacionesFallback = ultimaFallback ? [ultimaFallback] : [];
+
+            try {
+              const dataTriaje = await obtenerTriajeBebe(ultimoBebe.id);
+
+              console.log("RESPUESTA TRIAJE FALLBACK HOME:", dataTriaje);
+
+              const evaluacionesTriaje = extraerEvaluaciones(dataTriaje);
+              const ordenadas = ordenarEvaluaciones(evaluacionesTriaje);
+
+              if (ordenadas.length > 0) {
+                evaluacionesFallback = ordenadas;
+                ultimaFallback = dataTriaje?.ultimaEvaluacion || ordenadas[0];
+              }
+            } catch (triajeError) {
+              console.error("Error consultando triaje fallback:", triajeError);
+            }
+
+            setEvaluations(evaluacionesFallback);
+            setTotalEvaluaciones(evaluacionesFallback.length);
+            setLatestEvaluationData(ultimaFallback);
+          }
+        } catch (fallbackError) {
+          console.error("Error cargando fallback Home:", fallbackError);
+        }
+      } finally {
+        setCargando(false);
       }
     };
-    fetchEvaluations();
-  }, [usuario, registro, location.state]);
+
+    cargarResumenHome();
+  }, []);
+
+  useEffect(() => {
+    const nivel = obtenerNivelEvaluacion(latestEvaluationData);
+    const riskLevel = normalizarNivel(nivel);
+
+    if (!riskLevel) return;
+
+    const today = new Date().toLocaleDateString("en-CA");
+    const lastNotified = localStorage.getItem("neocareLastNotif");
+
+    if (lastNotified === today) return;
+
+    if (riskLevel === "alto") {
+      setNotification(
+        "¡Atención! Se requiere una evaluación de inmediato o acudir a un centro de salud."
+      );
+    } else if (riskLevel === "medio") {
+      setNotification(
+        "Recordatorio: debes repetir la evaluación clínica en 24 horas."
+      );
+    } else {
+      setNotification(
+        "Recuerda continuar con el seguimiento básico y monitorear los signos vitales del bebé."
+      );
+    }
+
+    localStorage.setItem("neocareLastNotif", today);
+  }, [latestEvaluationData]);
 
   const userName = useMemo(() => {
-    return (
+    const nombreCompleto =
       usuario?.nombre ||
-      usuario?.name ||
-      usuario?.nombreCompleto?.split(" ")[0] ||
-      registro?.datosPersonales?.nombreCompleto?.split(" ")[0] ||
-      "Usuario"
-    );
+      usuario?.nombreCompleto ||
+      usuario?.nombre_completo ||
+      registro?.datosPersonales?.nombreCompleto ||
+      registro?.datosPersonales?.nombre ||
+      "Usuario";
+
+    return nombreCompleto.trim().split(" ")[0] || "Usuario";
   }, [usuario, registro]);
 
-  const recienNacido = registro?.recienNacido || usuario?.recienNacido || {};
-  const nombreBebe = recienNacido?.nombreBebe || usuario?.bebe?.nombre || "Sin registro";
+  const usuarioParaHeader = useMemo(() => {
+    return {
+      ...(usuario || {}),
+      nombre: userName,
+      nombreCompleto:
+        usuario?.nombreCompleto ||
+        usuario?.nombre_completo ||
+        usuario?.nombre ||
+        userName,
+    };
+  }, [usuario, userName]);
 
-  const calcularDiasDesdeNacimiento = () => {
-    const fn = recienNacido?.fechaNacimiento;
-    if (!fn) return "Sin registro";
-    const partes = fn.split("/");
-    if (partes.length === 3) {
-      const fechaNac = new Date(partes[2], partes[1] - 1, partes[0]);
-      const diffMs = new Date() - fechaNac;
-      const dias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-      return `${dias} ${dias === 1 ? "día" : "días"}`;
-    }
-    return fn;
-  };
+  const nombreBebe =
+    bebeActual?.nombreBebe ||
+    bebeActual?.nombre_bebe ||
+    bebeActual?.nombre ||
+    "Sin registro";
 
-  const sortedEvals = [...evaluations].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-  const latestEvaluationData = sortedEvals[0] || null;
+  const edadBebe =
+    bebeActual?.edadActual ||
+    bebeActual?.edad_actual ||
+    calcularDiasDesdeNacimiento(
+      bebeActual?.fechaNacimiento || bebeActual?.fecha_nacimiento
+    );
 
-  const edadBebe = latestEvaluationData?.edad_bebe_evaluacion || recienNacido?.edadActual || calcularDiasDesdeNacimiento();
-  
-  const riskLabel = latestEvaluationData?.nivel
-    ? latestEvaluationData.nivel === "bajo" ? "Riesgo bajo" : latestEvaluationData.nivel === "medio" ? "Riesgo medio" : "Riesgo alto"
+  const nivelCrudo = obtenerNivelEvaluacion(latestEvaluationData);
+
+  const riskLabel = latestEvaluationData
+    ? obtenerRiskLabel(nivelCrudo)
     : "Sin clasificar";
-  
-  const riskClass = latestEvaluationData?.nivel ? latestEvaluationData.nivel.toLowerCase() : "low";
 
-  const nextEvalTime = latestEvaluationData?.nivel === "alto" ? "De inmediato" : latestEvaluationData?.nivel === "medio" ? "En 24 horas" : "Según control";
-  
-  const activeFollowUps = sortedEvals.filter(e => (e.nivel || "").toLowerCase() !== "bajo").length;
+  const riskClass = obtenerRiskClass(nivelCrudo);
 
-  const hasActiveTracking = evaluations.length > 0;
+  const nextEvalTime = obtenerProximaEvaluacion(nivelCrudo);
+
+  const fechaUltimaEvaluacion = latestEvaluationData
+    ? obtenerFechaEvaluacion(latestEvaluationData)
+    : "Sin evaluación previa";
+
+  const recomendacion = obtenerRecomendacion(nivelCrudo);
+
+  const hasActiveTracking = seguimientosActivos > 0 || totalEvaluaciones > 0;
 
   const handleActivarSeguimiento = () => {
     navigate("/evaluacion", {
-      state: { user: usuario, registro }
+      state: {
+        user: usuarioParaHeader,
+        registro,
+        bebe: bebeActual,
+      },
     });
   };
 
   return (
     <main className="home-page-wrapper">
-      <Header2 user={usuario} />
+      <Header2
+        user={usuarioParaHeader}
+        usuario={usuarioParaHeader}
+        nombreUsuario={userName}
+      />
 
       <section className="home-desktop">
         <aside className="home-sidebar">
@@ -202,8 +627,47 @@ const Home = () => {
                 de vida.
               </p>
 
+              {cargando && (
+                <div
+                  style={{
+                    marginTop: "1rem",
+                    padding: "10px",
+                    backgroundColor: "#eef5ff",
+                    borderRadius: "8px",
+                    borderLeft: "4px solid #2196f3",
+                    color: "#0d47a1",
+                  }}
+                >
+                  Cargando datos registrados...
+                </div>
+              )}
+
+              {!cargando && errorCarga && (
+                <div
+                  style={{
+                    marginTop: "1rem",
+                    padding: "10px",
+                    backgroundColor: "#fff3e0",
+                    borderRadius: "8px",
+                    borderLeft: "4px solid #ff9800",
+                    color: "#e65100",
+                  }}
+                >
+                  <strong>Aviso:</strong> {errorCarga}
+                </div>
+              )}
+
               {notification && (
-                <div style={{ marginTop: "1rem", padding: "10px", backgroundColor: "#ffeedd", borderRadius: "8px", borderLeft: "4px solid #ff9800", color: "#e65100" }}>
+                <div
+                  style={{
+                    marginTop: "1rem",
+                    padding: "10px",
+                    backgroundColor: "#ffeedd",
+                    borderRadius: "8px",
+                    borderLeft: "4px solid #ff9800",
+                    color: "#e65100",
+                  }}
+                >
                   <strong>Notificación del día:</strong> {notification}
                 </div>
               )}
@@ -256,7 +720,7 @@ const Home = () => {
 
                   <div>
                     <h3>Última evaluación:</h3>
-                    <p>{latestEvaluationData ? latestEvaluationData.fecha : "Sin evaluación previa"}</p>
+                    <p>{fechaUltimaEvaluacion}</p>
                   </div>
                 </article>
 
@@ -273,7 +737,7 @@ const Home = () => {
                 <article className="home-current-item recommendation">
                   <div>
                     <h3>Recomendación:</h3>
-                    <p>{latestEvaluationData?.recomendacion || "Aún no hay recomendaciones registradas. Realiza una evaluación."}</p>
+                    <p>{recomendacion}</p>
                   </div>
                 </article>
               </div>
@@ -307,7 +771,7 @@ const Home = () => {
                 <h3>Seguimientos activos</h3>
 
                 <p className="home-metric-value">
-                  <strong>{activeFollowUps}</strong> seguimiento(s)
+                  <strong>{seguimientosActivos}</strong> seguimiento(s)
                 </p>
               </div>
             </article>
@@ -321,7 +785,7 @@ const Home = () => {
                 <h3>Evaluaciones realizadas</h3>
 
                 <p className="home-metric-value">
-                  <strong>{evaluations.length}</strong> evaluaciones
+                  <strong>{totalEvaluaciones}</strong> evaluaciones
                 </p>
               </div>
             </article>
@@ -341,9 +805,9 @@ const Home = () => {
                     <>
                       <h3>Seguimiento activo</h3>
                       <p>
-                        Tu seguimiento neonatal ya se encuentra activo. Continúa registrando 
-                        la evolución de tu bebé de forma periódica y revisa el historial 
-                        para estar al tanto.
+                        Tu seguimiento neonatal ya se encuentra activo. Continúa
+                        registrando la evolución de tu bebé de forma periódica y
+                        revisa el historial para estar al tanto.
                       </p>
                       <button
                         type="button"
