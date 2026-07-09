@@ -11,6 +11,7 @@ import About from "./pages/About/About.jsx";
 import Contact from "./pages/Contact/Contact.jsx";
 import Result from "./pages/Result/Result.jsx";
 import Education from "./pages/Education/Education.jsx";
+import NewEvaluation from "./pages/NewEvaluation/NewEvaluation.jsx";
 
 import History from "./pages/History/History.jsx";
 import AllEvaluations from "./pages/AllEvaluations/AllEvaluations.jsx";
@@ -61,7 +62,8 @@ function App() {
         <Route path="/perfil" element={<P><Profile /></P>} />
         <Route path="/historial/evaluaciones" element={<P><AllEvaluations /></P>} />
         <Route path="/evaluacion" element={<P><Evaluation /></P>} />
-
+        <Route path="/nueva-evaluacion" element={<NewEvaluation />} />
+        
         <Route path="/bebes" element={<P><Bebes /></P>} />
         <Route path="/bebes/nuevo" element={<P><BebeNuevo /></P>} />
         <Route path="/bebes/:id" element={<P><BebeDetalle /></P>} />

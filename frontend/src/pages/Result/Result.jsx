@@ -42,7 +42,7 @@ const sidebarItems = [
   {
     image: evaluacionImage,
     label: "Evaluación",
-    path: "/evaluacion",
+    path: "/nueva-evaluacion",
   },
   {
     image: educacionImage,
@@ -64,86 +64,154 @@ const sidebarItems = [
 const riskSignsCatalog = {
   convulsiones: {
     id: "convulsiones",
+    key: "convulsiones",
     label: "Convulsiones",
     points: 3,
+    puntos: 3,
     category: "alto",
+    categoria: "Alto riesgo",
   },
   dificultadRespiratoria: {
     id: "dificultadRespiratoria",
+    key: "dificultadRespiratoria",
     label: "Dificultad respiratoria",
     points: 3,
+    puntos: 3,
     category: "alto",
+    categoria: "Alto riesgo",
   },
   coloracionAzulada: {
     id: "coloracionAzulada",
+    key: "coloracionAzulada",
     label: "Coloración azulada de labios o piel",
     points: 3,
+    puntos: 3,
     category: "alto",
+    categoria: "Alto riesgo",
   },
   fiebreHipotermia: {
     id: "fiebreHipotermia",
+    key: "fiebreHipotermia",
     label: "Fiebre o hipotermia",
     points: 3,
+    puntos: 3,
     category: "alto",
+    categoria: "Alto riesgo",
   },
   rechazoAlimentacion: {
     id: "rechazoAlimentacion",
+    key: "rechazoAlimentacion",
     label: "Rechazo completo de la alimentación",
     points: 3,
+    puntos: 3,
     category: "alto",
+    categoria: "Alto riesgo",
   },
   disminucionConciencia: {
     id: "disminucionConciencia",
+    key: "disminucionConciencia",
     label: "Disminución importante del estado de conciencia",
     points: 3,
+    puntos: 3,
     category: "alto",
+    categoria: "Alto riesgo",
   },
   vomitosRepetitivos: {
     id: "vomitosRepetitivos",
+    key: "vomitosRepetitivos",
     label: "Vómitos repetitivos",
     points: 2,
+    puntos: 2,
     category: "medio",
+    categoria: "Riesgo moderado",
   },
   ictericiaProgresiva: {
     id: "ictericiaProgresiva",
+    key: "ictericiaProgresiva",
     label: "Ictericia progresiva",
     points: 2,
+    puntos: 2,
     category: "medio",
+    categoria: "Riesgo moderado",
   },
   disminucionActividad: {
     id: "disminucionActividad",
+    key: "disminucionActividad",
     label: "Disminución de la actividad habitual",
     points: 2,
+    puntos: 2,
     category: "medio",
+    categoria: "Riesgo moderado",
   },
   llantoPersistente: {
     id: "llantoPersistente",
+    key: "llantoPersistente",
     label: "Llanto persistente o inconsolable",
     points: 2,
+    puntos: 2,
     category: "medio",
+    categoria: "Riesgo moderado",
   },
   alteracionesSueno: {
     id: "alteracionesSueno",
+    key: "alteracionesSueno",
     label: "Alteraciones leves del sueño",
     points: 1,
+    puntos: 1,
     category: "bajo",
+    categoria: "Bajo riesgo",
   },
   disminucionApetito: {
     id: "disminucionApetito",
+    key: "disminucionApetito",
     label: "Disminución leve del apetito",
     points: 1,
+    puntos: 1,
     category: "bajo",
+    categoria: "Bajo riesgo",
   },
   irritabilidadOcasional: {
     id: "irritabilidadOcasional",
+    key: "irritabilidadOcasional",
     label: "Irritabilidad ocasional",
     points: 1,
+    puntos: 1,
     category: "bajo",
+    categoria: "Bajo riesgo",
   },
 };
 
+const normalizarTexto = (value) =>
+  String(value || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+const riskSignsByLabel = Object.values(riskSignsCatalog).reduce(
+  (acc, sign) => {
+    acc[normalizarTexto(sign.label)] = sign;
+    return acc;
+  },
+  {}
+);
+
 const getTodayLabel = () => {
   return new Date().toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+};
+
+const getDateLabel = (value) => {
+  if (!value) return getTodayLabel();
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return getTodayLabel();
+
+  return date.toLocaleDateString("es-ES", {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -160,6 +228,22 @@ const getRiskLabel = (riskLevel) => {
   return labels[riskLevel] || "Bajo";
 };
 
+const getRiskLevelFromText = (value) => {
+  const text = normalizarTexto(value);
+
+  if (!text) return "";
+
+  if (text.includes("alto")) return "alto";
+  if (text.includes("medio") || text.includes("moderado")) return "medio";
+  if (text.includes("bajo")) return "bajo";
+
+  return "";
+};
+
+const getValidRiskLevel = (riskLevel, fallback = "bajo") => {
+  return getRiskLevelFromText(riskLevel) || fallback;
+};
+
 const getRiskLevelFromScore = (score) => {
   const numericScore = Number(score) || 0;
 
@@ -174,23 +258,158 @@ const getRiskLevelFromScore = (score) => {
   return "bajo";
 };
 
-const getRiskLevelFromSigns = (score) => {
-  return getRiskLevelFromScore(score);
-};
+const getNumberFromValues = (...values) => {
+  for (const value of values) {
+    if (value === undefined || value === null) continue;
 
-const getValidRiskLevel = (riskLevel) => {
-  if (riskLevel === "bajo" || riskLevel === "medio" || riskLevel === "alto") {
-    return riskLevel;
+    if (typeof value === "number" && !Number.isNaN(value)) {
+      return value;
+    }
+
+    const text = String(value).trim();
+
+    if (!text) continue;
+
+    const match = text.match(/-?\d+(\.\d+)?/);
+
+    if (match) {
+      const number = Number(match[0]);
+
+      if (!Number.isNaN(number)) return number;
+    }
   }
 
-  return "bajo";
+  return 0;
+};
+
+const normalizeRecommendation = (recommendation, fallbackText = "") => {
+  if (!recommendation && !fallbackText) return null;
+
+  if (typeof recommendation === "string") {
+    return {
+      title: "",
+      text: recommendation,
+    };
+  }
+
+  if (typeof recommendation === "object" && recommendation !== null) {
+    return {
+      title:
+        recommendation.title ||
+        recommendation.titulo ||
+        recommendation.actionTitle ||
+        "",
+      text:
+        recommendation.text ||
+        recommendation.description ||
+        recommendation.descripcion ||
+        recommendation.recommendation ||
+        recommendation.recomendacion ||
+        fallbackText ||
+        "",
+    };
+  }
+
+  return {
+    title: "",
+    text: fallbackText,
+  };
+};
+
+const normalizeSignItem = (item) => {
+  if (!item) return null;
+
+  if (typeof item === "string") {
+    const text = item.trim();
+
+    if (!text) return null;
+
+    const byId = riskSignsCatalog[text];
+    const byLabel = riskSignsByLabel[normalizarTexto(text)];
+
+    if (byId) return byId;
+    if (byLabel) return byLabel;
+
+    return {
+      id: normalizarTexto(text).replace(/\s+/g, "_"),
+      key: normalizarTexto(text).replace(/\s+/g, "_"),
+      label: text,
+      points: 0,
+      puntos: 0,
+      category: "",
+      categoria: "",
+    };
+  }
+
+  if (typeof item === "object") {
+    const id = item.id || item.key || item.codigo || "";
+    const label =
+      item.label || item.nombre || item.descripcion || item.signo || "";
+
+    const byId = riskSignsCatalog[id];
+    const byLabel = riskSignsByLabel[normalizarTexto(label)];
+
+    const base = byId || byLabel || {};
+
+    const points = getNumberFromValues(
+      item.points,
+      item.puntos,
+      item.score,
+      item.puntaje,
+      base.points
+    );
+
+    const category =
+      getRiskLevelFromText(item.category || item.categoria || base.category) ||
+      base.category ||
+      "";
+
+    return {
+      ...base,
+      ...item,
+      id: id || base.id || normalizarTexto(label).replace(/\s+/g, "_"),
+      key: id || base.key || normalizarTexto(label).replace(/\s+/g, "_"),
+      label: label || base.label || "Factor registrado",
+      points,
+      puntos: points,
+      category,
+      categoria:
+        item.categoria ||
+        base.categoria ||
+        (category === "alto"
+          ? "Alto riesgo"
+          : category === "medio"
+          ? "Riesgo moderado"
+          : category === "bajo"
+          ? "Bajo riesgo"
+          : ""),
+    };
+  }
+
+  return null;
+};
+
+const uniqueItems = (items = []) => {
+  const map = new Map();
+
+  items.filter(Boolean).forEach((item, index) => {
+    const key = item.id || item.key || item.label || `item-${index}`;
+
+    if (!map.has(key)) {
+      map.set(key, item);
+    }
+  });
+
+  return Array.from(map.values());
 };
 
 const getPointsFromItems = (items = []) => {
   if (!Array.isArray(items)) return 0;
 
   return items.reduce((sum, item) => {
-    const points = Number(item?.points ?? item?.puntos ?? item?.score ?? 0);
+    const normalized = normalizeSignItem(item);
+    const points = Number(normalized?.points ?? normalized?.puntos ?? 0);
+
     return sum + (Number.isNaN(points) ? 0 : points);
   }, 0);
 };
@@ -201,6 +420,65 @@ const getSignsFromIds = (selectedSignIds = []) => {
   return selectedSignIds
     .filter((id) => id !== "sinSignosRegistrados" && riskSignsCatalog[id])
     .map((id) => riskSignsCatalog[id]);
+};
+
+const extractSignsFromPayload = (payload = {}) => {
+  const signsFromIds = getSignsFromIds(
+    Array.isArray(payload.selectedSignIds)
+      ? payload.selectedSignIds
+      : Array.isArray(payload.selected_sign_ids)
+      ? payload.selected_sign_ids
+      : []
+  );
+
+  const selectedSigns = Array.isArray(payload.selectedSigns)
+    ? payload.selectedSigns.map(normalizeSignItem).filter(Boolean)
+    : [];
+
+  const signosActivos = Array.isArray(payload.signosActivos)
+    ? payload.signosActivos.map(normalizeSignItem).filter(Boolean)
+    : [];
+
+  const detalleSignos = Array.isArray(payload.detalleSignos)
+    ? payload.detalleSignos.map(normalizeSignItem).filter(Boolean)
+    : [];
+
+  return uniqueItems([
+    ...signsFromIds,
+    ...selectedSigns,
+    ...signosActivos,
+    ...detalleSignos,
+  ]);
+};
+
+const normalizeFactorItems = (items = []) => {
+  if (!Array.isArray(items)) return [];
+
+  return items
+    .map((item, index) => {
+      if (typeof item === "string") {
+        return {
+          id: `factor-${index}`,
+          label: item,
+        };
+      }
+
+      if (typeof item === "object" && item !== null) {
+        return {
+          ...item,
+          id: item.id || item.key || `factor-${index}`,
+          label:
+            item.label ||
+            item.nombre ||
+            item.descripcion ||
+            item.factor ||
+            "Factor registrado",
+        };
+      }
+
+      return null;
+    })
+    .filter(Boolean);
 };
 
 const riskContent = {
@@ -288,13 +566,15 @@ const riskImages = {
 };
 
 const buildResultFromLegacySigns = (selectedSignIds = []) => {
-  const validSignIds = selectedSignIds.filter(
-    (id) => id !== "sinSignosRegistrados" && riskSignsCatalog[id]
-  );
+  const validSignIds = Array.isArray(selectedSignIds)
+    ? selectedSignIds.filter(
+        (id) => id !== "sinSignosRegistrados" && riskSignsCatalog[id]
+      )
+    : [];
 
   const selectedSigns = validSignIds.map((id) => riskSignsCatalog[id]);
   const score = selectedSigns.reduce((sum, sign) => sum + sign.points, 0);
-  const riskLevel = getRiskLevelFromSigns(score);
+  const riskLevel = getRiskLevelFromScore(score);
 
   return {
     mode: selectedSigns.length > 0 ? "dangerSigns" : "empty",
@@ -306,105 +586,252 @@ const buildResultFromLegacySigns = (selectedSignIds = []) => {
     selectedSignIds: validSignIds,
     identifiedFactors: selectedSigns,
     recommendation: null,
+    fechaEvaluacion: null,
   };
+};
+
+const normalizeNewEvaluationPayload = (payload = {}, locationState = {}) => {
+  const selectedSigns = extractSignsFromPayload(payload);
+
+  const hasScore =
+    payload.totalScore !== undefined ||
+    payload.total_score !== undefined ||
+    payload.puntuacion !== undefined ||
+    payload.puntuacionTotal !== undefined ||
+    payload.puntuacion_total !== undefined ||
+    payload.puntaje !== undefined ||
+    payload.score !== undefined;
+
+  const calculatedScore = getPointsFromItems(selectedSigns);
+
+  const totalScore = hasScore
+    ? getNumberFromValues(
+        payload.totalScore,
+        payload.total_score,
+        payload.puntuacion,
+        payload.puntuacionTotal,
+        payload.puntuacion_total,
+        payload.puntaje,
+        payload.score
+      )
+    : calculatedScore;
+
+  const riskLevel = getRiskLevelFromScore(totalScore);
+
+  const selectedSignIds = selectedSigns
+    .map((sign) => sign.id || sign.key)
+    .filter(Boolean);
+
+  return {
+    mode: "dangerSigns",
+    riskLevel,
+    finalRisk: riskLevel,
+    finalLabel: getRiskLabel(riskLevel),
+    totalScore,
+
+    selectedSigns,
+    selectedSignIds,
+    identifiedFactors: selectedSigns,
+
+    maternalScore: 0,
+    maternalRisk: "bajo",
+    maternalLabel: "Bajo",
+
+    neonatalScore: 0,
+    neonatalRisk: "bajo",
+    neonatalLabel: "Bajo",
+
+    combinedRisk: riskLevel,
+    combinedLabel: getRiskLabel(riskLevel),
+
+    recommendation: normalizeRecommendation(
+      payload.recommendation ||
+        payload.recomendacion ||
+        payload.recomendaciones,
+      riskContent[riskLevel]?.followText
+    ),
+
+    fechaEvaluacion:
+      payload.fechaEvaluacion ||
+      payload.fecha_evaluacion ||
+      payload.fecha ||
+      payload.createdAt ||
+      payload.created_at ||
+      locationState?.fechaEvaluacion ||
+      null,
+
+    observaciones: payload.observaciones || "",
+    noPresentaSenales: Boolean(payload.noPresentaSenales),
+  };
+};
+
+const normalizeInitialRegistrationPayload = (payload = {}) => {
+  const maternalScore = getNumberFromValues(
+    payload.maternalScore,
+    payload.puntajeMaterno,
+    payload.puntaje_materno,
+    payload.madreScore
+  );
+
+  const neonatalScore = getNumberFromValues(
+    payload.neonatalScore,
+    payload.puntajeNeonatal,
+    payload.puntaje_neonatal,
+    payload.bebeScore
+  );
+
+  const totalScore = getNumberFromValues(
+    payload.totalScore,
+    payload.total_score,
+    payload.puntuacion,
+    payload.puntuacionTotal,
+    payload.puntuacion_total,
+    payload.puntaje,
+    payload.score,
+    maternalScore + neonatalScore
+  );
+
+  const maternalRisk = getValidRiskLevel(
+    payload.maternalRisk ||
+      payload.riesgoMaterno ||
+      payload.clasificacionMaterna ||
+      payload.clasificacion_materna,
+    "bajo"
+  );
+
+  const neonatalRisk = getValidRiskLevel(
+    payload.neonatalRisk ||
+      payload.riesgoNeonatal ||
+      payload.clasificacionNeonatal ||
+      payload.clasificacion_neonatal,
+    "bajo"
+  );
+
+  const combinedRisk = getValidRiskLevel(
+    payload.combinedRisk ||
+      payload.finalRisk ||
+      payload.riskLevel ||
+      payload.nivel ||
+      payload.nivelRiesgo ||
+      payload.nivel_riesgo ||
+      payload.clasificacionFinal ||
+      payload.clasificacion_final,
+    getRiskLevelFromScore(totalScore)
+  );
+
+  const identifiedFactors = normalizeFactorItems(
+    payload.identifiedFactors ||
+      payload.factoresIdentificados ||
+      payload.factores_identificados ||
+      payload.factors ||
+      []
+  );
+
+  return {
+    mode: "initialRegistration",
+    riskLevel: combinedRisk,
+    finalRisk: combinedRisk,
+    finalLabel:
+      payload.finalLabel ||
+      payload.combinedLabel ||
+      payload.label ||
+      getRiskLabel(combinedRisk),
+
+    totalScore,
+
+    selectedSigns: [],
+    selectedSignIds: [],
+    identifiedFactors,
+
+    maternalScore,
+    maternalRisk,
+    maternalLabel:
+      payload.maternalLabel ||
+      payload.etiquetaMaterna ||
+      getRiskLabel(maternalRisk),
+
+    neonatalScore,
+    neonatalRisk,
+    neonatalLabel:
+      payload.neonatalLabel ||
+      payload.etiquetaNeonatal ||
+      getRiskLabel(neonatalRisk),
+
+    combinedRisk,
+    combinedLabel:
+      payload.combinedLabel ||
+      payload.etiquetaFinal ||
+      getRiskLabel(combinedRisk),
+
+    recommendation: normalizeRecommendation(
+      payload.recommendation ||
+        payload.recomendacion ||
+        payload.recomendaciones ||
+        payload.recomendacionSeguimiento ||
+        payload.recomendacion_seguimiento,
+      riskContent[combinedRisk]?.followText
+    ),
+
+    fechaEvaluacion:
+      payload.fechaEvaluacion ||
+      payload.fecha_evaluacion ||
+      payload.fecha ||
+      payload.createdAt ||
+      payload.created_at ||
+      null,
+  };
+};
+
+const payloadLooksLikeNewEvaluation = (payload = {}, locationState = {}) => {
+  const modeText = normalizarTexto(
+    [
+      payload.mode,
+      payload.tipo,
+      payload.tipoEvaluacion,
+      payload.tipo_evaluacion,
+      locationState?.fromNewEvaluation ? "fromNewEvaluation" : "",
+    ]
+      .filter(Boolean)
+      .join(" ")
+  );
+
+  const hasDangerSignArrays =
+    Array.isArray(payload.selectedSignIds) ||
+    Array.isArray(payload.selected_sign_ids) ||
+    Array.isArray(payload.selectedSigns) ||
+    Array.isArray(payload.signosActivos) ||
+    Array.isArray(payload.detalleSignos);
+
+  return (
+    locationState?.fromNewEvaluation ||
+    modeText.includes("danger") ||
+    modeText.includes("triage") ||
+    modeText.includes("signos") ||
+    modeText.includes("alarma") ||
+    modeText.includes("nueva") ||
+    hasDangerSignArrays ||
+    payload.noPresentaSenales === true
+  );
 };
 
 const normalizeEvaluationResult = (locationState) => {
   const evaluationResult = locationState?.evaluationResult || null;
+  const evaluation = locationState?.evaluation || null;
 
   if (evaluationResult) {
-    const payloadSelectedSignIds = Array.isArray(evaluationResult.selectedSignIds)
-      ? evaluationResult.selectedSignIds.filter(
-          (id) => id !== "sinSignosRegistrados" && riskSignsCatalog[id]
-        )
-      : [];
+    if (payloadLooksLikeNewEvaluation(evaluationResult, locationState)) {
+      return normalizeNewEvaluationPayload(evaluationResult, locationState);
+    }
 
-    const selectedSignsFromIds = getSignsFromIds(payloadSelectedSignIds);
+    return normalizeInitialRegistrationPayload(evaluationResult);
+  }
 
-    const payloadSelectedSigns = Array.isArray(evaluationResult.selectedSigns)
-      ? evaluationResult.selectedSigns
-      : [];
+  if (evaluation) {
+    if (payloadLooksLikeNewEvaluation(evaluation, locationState)) {
+      return normalizeNewEvaluationPayload(evaluation, locationState);
+    }
 
-    const selectedSigns =
-      payloadSelectedSigns.length > 0
-        ? payloadSelectedSigns
-        : selectedSignsFromIds;
-
-    const identifiedFactors =
-      Array.isArray(evaluationResult.identifiedFactors) &&
-      evaluationResult.identifiedFactors.length > 0
-        ? evaluationResult.identifiedFactors
-        : selectedSigns;
-
-    const hasTotalScore =
-      evaluationResult.totalScore !== undefined &&
-      evaluationResult.totalScore !== null &&
-      String(evaluationResult.totalScore).trim() !== "";
-
-    const calculatedScore = getPointsFromItems(
-      selectedSigns.length > 0 ? selectedSigns : identifiedFactors
-    );
-
-    const totalScore = hasTotalScore
-      ? Number(evaluationResult.totalScore) || 0
-      : calculatedScore;
-
-    const isDangerSignsEvaluation =
-      evaluationResult.mode === "dangerSigns" ||
-      evaluationResult.mode === "triage" ||
-      evaluationResult.mode === "signosAlarma" ||
-      payloadSelectedSignIds.length > 0 ||
-      selectedSigns.length > 0;
-
-    const payloadRiskLevel = getValidRiskLevel(
-      evaluationResult.riskLevel || evaluationResult.finalRisk
-    );
-
-    const riskLevel = isDangerSignsEvaluation
-      ? getRiskLevelFromScore(totalScore)
-      : payloadRiskLevel;
-
-    const maternalRisk = getValidRiskLevel(evaluationResult.maternalRisk);
-    const neonatalRisk = getValidRiskLevel(evaluationResult.neonatalRisk);
-    const combinedRisk = getValidRiskLevel(evaluationResult.combinedRisk);
-
-    return {
-      mode:
-        evaluationResult.mode ||
-        (isDangerSignsEvaluation ? "dangerSigns" : "initialRegistration"),
-
-      riskLevel,
-      finalRisk: riskLevel,
-      finalLabel: isDangerSignsEvaluation
-        ? getRiskLabel(riskLevel)
-        : evaluationResult.finalLabel ||
-          evaluationResult.label ||
-          getRiskLabel(riskLevel),
-
-      totalScore,
-
-      selectedSigns,
-
-      selectedSignIds: payloadSelectedSignIds,
-
-      identifiedFactors,
-
-      maternalScore: Number(evaluationResult.maternalScore) || 0,
-      maternalRisk,
-      maternalLabel:
-        evaluationResult.maternalLabel || getRiskLabel(maternalRisk),
-
-      neonatalScore: Number(evaluationResult.neonatalScore) || 0,
-      neonatalRisk,
-      neonatalLabel:
-        evaluationResult.neonatalLabel || getRiskLabel(neonatalRisk),
-
-      combinedRisk,
-      combinedLabel:
-        evaluationResult.combinedLabel || getRiskLabel(combinedRisk),
-
-      recommendation: evaluationResult.recommendation || null,
-    };
+    return normalizeInitialRegistrationPayload(evaluation);
   }
 
   return buildResultFromLegacySigns(locationState?.selectedSigns || []);
@@ -445,6 +872,7 @@ const Result = () => {
     : "• Sin signos de alarma registrados";
 
   const scoreText = `${totalScore} puntos`;
+  const dateText = getDateLabel(resultData.fechaEvaluacion);
 
   const handleFollowAction = () => {
     if (riskLevel === "bajo") {
@@ -453,7 +881,7 @@ const Result = () => {
     }
 
     if (riskLevel === "medio") {
-      navigate("/seguimiento");
+      navigate("/historial");
       return;
     }
 
@@ -583,7 +1011,7 @@ const Result = () => {
 
                 <div>
                   <p>Fecha de evaluación</p>
-                  <strong>{getTodayLabel()}</strong>
+                  <strong>{dateText}</strong>
                 </div>
               </div>
             </div>
@@ -622,10 +1050,13 @@ const Result = () => {
                 {hasIdentifiedItems ? (
                   identifiedItems.map((item, index) => (
                     <span
-                      key={item.id || item.label || index}
+                      key={item.id || item.key || item.label || index}
                       className={`result-chip ${riskLevel}`}
                     >
                       • {item.label || "Factor registrado"}
+                      {item.points || item.puntos
+                        ? ` (${item.points || item.puntos} pts)`
+                        : ""}
                     </span>
                   ))
                 ) : (
@@ -724,7 +1155,7 @@ const Result = () => {
               <button
                 type="button"
                 className="result-final-action green"
-                onClick={() => navigate("/evaluacion")}
+                onClick={() => navigate("/nueva-evaluacion")}
               >
                 <span className="result-final-icon-box">
                   <img
@@ -737,7 +1168,7 @@ const Result = () => {
                 <div>
                   <strong>Realizar nueva evaluación</strong>
                   <p>
-                    Actualiza la información del bebé y genera un nuevo
+                    Actualiza las señales actuales del bebé y genera un nuevo
                     resultado.
                   </p>
                 </div>

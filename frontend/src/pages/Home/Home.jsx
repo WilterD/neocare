@@ -38,7 +38,7 @@ const sidebarItems = [
   {
     image: evaluacionImage,
     label: "Evaluación",
-    path: "/evaluacion",
+    path: "/nueva-evaluacion",
   },
   {
     image: educacionImage,
@@ -569,8 +569,32 @@ const Home = () => {
 
   const hasActiveTracking = seguimientosActivos > 0 || totalEvaluaciones > 0;
 
-  const handleActivarSeguimiento = () => {
-    navigate("/evaluacion", {
+  const irANuevaEvaluacion = () => {
+    console.log("Navegando a /nueva-evaluacion desde Home");
+
+    navigate("/nueva-evaluacion", {
+      state: {
+        user: usuarioParaHeader,
+        registro,
+        bebe: bebeActual,
+        fromHome: true,
+        fromAccessCard: true,
+      },
+    });
+  };
+
+  const handleVerHistorial = () => {
+    navigate("/historial", {
+      state: {
+        user: usuarioParaHeader,
+        registro,
+        bebe: bebeActual,
+      },
+    });
+  };
+
+  const handleConsultarEducacion = () => {
+    navigate("/educacion", {
       state: {
         user: usuarioParaHeader,
         registro,
@@ -809,11 +833,12 @@ const Home = () => {
                         registrando la evolución de tu bebé de forma periódica y
                         revisa el historial para estar al tanto.
                       </p>
+
                       <button
                         type="button"
                         className="home-orange-button"
                         style={{ backgroundColor: "#8c52ff" }}
-                        onClick={() => navigate("/historial")}
+                        onClick={handleVerHistorial}
                       >
                         Ver mi historial
                         <span>›</span>
@@ -831,7 +856,7 @@ const Home = () => {
                       <button
                         type="button"
                         className="home-orange-button"
-                        onClick={handleActivarSeguimiento}
+                        onClick={irANuevaEvaluacion}
                       >
                         Activar seguimiento
                         <span>›</span>
@@ -849,7 +874,7 @@ const Home = () => {
                 <button
                   type="button"
                   className="home-access-item green"
-                  onClick={() => navigate("/evaluacion")}
+                  onClick={irANuevaEvaluacion}
                 >
                   <span className="home-access-icon image">
                     <img src={tvrImage} alt="Realizar nueva evaluación" />
@@ -868,7 +893,7 @@ const Home = () => {
                 <button
                   type="button"
                   className="home-access-item purple"
-                  onClick={() => navigate("/educacion")}
+                  onClick={handleConsultarEducacion}
                 >
                   <span className="home-access-icon image">
                     <img
@@ -890,7 +915,7 @@ const Home = () => {
                 <button
                   type="button"
                   className="home-access-item blue"
-                  onClick={() => navigate("/historial")}
+                  onClick={handleVerHistorial}
                 >
                   <span className="home-access-icon image history">
                     <img src={inicioProxiImage} alt="Ver historial" />
